@@ -1,128 +1,108 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>SoftSoul Studio</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { font-family: Arial; background: linear-gradient(135deg, #0f0c29, #302b63); color: white; text-align: center; padding: 50px; }
+        input, button { padding: 10px; margin: 10px; border-radius: 10px; border: none; }
+        button { background: #667eea; color: white; cursor: pointer; }
+        .product { background: white; color: black; display: inline-block; margin: 10px; padding: 15px; border-radius: 15px; width: 250px; }
+    </style>
 </head>
 <body>
-    <header class="modern-header">
-        <div class="logo" onclick="location.reload()"><img src="images/Лого VIBE.png" alt="SoftSoul Studio"></div>
-        <div class="auth-buttons" id="authButtons">
-            <button class="modern-btn outline" onclick="openPopup('loginPopup')">Вход</button>
-            <button class="modern-btn primary" onclick="openPopup('registerPopup')">Регистрация</button>
-        </div>
-        <div class="user-panel" id="userPanel" style="display: none;">
-            <div class="user-icon" onclick="location.href='profile.html'"><i class="fas fa-user"></i></div>
-            <div class="cart-icon" onclick="location.href='cart.html'"><i class="fas fa-shopping-bag"></i><span id="cartCount">0</span></div>
-            <div class="favorite-icon" onclick="location.href='profile.html?tab=favorites'"><i class="fas fa-heart"></i><span id="favoriteCount">0</span></div>
-            <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;">Админ панель</a>
-        </div>
-    </header>
 
-    <!-- Краткое содержание баннера и каталога -->
-    <div class="modern-banner"><h1>SOFT SOUL STUDIO</h1><button onclick="openPopup('customOrderPopup')">Заказать дизайн</button></div>
-    <div class="section" id="catalog"><h2>КАТАЛОГ</h2><div class="products-grid" id="products"></div></div>
+<h1>SoftSoul Studio</h1>
 
-    <!-- Попапы -->
-    <div id="loginPopup" class="modern-popup"><div class="popup-content"><span class="close-popup" onclick="closePopup('loginPopup')">×</span><h3>Вход</h3><input id="loginName" placeholder="Имя или Email"><input id="loginPassword" type="password" placeholder="Пароль"><button class="modern-btn primary" onclick="login()">Войти</button></div></div>
-    <div id="registerPopup" class="modern-popup"><div class="popup-content"><span class="close-popup" onclick="closePopup('registerPopup')">×</span><h3>Регистрация</h3><input id="regName" placeholder="Имя"><input id="regEmail" placeholder="Email"><input id="regPassword" type="password" placeholder="Пароль"><button class="modern-btn primary" onclick="register()">Зарегистрироваться</button></div></div>
-    <div id="customOrderPopup" class="modern-popup"><div class="popup-content"><span class="close-popup" onclick="closePopup('customOrderPopup')">×</span><h3>Заказать дизайн</h3><textarea id="orderDesc" placeholder="Опишите дизайн..."></textarea><button class="modern-btn primary" onclick="submitOrder()">Отправить</button></div></div>
+<div id="auth">
+    <input type="text" id="name" placeholder="Имя или Email">
+    <input type="password" id="pass" placeholder="Пароль">
+    <button onclick="login()">Войти</button>
+    <button onclick="register()">Регистрация</button>
+</div>
 
-    <script>
-        // ---------- ГЛОБАЛЬНЫЕ ДАННЫЕ ----------
-        let currentUser = null;
-        let allProducts = [
-            { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "images/Awax Demon Friend Hoodie.jpg", category: "hoodie" },
-            { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "images/Evil Eye Skeleton Hoodie.jpg", category: "hoodie" }
-        ];
+<div id="userInfo" style="display:none">
+    <span id="userNameDisplay"></span>
+    <button onclick="logout()">Выйти</button>
+    <a href="admin.html" id="adminLink" style="display:none">Админ панель</a>
+</div>
 
-        // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
-        function showToast(msg, type) { alert(msg); } // упрощённо
-        function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
-        function closePopup(id) { document.getElementById(id).style.display = 'none'; }
+<h2>Каталог</h2>
+<div id="products"></div>
 
-        // ---------- РЕГИСТРАЦИЯ ----------
-        function register() {
-            let name = document.getElementById('regName').value;
-            let email = document.getElementById('regEmail').value;
-            let pass = document.getElementById('regPassword').value;
-            if (!name || !email || !pass) { alert("Заполните все поля"); return; }
-            let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
-            if (users.find(u => u.email === email)) { alert("Email уже занят"); return; }
-            let newUser = { id: Date.now(), name, email, password: pass, isAdmin: name === 'admin' };
-            users.push(newUser);
-            localStorage.setItem('allUsers', JSON.stringify(users));
-            localStorage.setItem('currentUser', JSON.stringify({ id: newUser.id, name: newUser.name, email: newUser.email }));
-            alert("Регистрация успешна!");
-            closePopup('registerPopup');
-            location.reload();
+<script>
+    // Товары
+    const products = [
+        { id: 1, name: "Awax Demon Friend Hoodie", price: 5000 },
+        { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000 }
+    ];
+
+    function showProducts() {
+        let html = '';
+        products.forEach(p => {
+            html += `<div class="product">
+                        <h3>${p.name}</h3>
+                        <p>${p.price} руб.</p>
+                        <button onclick="addToCart(${p.id})">В корзину</button>
+                    </div>`;
+        });
+        document.getElementById('products').innerHTML = html;
+    }
+
+    function addToCart(id) {
+        let user = localStorage.getItem('currentUser');
+        if (!user) { alert("Сначала войдите"); return; }
+        let userId = JSON.parse(user).id;
+        let cart = JSON.parse(localStorage.getItem('cart_' + userId) || '[]');
+        cart.push(id);
+        localStorage.setItem('cart_' + userId, JSON.stringify(cart));
+        alert("Товар добавлен в корзину!");
+    }
+
+    function register() {
+        let name = document.getElementById('name').value;
+        let pass = document.getElementById('pass').value;
+        if (!name || !pass) { alert("Заполните поля"); return; }
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (users.find(u => u.name === name)) { alert("Пользователь уже есть"); return; }
+        let newUser = { id: Date.now(), name: name, password: pass, isAdmin: name === 'admin' };
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('currentUser', JSON.stringify(newUser));
+        alert("Регистрация успешна!");
+        location.reload();
+    }
+
+    function login() {
+        let name = document.getElementById('name').value;
+        let pass = document.getElementById('pass').value;
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        let user = users.find(u => u.name === name && u.password === pass);
+        if (!user) { alert("Неверно"); return; }
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        alert("Добро пожаловать, " + user.name);
+        location.reload();
+    }
+
+    function logout() {
+        localStorage.removeItem('currentUser');
+        location.reload();
+    }
+
+    function checkAuth() {
+        let user = localStorage.getItem('currentUser');
+        if (user) {
+            let u = JSON.parse(user);
+            document.getElementById('auth').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'block';
+            document.getElementById('userNameDisplay').innerText = u.name;
+            if (u.name === 'admin') document.getElementById('adminLink').style.display = 'inline';
         }
+    }
 
-        // ---------- ВХОД ----------
-        function login() {
-            let login = document.getElementById('loginName').value;
-            let pass = document.getElementById('loginPassword').value;
-            let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
-            let user = users.find(u => (u.name === login || u.email === login) && u.password === pass);
-            if (!user) { alert("Неверный логин или пароль"); return; }
-            localStorage.setItem('currentUser', JSON.stringify({ id: user.id, name: user.name, email: user.email }));
-            alert("Добро пожаловать, " + user.name);
-            closePopup('loginPopup');
-            location.reload();
-        }
+    showProducts();
+    checkAuth();
+</script>
 
-        // ---------- ПРОВЕРКА АВТОРИЗАЦИИ ----------
-        function checkAuth() {
-            let user = localStorage.getItem('currentUser');
-            if (user) {
-                currentUser = JSON.parse(user);
-                document.getElementById('authButtons').style.display = 'none';
-                document.getElementById('userPanel').style.display = 'flex';
-                if (currentUser.name === 'admin') document.getElementById('adminBtn').style.display = 'inline-flex';
-                // загружаем корзину и избранное
-                let cart = JSON.parse(localStorage.getItem('cart_' + currentUser.id) || '[]');
-                document.getElementById('cartCount').innerText = cart.reduce((s,i)=>s+i.q,0);
-                let fav = JSON.parse(localStorage.getItem('fav_' + currentUser.id) || '[]');
-                document.getElementById('favoriteCount').innerText = fav.length;
-            }
-        }
-
-        // ---------- ОТОБРАЖЕНИЕ ТОВАРОВ ----------
-        function displayProducts() {
-            let container = document.getElementById('products');
-            if (!container) return;
-            container.innerHTML = '';
-            for (let p of allProducts) {
-                container.innerHTML += `<div class="product"><img src="${p.image}" onerror="this.src='https://placehold.co/300x300'"><h3>${p.name}</h3><div class="price">${p.price} руб.</div><button onclick="addToCart(${p.id})">В корзину</button></div>`;
-            }
-        }
-
-        function addToCart(id) {
-            if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
-            let cart = JSON.parse(localStorage.getItem('cart_' + currentUser.id) || '[]');
-            let item = cart.find(i => i.id === id);
-            if (item) item.q++;
-            else cart.push({ id, q: 1 });
-            localStorage.setItem('cart_' + currentUser.id, JSON.stringify(cart));
-            document.getElementById('cartCount').innerText = cart.reduce((s,i)=>s+i.q,0);
-            alert("Товар добавлен в корзину");
-        }
-
-        function submitOrder() {
-            if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
-            let desc = document.getElementById('orderDesc').value;
-            if (!desc) { alert("Опишите дизайн"); return; }
-            let orders = JSON.parse(localStorage.getItem('orders_' + currentUser.id) || '[]');
-            orders.push({ id: Date.now(), desc, date: new Date().toISOString() });
-            localStorage.setItem('orders_' + currentUser.id, JSON.stringify(orders));
-            alert("Заявка отправлена!");
-            closePopup('customOrderPopup');
-        }
-
-        checkAuth();
-        displayProducts();
-    </script>
 </body>
 </html>

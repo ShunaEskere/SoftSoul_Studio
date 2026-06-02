@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{PRODUCT_NAME} - SoftSoul Studio</title>
+    
+    <!-- Подключение внешних библиотек -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+        }
+
+        /* Анимированный фон с частицами */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            display: block;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            bottom: -150px;
+            animation: floatUp 8s infinite;
+            border-radius: 50%;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Header */
+        .modern-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 50px;
+            transition: transform 0.3s;
+        }
+
+        .logo img:hover {
+            transform: scale(1.05);
+        }
+
+        .back-button {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            color: #764ba2;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .modern-btn {
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 14px;
+        }
+
+        .modern-btn.outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .modern-btn.outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .modern-btn.primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .modern-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-panel {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .user-icon, .cart-icon, .favorite-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+            color: white;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .favorite-icon {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+        }
+
+        .user-icon:hover, .cart-icon:hover, .favorite-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .cart-count, .favorite-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .favorite-count {
+            background: #667eea;
+        }
+
+        .admin-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        /* Контейнер товара */
+        .product-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Галерея */
+        .product-gallery {
+            padding: 30px;
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .main-image {
+            width: 100%;
+            max-width: 400px;
+            height: 400px;
+            object-fit: contain;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 20px;
+        }
+
+        .thumbnail-list {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .thumbnail {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, border 0.3s;
+            border: 2px solid transparent;
+            background: white;
+            padding: 5px;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.05);
+        }
+
+        .thumbnail.active {
+            border-color: #667eea;
+        }
+
+        /* Информация о товаре */
+        .product-info {
+            padding: 30px;
+        }
+
+        .product-title {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .product-price {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .product-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* Выбор размера */
+        .size-selector {
+            margin-bottom: 30px;
+        }
+
+        .size-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .size-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .size-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .size-btn:hover {
+            border-color: #667eea;
+        }
+
+        .size-btn.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* Количество */
+        .quantity-selector {
+            margin-bottom: 30px;
+        }
+
+        .quantity-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .quantity-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .quantity-input {
+            width: 60px;
+            height: 40px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+        }
+
+        /* Отзывы */
+        .reviews-section {
+            max-width: 1200px;
+            margin: 0 auto 50px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .reviews-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .add-review-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .review-item {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 20px 0;
+            display: flex;
+            gap: 15px;
+        }
+
+        .review-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .review-content {
+            flex: 1;
+        }
+
+        .review-author {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .review-rating {
+            color: #ffc107;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .review-text {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        /* Форма отзыва */
+        .review-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .review-form h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .review-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            resize: vertical;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+
+        .rating-select {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .star {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.3s;
+        }
+
+        .star:hover, .star.active {
+            color: #ffc107;
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .modern-header {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .product-container {
+                grid-template-columns: 1fr;
+                gap: 0;
+                margin: 20px;
+            }
+            
+            .product-title {
+                font-size: 24px;
+            }
+            
+            .product-price {
+                font-size: 22px;
+            }
+            
+            .main-image {
+                height: 300px;
+                max-width: 300px;
+            }
+            
+            .thumbnail {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .reviews-title {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .review-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .review-avatar {
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-image {
+                height: 250px;
+                max-width: 250px;
+            }
+            
+            .thumbnail {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .size-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation" id="bgAnimation"></div>
+
+    <header class="modern-header">
+        <div class="logo" onclick="window.location.href='Main.html'">
+            <img src="images/Лого VIBE.png" alt="SoftSoul Studio">
+        </div>
+        <a href="Main.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> На главную
+        </a>
+        <div class="auth-buttons" id="authButtons">
+            <button class="modern-btn outline" onclick="window.location.href='Main.html'">Вход</button>
+            <button class="modern-btn primary" onclick="window.location.href='Main.html'">Регистрация</button>
+        </div>
+        <div class="user-panel" id="userPanel" style="display: none;">
+            <div class="user-icon" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="cart-icon" onclick="window.location.href='cart.html'">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+            <div class="favorite-icon" onclick="window.location.href='profile.html?tab=favorites'">
+                <i class="fas fa-heart"></i>
+                <span class="favorite-count" id="favoriteCount">0</span>
+            </div>
+            <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;">
+                <i class="fas fa-cog"></i> Админ панель
+            </a>
+        </div>
+    </header>
+
+    <div class="product-container">
+        <!-- Галерея -->
+        <div class="product-gallery">
+            <img id="mainImage" class="main-image" src="" alt="Товар">
+            <div class="thumbnail-list" id="thumbnailList"></div>
+        </div>
+
+        <!-- Информация -->
+        <div class="product-info">
+            <h1 id="productTitle" class="product-title"></h1>
+            <div id="productPrice" class="product-price"></div>
+            <p id="productDescription" class="product-description"></p>
+            
+            <div class="size-selector">
+                <div class="size-title">Выберите размер:</div>
+                <div class="size-buttons" id="sizeButtons"></div>
+            </div>
+            
+            <div class="quantity-selector">
+                <div class="quantity-title">Количество:</div>
+                <div class="quantity-control">
+                    <button class="quantity-btn" onclick="changeQuantity(-1)">-</button>
+                    <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="99">
+                    <button class="quantity-btn" onclick="changeQuantity(1)">+</button>
+                </div>
+            </div>
+            
+            <button class="modern-btn primary add-to-cart-btn" onclick="addToCart()">
+                <i class="fas fa-shopping-bag"></i> Добавить в корзину
+            </button>
+        </div>
+    </div>
+
+    <!-- Отзывы -->
+    <div class="reviews-section">
+        <div class="reviews-title">
+            Отзывы покупателей
+            <button class="modern-btn outline add-review-btn" onclick="showReviewForm()">Написать отзыв</button>
+        </div>
+        <div id="reviewsList"></div>
+        
+        <div id="reviewForm" class="review-form" style="display: none;">
+            <h3>Ваш отзыв</h3>
+            <div class="rating-select" id="ratingSelect"></div>
+            <textarea id="reviewText" rows="4" placeholder="Поделитесь впечатлениями о товаре..."></textarea>
+            <button class="modern-btn primary" onclick="submitReview()">Отправить отзыв</button>
+        </div>
+    </div>
+
+    <script>
+        // Глобальные переменные
+        let currentProduct = null;
+        let selectedSize = null;
+        let currentUser = null;
+        let currentRating = 0;
+        let productReviews = [];
+
+        // Получение ID товара из URL
+        function getProductId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Загрузка данных о товаре из базы данных
+        async function loadProduct() {
+            const productId = getProductId();
+            
+            if (!productId) {
+                window.location.href = 'Main.html';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`php/get_product.php?id=${productId}`);
+                const data = await response.json();
+                
+                if (data.success && data.product) {
+                    currentProduct = data.product;
+                    displayProduct();
+                    loadReviews();
+                } else {
+                    window.location.href = '404.html';
+                }
+            } catch (error) {
+                console.error('Error loading product:', error);
+                window.location.href = '404.html';
+            }
+        }
+
+        // Отображение товара
+        function displayProduct() {
+            document.getElementById('productTitle').textContent = currentProduct.name;
+            document.getElementById('productPrice').textContent = formatPrice(currentProduct.price);
+            document.getElementById('productDescription').textContent = currentProduct.description || 'Описание отсутствует';
+            
+            // Галерея
+            const images = currentProduct.images || [currentProduct.image];
+            const mainImage = document.getElementById('mainImage');
+            mainImage.src = images[0] || 'images/placeholder.jpg';
+            mainImage.alt = currentProduct.name;
+            
+            const thumbnailList = document.getElementById('thumbnailList');
+            thumbnailList.innerHTML = '';
+            images.forEach((img, index) => {
+                if (img) {
+                    const thumb = document.createElement('img');
+                    thumb.src = img;
+                    thumb.className = 'thumbnail';
+                    if (index === 0) thumb.classList.add('active');
+                    thumb.onclick = () => changeImage(index);
+                    thumbnailList.appendChild(thumb);
+                }
+            });
+            
+            // Размеры
+            let sizes = [];
+            if (currentProduct.sizes) {
+                sizes = currentProduct.sizes.split(',').map(s => s.trim());
+            } else {
+                const defaultSizes = {
+                    'hoodie': ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+                    'jeans': ['28', '30', '32', '34', '36', '38'],
+                    'joggers': ['XS', 'S', 'M', 'L', 'XL'],
+                    'tee': ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+                };
+                sizes = defaultSizes[currentProduct.category] || ['XS', 'S', 'M', 'L', 'XL'];
+            }
+            
+            const sizeButtons = document.getElementById('sizeButtons');
+            sizeButtons.innerHTML = '';
+            sizes.forEach(size => {
+                const btn = document.createElement('button');
+                btn.textContent = size;
+                btn.className = 'size-btn';
+                btn.onclick = () => selectSize(size, btn);
+                sizeButtons.appendChild(btn);
+            });
+        }
+
+        function formatPrice(price) {
+            return Number(price).toLocaleString('ru-RU') + ' руб.';
+        }
+
+        function changeImage(index) {
+            const images = currentProduct.images || [currentProduct.image];
+            document.getElementById('mainImage').src = images[index];
+            document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+        }
+
+        function selectSize(size, btn) {
+            selectedSize = size;
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function changeQuantity(delta) {
+            const input = document.getElementById('quantity');
+            let val = parseInt(input.value) + delta;
+            if (val < 1) val = 1;
+            if (val > 99) val = 99;
+            input.value = val;
+        }
+
+        function addToCart() {
+            if (!currentUser) {
+                alert('Пожалуйста, войдите в аккаунт');
+                window.location.href = 'Main.html';
+                return;
+            }
+            if (!selectedSize) {
+                alert('Пожалуйста, выберите размер');
+                return;
+            }
+            
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const existingIndex = cart.findIndex(item => item.id === currentProduct.id && item.size === selectedSize);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            
+            if (existingIndex !== -1) {
+                cart[existingIndex].quantity += quantity;
+            } else {
+                cart.push({
+                    id: currentProduct.id,
+                    name: currentProduct.name,
+                    price: currentProduct.price,
+                    size: selectedSize,
+                    quantity: quantity,
+                    image: (currentProduct.images || [currentProduct.image])[0]
+                });
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showNotification('Товар добавлен в корзину!');
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount) cartCount.textContent = count;
+        }
+
+        function checkAuth() {
+            const user = localStorage.getItem('currentUser');
+            if (user) {
+                currentUser = JSON.parse(user);
+                const isAdmin = currentUser.name === 'admin';
+                document.getElementById('authButtons').style.display = 'none';
+                document.getElementById('userPanel').style.display = 'flex';
+                if (isAdmin) document.getElementById('adminBtn').style.display = 'inline-flex';
+                updateCartCount();
+                loadFavoriteCount();
+            }
+        }
+
+        function loadFavoriteCount() {
+            if (currentUser) {
+                const favorites = JSON.parse(localStorage.getItem(`favorites_${currentUser.id}`) || '[]');
+                const favoriteCount = document.getElementById('favoriteCount');
+                if (favoriteCount) favoriteCount.textContent = favorites.length;
+            }
+        }
+
+        function loadReviews() {
+            const allReviews = JSON.parse(localStorage.getItem('productReviews') || '{}');
+            productReviews = allReviews[currentProduct?.id] || [];
+            displayReviews();
+        }
+
+        function displayReviews() {
+            const reviewsList = document.getElementById('reviewsList');
+            if (!reviewsList) return;
+            
+            if (productReviews.length === 0) {
+                reviewsList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Пока нет отзывов. Будьте первым!</p>';
+                return;
+            }
+            
+            reviewsList.innerHTML = '';
+            productReviews.forEach(review => {
+                const reviewElement = document.createElement('div');
+                reviewElement.className = 'review-item';
+                const initials = review.authorName.charAt(0).toUpperCase();
+                const date = new Date(review.date);
+                const formattedDate = date.toLocaleDateString('ru-RU');
+                
+                reviewElement.innerHTML = `
+                    <div class="review-avatar">${initials}</div>
+                    <div class="review-content">
+                        <div class="review-author">${escapeHtml(review.authorName)}</div>
+                        <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                        <div class="review-text">${escapeHtml(review.text)}</div>
+                        <div class="review-date">${formattedDate}</div>
+                    </div>
+                `;
+                reviewsList.appendChild(reviewElement);
+            });
+        }
+
+        function showReviewForm() {
+            if (!currentUser) {
+                alert('Пожалуйста, войдите в аккаунт чтобы оставить отзыв');
+                window.location.href = 'Main.html';
+                return;
+            }
+            document.getElementById('reviewForm').style.display = 'block';
+            createRatingStars();
+        }
+
+        function createRatingStars() {
+            const ratingSelect = document.getElementById('ratingSelect');
+            ratingSelect.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('i');
+                star.className = 'far fa-star star';
+                star.setAttribute('data-rating', i);
+                star.onclick = () => setRating(i);
+                ratingSelect.appendChild(star);
+            }
+        }
+
+        function setRating(rating) {
+            currentRating = rating;
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                star.className = index < rating ? 'fas fa-star star active' : 'far fa-star star';
+            });
+        }
+
+        function submitReview() {
+            const reviewText = document.getElementById('reviewText').value.trim();
+            if (currentRating === 0) { alert('Пожалуйста, поставьте оценку'); return; }
+            if (!reviewText) { alert('Пожалуйста, напишите отзыв'); return; }
+            
+            const newReview = {
+                authorName: currentUser.name,
+                authorEmail: currentUser.email,
+                rating: currentRating,
+                text: reviewText,
+                date: new Date().toISOString()
+            };
+            
+            productReviews.unshift(newReview);
+            const allReviews = JSON.parse(localStorage.getItem('productReviews') || '{}');
+            allReviews[currentProduct.id] = productReviews;
+            localStorage.setItem('productReviews', JSON.stringify(allReviews));
+            
+            displayReviews();
+            document.getElementById('reviewText').value = '';
+            currentRating = 0;
+            document.getElementById('reviewForm').style.display = 'none';
+            showNotification('Спасибо за ваш отзыв!');
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function createParticles() {
+            const container = document.getElementById('bgAnimation');
+            for (let i = 0; i < 60; i++) {
+                const particle = document.createElement('span');
+                const size = Math.random() * 40 + 10;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = Math.random() * 12 + 6 + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.opacity = Math.random() * 0.3 + 0.1;
+                particle.style.background = `radial-gradient(circle, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.2) 100%)`;
+                container.appendChild(particle);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            checkAuth();
+            loadProduct();
+        });
+    </script>
+</body>
+</html>

@@ -2,26 +2,37 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>SoftSoul Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoftSoul Studio - Главная</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63); min-height: 100vh; }
-        .header { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63); min-height: 100vh; }
+        .header { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         .logo { font-size: 24px; font-weight: bold; color: #667eea; cursor: pointer; }
         .btn { padding: 10px 25px; border-radius: 25px; border: none; cursor: pointer; font-weight: bold; }
         .btn-outline { background: transparent; border: 2px solid #667eea; color: #667eea; }
         .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-        .btn-danger { background: #f44336; color: white; }
-        .banner { background: linear-gradient(135deg, #667eea, #764ba2); padding: 80px; text-align: center; color: white; }
-        .products { display: flex; gap: 20px; padding: 40px; justify-content: center; flex-wrap: wrap; }
-        .product { background: white; border-radius: 15px; padding: 15px; width: 250px; text-align: center; }
-        .product img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+        .banner { background: linear-gradient(135deg, #667eea, #764ba2); padding: 60px; text-align: center; color: white; }
+        .banner h1 { font-size: 48px; margin-bottom: 20px; }
+        .catalog { padding: 40px; text-align: center; }
+        .catalog h2 { color: white; margin-bottom: 30px; }
+        .products { display: flex; gap: 25px; justify-content: center; flex-wrap: wrap; }
+        .product { background: white; border-radius: 15px; padding: 15px; width: 260px; text-align: center; cursor: pointer; transition: transform 0.3s; }
+        .product:hover { transform: translateY(-5px); }
+        .product img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; background: #f0f0f0; }
+        .product h3 { margin: 10px 0; font-size: 16px; }
+        .price { color: #667eea; font-weight: bold; font-size: 18px; margin: 5px 0; }
         .popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .popup-content { background: white; padding: 40px; border-radius: 20px; width: 350px; text-align: center; }
+        .popup-content { background: white; padding: 30px; border-radius: 20px; width: 350px; text-align: center; }
         .popup-content input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; }
         .popup-content button { width: 100%; padding: 12px; margin-top: 10px; }
-        .close { float: right; font-size: 24px; cursor: pointer; }
+        .close { float: right; font-size: 24px; cursor: pointer; color: #999; }
+        .cart-badge { position: relative; display: inline-block; margin-left: 20px; }
+        .cart-count { position: absolute; top: -8px; right: -8px; background: #f44336; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+        .favorite-icon { margin-left: 15px; cursor: pointer; }
+        .user-panel { display: flex; align-items: center; gap: 15px; }
+        @media (max-width: 768px) { .header { flex-direction: column; gap: 10px; } .products { padding: 20px; } }
     </style>
 </head>
 <body>
@@ -32,8 +43,12 @@
         <button class="btn btn-outline" onclick="openPopup('loginPopup')">Вход</button>
         <button class="btn btn-primary" onclick="openPopup('registerPopup')">Регистрация</button>
     </div>
-    <div id="userPanel" style="display: none;">
+    <div id="userPanel" class="user-panel" style="display: none;">
         <span id="userName"></span>
+        <span class="cart-badge" onclick="window.location.href='cart.html'">
+            🛒 <span id="cartCount">0</span>
+        </span>
+        <span class="favorite-icon" onclick="window.location.href='favorites.html'">❤️ <span id="favCount">0</span></span>
         <button class="btn btn-outline" onclick="logout()">Выйти</button>
         <a href="admin.html" id="adminLink" style="display: none;"><button class="btn btn-primary">Админ</button></a>
     </div>
@@ -42,10 +57,13 @@
 <div class="banner">
     <h1>SOFT SOUL STUDIO</h1>
     <p>Уникальная одежда с ручной росписью</p>
-    <button class="btn btn-primary">Заказать дизайн</button>
+    <button class="btn btn-primary" onclick="openPopup('customPopup')">Заказать дизайн</button>
 </div>
 
-<div id="products" class="products"></div>
+<div class="catalog">
+    <h2>КАТАЛОГ</h2>
+    <div id="products" class="products"></div>
+</div>
 
 <!-- Попап входа -->
 <div id="loginPopup" class="popup">
@@ -66,57 +84,85 @@
         <input type="text" id="regName" placeholder="Имя">
         <input type="email" id="regEmail" placeholder="Email">
         <input type="password" id="regPassword" placeholder="Пароль">
+        <input type="password" id="regConfirm" placeholder="Повторите пароль">
         <button class="btn btn-primary" onclick="register()">Зарегистрироваться</button>
     </div>
 </div>
 
+<!-- Попап заказа дизайна -->
+<div id="customPopup" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup('customPopup')">&times;</span>
+        <h3>Заказ дизайна</h3>
+        <textarea id="designDesc" rows="4" style="width:100%; padding:10px; border-radius:10px;" placeholder="Опишите ваш дизайн..."></textarea>
+        <button class="btn btn-primary" onclick="submitDesign()">Отправить</button>
+    </div>
+</div>
+
 <script>
-    // Товары
-    const products = [
-        { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "https://placehold.co/250x200?text=Hoodie" },
-        { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "https://placehold.co/250x200?text=Hoodie2" }
+    // ТОВАРЫ (6 штук)
+    const productsList = [
+        { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "https://placehold.co/300x200?text=Hoodie+1", category: "hoodie" },
+        { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "https://placehold.co/300x200?text=Hoodie+2", category: "hoodie" },
+        { id: 3, name: "Graffiti Wave Jeans", price: 5000, image: "https://placehold.co/300x200?text=Jeans", category: "jeans" },
+        { id: 4, name: "Mystic Bloom Joggers", price: 4500, image: "https://placehold.co/300x200?text=Joggers", category: "joggers" },
+        { id: 5, name: "Occult Edge Sweatpants", price: 3000, image: "https://placehold.co/300x200?text=Sweatpants", category: "joggers" },
+        { id: 6, name: "Shadow Rat Stealth Tee", price: 5700, image: "https://placehold.co/300x200?text=Tee", category: "tee" }
     ];
 
-    // Показать товары
+    let currentUser = null;
+
     function displayProducts() {
         const container = document.getElementById('products');
         container.innerHTML = '';
-        products.forEach(p => {
+        productsList.forEach(p => {
             container.innerHTML += `
                 <div class="product">
                     <img src="${p.image}" alt="${p.name}">
                     <h3>${p.name}</h3>
-                    <p>${p.price} руб.</p>
+                    <div class="price">${p.price.toLocaleString()} руб.</div>
                     <button class="btn btn-primary" onclick="addToCart(${p.id})">В корзину</button>
                 </div>
             `;
         });
     }
 
-    // Корзина (localStorage)
-    function addToCart(productId) {
-        let user = localStorage.getItem('currentUser');
-        if (!user) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
-        let userId = JSON.parse(user).id;
-        let cart = JSON.parse(localStorage.getItem('cart_' + userId) || '[]');
-        let item = cart.find(i => i.id === productId);
+    function addToCart(id) {
+        if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
+        let cart = JSON.parse(localStorage.getItem('cart_' + currentUser.id) || '[]');
+        let item = cart.find(i => i.id === id);
         if (item) item.qty++;
-        else cart.push({ id: productId, qty: 1 });
-        localStorage.setItem('cart_' + userId, JSON.stringify(cart));
+        else cart.push({ id: id, qty: 1 });
+        localStorage.setItem('cart_' + currentUser.id, JSON.stringify(cart));
+        updateCartCount();
         alert("Товар добавлен в корзину!");
     }
 
-    // Регистрация
+    function updateCartCount() {
+        if (currentUser) {
+            let cart = JSON.parse(localStorage.getItem('cart_' + currentUser.id) || '[]');
+            let total = cart.reduce((s, i) => s + i.qty, 0);
+            document.getElementById('cartCount').innerText = total;
+        }
+    }
+
+    function updateFavCount() {
+        if (currentUser) {
+            let fav = JSON.parse(localStorage.getItem('fav_' + currentUser.id) || '[]');
+            document.getElementById('favCount').innerText = fav.length;
+        }
+    }
+
     function register() {
         let name = document.getElementById('regName').value.trim();
         let email = document.getElementById('regEmail').value.trim();
-        let password = document.getElementById('regPassword').value;
-        if (!name || !email || !password) { alert("Заполните все поля"); return; }
-        
+        let pass = document.getElementById('regPassword').value;
+        let confirm = document.getElementById('regConfirm').value;
+        if (!name || !email || !pass) { alert("Заполните поля"); return; }
+        if (pass !== confirm) { alert("Пароли не совпадают"); return; }
         let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
-        if (users.find(u => u.email === email)) { alert("Email уже используется"); return; }
-        
-        let newUser = { id: Date.now(), name, email, password, isAdmin: name === 'admin' };
+        if (users.find(u => u.email === email)) { alert("Email уже занят"); return; }
+        let newUser = { id: Date.now(), name, email, password: pass, isAdmin: name === 'admin' };
         users.push(newUser);
         localStorage.setItem('allUsers', JSON.stringify(users));
         localStorage.setItem('currentUser', JSON.stringify({ id: newUser.id, name: newUser.name, email: newUser.email }));
@@ -125,12 +171,11 @@
         location.reload();
     }
 
-    // Вход
     function login() {
-        let loginValue = document.getElementById('loginName').value.trim();
-        let password = document.getElementById('loginPassword').value;
+        let loginVal = document.getElementById('loginName').value.trim();
+        let pass = document.getElementById('loginPassword').value;
         let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
-        let user = users.find(u => (u.name === loginValue || u.email === loginValue) && u.password === password);
+        let user = users.find(u => (u.name === loginVal || u.email === loginVal) && u.password === pass);
         if (!user) { alert("Неверный логин или пароль"); return; }
         localStorage.setItem('currentUser', JSON.stringify({ id: user.id, name: user.name, email: user.email }));
         alert("Добро пожаловать, " + user.name);
@@ -138,27 +183,33 @@
         location.reload();
     }
 
-    // Выход
     function logout() {
         localStorage.removeItem('currentUser');
         location.reload();
     }
 
-    // Проверка авторизации
+    function submitDesign() {
+        if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
+        let desc = document.getElementById('designDesc').value;
+        if (!desc) { alert("Опишите дизайн"); return; }
+        alert("Заявка отправлена! Мы свяжемся с вами.");
+        closePopup('customPopup');
+        document.getElementById('designDesc').value = '';
+    }
+
     function checkAuth() {
         let user = localStorage.getItem('currentUser');
         if (user) {
-            let userData = JSON.parse(user);
+            currentUser = JSON.parse(user);
             document.getElementById('authButtons').style.display = 'none';
             document.getElementById('userPanel').style.display = 'flex';
-            document.getElementById('userName').innerText = userData.name;
-            if (userData.name === 'admin') {
-                document.getElementById('adminLink').style.display = 'inline';
-            }
+            document.getElementById('userName').innerText = currentUser.name;
+            if (currentUser.name === 'admin') document.getElementById('adminLink').style.display = 'inline';
+            updateCartCount();
+            updateFavCount();
         }
     }
 
-    // Попапы
     function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
     function closePopup(id) { document.getElementById(id).style.display = 'none'; }
 

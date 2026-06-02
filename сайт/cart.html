@@ -2,195 +2,38 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoftSoul Studio - Корзина</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title>Корзина</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .cart-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        .cart-title { color: white; font-size: 32px; text-align: center; margin-bottom: 30px; }
-        .cart-items { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; min-height: 400px; }
-        .cart-item { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid #e0e0e0; }
-        .cart-item:last-child { border-bottom: none; }
-        .cart-item-image { width: 100px; height: 100px; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
-        .cart-item-image img { width: 100%; height: 100%; object-fit: cover; }
-        .cart-item-details { flex: 1; }
-        .cart-item-name { font-size: 16px; font-weight: 600; color: #333; }
-        .cart-item-size { font-size: 13px; color: #666; margin: 5px 0; }
-        .cart-item-price { font-size: 14px; color: #667eea; font-weight: 500; }
-        .cart-item-actions { display: flex; align-items: center; gap: 15px; }
-        .quantity-control { display: flex; align-items: center; gap: 8px; }
-        .quantity-btn { width: 30px; height: 30px; border: 1px solid #e0e0e0; background: white; border-radius: 8px; cursor: pointer; }
-        .quantity-input { width: 45px; height: 30px; text-align: center; border: 1px solid #e0e0e0; border-radius: 8px; }
-        .remove-item { background: none; border: none; color: #f44336; cursor: pointer; font-size: 18px; }
-        .cart-item-total { font-weight: bold; color: #333; min-width: 100px; text-align: right; }
-        .cart-summary { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 25px; margin-top: 30px; }
-        .summary-row { display: flex; justify-content: space-between; padding: 12px 0; color: #666; }
-        .summary-total { display: flex; justify-content: space-between; padding: 15px 0; border-top: 2px solid #f0f0f0; margin-top: 10px; font-weight: bold; font-size: 18px; color: #333; }
-        .checkout-btn { width: 100%; margin-top: 20px; padding: 14px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; }
-        .empty-cart { text-align: center; padding: 80px 20px; background: rgba(255,255,255,0.95); border-radius: 20px; }
-        .empty-cart i { font-size: 80px; color: #ccc; margin-bottom: 20px; }
-        .empty-cart h3 { font-size: 24px; color: #333; margin-bottom: 10px; }
-    </style>
 </head>
 <body>
-    <div class="bg-animation" id="bgAnimation"></div>
-    
-    <header class="modern-header">
-        <div class="logo" onclick="window.location.href='Main.html'"><img src="images/Лого VIBE.png" alt="SoftSoul Studio"></div>
-        <a href="Main.html" class="back-button"><i class="fas fa-arrow-left"></i> Продолжить покупки</a>
-        <div class="user-panel" id="userPanel"></div>
-    </header>
-
-    <div class="cart-container">
-        <h1 class="cart-title">Корзина</h1>
-        <div id="cartItems" class="cart-items"></div>
-        <div id="cartSummary" class="cart-summary" style="display: none;">
-            <div class="summary-row"><span>Товары (<span id="itemsCount">0</span> шт.)</span><span id="subtotal">0 руб.</span></div>
-            <div class="summary-total"><span>К оплате</span><span id="totalAmount">0 руб.</span></div>
-            <button class="checkout-btn" onclick="checkout()">Оформить заказ</button>
-        </div>
-        <div id="emptyCart" class="empty-cart" style="display: none;">
-            <i class="fas fa-shopping-bag"></i>
-            <h3>Корзина пуста</h3>
-            <p>Добавьте товары в корзину, чтобы оформить заказ</p>
-            <a href="Main.html#catalog" class="checkout-btn" style="display: inline-block; width: auto; padding: 12px 30px; text-decoration: none;">Перейти в каталог</a>
-        </div>
-    </div>
-
+    <header class="modern-header"><div class="logo" onclick="location.href='Main.html'">SoftSoul Studio</div></header>
+    <div id="cartList" style="max-width:800px; margin:50px auto; background:white; padding:30px; border-radius:20px;"></div>
     <script>
-        var currentUser = null;
-        var cart = [];
-        
-        var allProducts = {
-            1: { name: "Awax Demon Friend Hoodie", price: 5000, image: "images/Awax Demon Friend Hoodie.jpg" },
-            2: { name: "Evil Eye Skeleton Hoodie", price: 6000, image: "images/Evil Eye Skeleton Hoodie.jpg" },
-            3: { name: "Graffiti Wave Jeans", price: 5000, image: "images/Graffiti Wave Jeans.jpg" },
-            4: { name: "Mystic Bloom Joggers", price: 4500, image: "images/Mystic Bloom Joggers.jpg" },
-            5: { name: "Occult Edge Sweatpants", price: 3000, image: "images/Occult Edge Sweatpants.jpg" },
-            6: { name: "Shadow Rat Stealth Tee", price: 5700, image: "images/Shadow Rat Stealth Tee.jpg" }
+        let user = localStorage.getItem('currentUser');
+        if(!user) location.href='Main.html';
+        let u = JSON.parse(user);
+        let cart = JSON.parse(localStorage.getItem('cart_'+u.id)||'[]');
+        let products = {
+            1: {name:"Awax Demon Friend Hoodie", price:5000, img:"images/Awax Demon Friend Hoodie.jpg"},
+            2: {name:"Evil Eye Skeleton Hoodie", price:6000, img:"images/Evil Eye Skeleton Hoodie.jpg"}
         };
-        
-        function showToast(message, type) {
-            var existing = document.querySelector('.custom-toast');
-            if (existing) existing.remove();
-            var toast = document.createElement('div');
-            toast.className = 'custom-toast';
-            var icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
-            toast.innerHTML = '<div class="toast-content ' + type + '">' + icon + '<div class="toast-message">' + message + '</div></div>';
-            document.body.appendChild(toast);
-            setTimeout(function() { if (toast) toast.remove(); }, 3000);
-        }
-        
-        function getCartKey() { return currentUser ? 'cart_' + currentUser.id : 'cart_guest'; }
-        
-        function loadCart() {
-            var saved = localStorage.getItem(getCartKey());
-            cart = saved ? JSON.parse(saved) : [];
-            displayCart();
-        }
-        
-        function saveCart() { localStorage.setItem(getCartKey(), JSON.stringify(cart)); }
-        
-        function displayCart() {
-            var container = document.getElementById('cartItems');
-            var summary = document.getElementById('cartSummary');
-            var empty = document.getElementById('emptyCart');
-            
-            if (!cart || cart.length === 0) {
-                if (container) container.style.display = 'none';
-                if (summary) summary.style.display = 'none';
-                if (empty) empty.style.display = 'block';
-                return;
-            }
-            
-            if (container) container.style.display = 'block';
-            if (summary) summary.style.display = 'block';
-            if (empty) empty.style.display = 'none';
-            if (!container) return;
-            
-            container.innerHTML = '';
-            var subtotal = 0;
-            for (var i = 0; i < cart.length; i++) {
-                var item = cart[i];
-                var itemTotal = item.price * item.quantity;
-                subtotal += itemTotal;
-                container.innerHTML += '<div class="cart-item">' +
-                    '<div class="cart-item-image"><img src="' + (item.image || 'images/placeholder.jpg') + '"></div>' +
-                    '<div class="cart-item-details">' +
-                    '<div class="cart-item-name">' + item.name + '</div>' +
-                    '<div class="cart-item-size">Размер: ' + (item.size || 'не выбран') + '</div>' +
-                    '<div class="cart-item-price">' + Number(item.price).toLocaleString() + ' руб.</div>' +
-                    '</div>' +
-                    '<div class="cart-item-actions">' +
-                    '<div class="quantity-control">' +
-                    '<button class="quantity-btn" onclick="updateQuantity(' + i + ', -1)">-</button>' +
-                    '<input type="number" class="quantity-input" value="' + item.quantity + '" min="1" max="99" onchange="updateQuantity(' + i + ', 0, this.value)">' +
-                    '<button class="quantity-btn" onclick="updateQuantity(' + i + ', 1)">+</button>' +
-                    '</div>' +
-                    '<button class="remove-item" onclick="removeFromCart(' + i + ')"><i class="fas fa-trash-alt"></i></button>' +
-                    '</div>' +
-                    '<div class="cart-item-total">' + Number(itemTotal).toLocaleString() + ' руб.</div>' +
-                    '</div>';
-            }
-            document.getElementById('itemsCount').textContent = cart.reduce(function(s, i) { return s + i.quantity; }, 0);
-            document.getElementById('subtotal').textContent = subtotal.toLocaleString() + ' руб.';
-            document.getElementById('totalAmount').textContent = subtotal.toLocaleString() + ' руб.';
-        }
-        
-        function updateQuantity(index, delta, newVal) {
-            if (delta !== 0) {
-                var q = cart[index].quantity + delta;
-                if (q < 1) q = 1;
-                if (q > 99) q = 99;
-                cart[index].quantity = q;
-            } else if (newVal) {
-                var q = parseInt(newVal);
-                if (isNaN(q)) q = 1;
-                if (q < 1) q = 1;
-                if (q > 99) q = 99;
-                cart[index].quantity = q;
-            }
-            saveCart();
-            displayCart();
-        }
-        
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            saveCart();
-            displayCart();
-            showToast('Товар удален', 'info');
-        }
-        
-        function checkout() {
-            if (!currentUser) {
-                showToast('Войдите в аккаунт', 'error');
-                window.location.href = 'Main.html';
-                return;
-            }
-            alert('Заказ оформлен! Спасибо за покупку!');
-            cart = [];
-            saveCart();
-            displayCart();
-        }
-        
-        function checkAuth() {
-            var user = localStorage.getItem('currentUser');
-            var adminBtn = document.getElementById('adminBtn');
-            
-            if (user) {
-                currentUser = JSON.parse(user);
-                var isAdmin = currentUser.name === 'admin';
-                if (adminBtn) adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
-                loadCart();
-            } else {
-                if (adminBtn) adminBtn.style.display = 'none';
-                window.location.href = 'Main.html';
+        let html = '<h2>Корзина</h2>';
+        let total = 0;
+        for(let item of cart){
+            let p = products[item.id];
+            if(p){
+                html += `<div><img src="${p.img}" width="50"> ${p.name} x ${item.q} = ${p.price*item.q} руб. <button onclick="remove(${item.id})">Удалить</button></div>`;
+                total += p.price * item.q;
             }
         }
-        
-        checkAuth();
+        html += `<h3>Итого: ${total} руб.</h3><button onclick="checkout()">Оформить</button>`;
+        document.getElementById('cartList').innerHTML = html;
+        function remove(id){
+            let newCart = cart.filter(i=>i.id!==id);
+            localStorage.setItem('cart_'+u.id, JSON.stringify(newCart));
+            location.reload();
+        }
+        function checkout(){ alert("Заказ оформлен! Спасибо."); localStorage.setItem('cart_'+u.id,'[]'); location.reload(); }
     </script>
 </body>
 </html>

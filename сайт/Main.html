@@ -2,219 +2,286 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoftSoul Studio - Главная</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>SoftSoul Studio - Одежда с ручной росписью</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63); min-height: 100vh; }
-        .header { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .logo { font-size: 24px; font-weight: bold; color: #667eea; cursor: pointer; }
-        .btn { padding: 10px 25px; border-radius: 25px; border: none; cursor: pointer; font-weight: bold; }
-        .btn-outline { background: transparent; border: 2px solid #667eea; color: #667eea; }
-        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-        .banner { background: linear-gradient(135deg, #667eea, #764ba2); padding: 60px; text-align: center; color: white; }
-        .banner h1 { font-size: 48px; margin-bottom: 20px; }
-        .catalog { padding: 40px; text-align: center; }
-        .catalog h2 { color: white; margin-bottom: 30px; }
-        .products { display: flex; gap: 25px; justify-content: center; flex-wrap: wrap; }
-        .product { background: white; border-radius: 15px; padding: 15px; width: 260px; text-align: center; cursor: pointer; transition: transform 0.3s; }
-        .product:hover { transform: translateY(-5px); }
-        .product img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; background: #f0f0f0; }
-        .product h3 { margin: 10px 0; font-size: 16px; }
-        .price { color: #667eea; font-weight: bold; font-size: 18px; margin: 5px 0; }
-        .popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .popup-content { background: white; padding: 30px; border-radius: 20px; width: 350px; text-align: center; }
-        .popup-content input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; }
-        .popup-content button { width: 100%; padding: 12px; margin-top: 10px; }
-        .close { float: right; font-size: 24px; cursor: pointer; color: #999; }
-        .cart-badge { position: relative; display: inline-block; margin-left: 20px; }
-        .cart-count { position: absolute; top: -8px; right: -8px; background: #f44336; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; }
-        .favorite-icon { margin-left: 15px; cursor: pointer; }
-        .user-panel { display: flex; align-items: center; gap: 15px; }
-        @media (max-width: 768px) { .header { flex-direction: column; gap: 10px; } .products { padding: 20px; } }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div class="bg-animation" id="bgAnimation"></div>
 
-<div class="header">
-    <div class="logo" onclick="location.reload()">SoftSoul Studio</div>
-    <div id="authButtons">
-        <button class="btn btn-outline" onclick="openPopup('loginPopup')">Вход</button>
-        <button class="btn btn-primary" onclick="openPopup('registerPopup')">Регистрация</button>
+    <header class="modern-header">
+        <div class="logo" onclick="window.location.href='Main.html'">
+            <img src="images/Лого VIBE.png" alt="SoftSoul Studio">
+        </div>
+        <div class="auth-buttons" id="authButtons">
+            <button class="modern-btn outline" id="openLoginBtn">Вход</button>
+            <button class="modern-btn primary" onclick="openPopup('registerPopup')">Регистрация</button>
+        </div>
+        <div class="user-panel" id="userPanel" style="display: none;">
+            <div class="user-icon" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i></div>
+            <div class="cart-icon" onclick="window.location.href='cart.html'"><i class="fas fa-shopping-bag"></i><span class="cart-count" id="cartCount">0</span></div>
+            <div class="favorite-icon" onclick="window.location.href='profile.html?tab=favorites'"><i class="fas fa-heart"></i><span class="favorite-count" id="favoriteCount">0</span></div>
+            <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;"><i class="fas fa-cog"></i> Админ панель</a>
+        </div>
+    </header>
+
+    <div class="modern-banner">
+        <div class="banner-content">
+            <h1>SOFT SOUL STUDIO</h1>
+            <p>Уникальная одежда с ручной росписью и авторскими принтами</p>
+            <div class="banner-buttons">
+                <button class="modern-btn primary" onclick="openCustomOrderPopup()">Заказать дизайн</button>
+                <button class="modern-btn outline" onclick="scrollToCatalog()">Каталог</button>
+            </div>
+        </div>
     </div>
-    <div id="userPanel" class="user-panel" style="display: none;">
-        <span id="userName"></span>
-        <span class="cart-badge" onclick="window.location.href='cart.html'">
-            🛒 <span id="cartCount">0</span>
-        </span>
-        <span class="favorite-icon" onclick="window.location.href='favorites.html'">❤️ <span id="favCount">0</span></span>
-        <button class="btn btn-outline" onclick="logout()">Выйти</button>
-        <a href="admin.html" id="adminLink" style="display: none;"><button class="btn btn-primary">Админ</button></a>
-    </div>
-</div>
 
-<div class="banner">
-    <h1>SOFT SOUL STUDIO</h1>
-    <p>Уникальная одежда с ручной росписью</p>
-    <button class="btn btn-primary" onclick="openPopup('customPopup')">Заказать дизайн</button>
-</div>
-
-<div class="catalog">
-    <h2>КАТАЛОГ</h2>
-    <div id="products" class="products"></div>
-</div>
-
-<!-- Попап входа -->
-<div id="loginPopup" class="popup">
-    <div class="popup-content">
-        <span class="close" onclick="closePopup('loginPopup')">&times;</span>
-        <h3>Вход</h3>
-        <input type="text" id="loginName" placeholder="Имя или Email">
-        <input type="password" id="loginPassword" placeholder="Пароль">
-        <button class="btn btn-primary" onclick="login()">Войти</button>
-    </div>
-</div>
-
-<!-- Попап регистрации -->
-<div id="registerPopup" class="popup">
-    <div class="popup-content">
-        <span class="close" onclick="closePopup('registerPopup')">&times;</span>
-        <h3>Регистрация</h3>
-        <input type="text" id="regName" placeholder="Имя">
-        <input type="email" id="regEmail" placeholder="Email">
-        <input type="password" id="regPassword" placeholder="Пароль">
-        <input type="password" id="regConfirm" placeholder="Повторите пароль">
-        <button class="btn btn-primary" onclick="register()">Зарегистрироваться</button>
-    </div>
-</div>
-
-<!-- Попап заказа дизайна -->
-<div id="customPopup" class="popup">
-    <div class="popup-content">
-        <span class="close" onclick="closePopup('customPopup')">&times;</span>
-        <h3>Заказ дизайна</h3>
-        <textarea id="designDesc" rows="4" style="width:100%; padding:10px; border-radius:10px;" placeholder="Опишите ваш дизайн..."></textarea>
-        <button class="btn btn-primary" onclick="submitDesign()">Отправить</button>
-    </div>
-</div>
-
-<script>
-    // ТОВАРЫ (6 штук)
-    const productsList = [
-        { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "https://placehold.co/300x200?text=Hoodie+1", category: "hoodie" },
-        { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "https://placehold.co/300x200?text=Hoodie+2", category: "hoodie" },
-        { id: 3, name: "Graffiti Wave Jeans", price: 5000, image: "https://placehold.co/300x200?text=Jeans", category: "jeans" },
-        { id: 4, name: "Mystic Bloom Joggers", price: 4500, image: "https://placehold.co/300x200?text=Joggers", category: "joggers" },
-        { id: 5, name: "Occult Edge Sweatpants", price: 3000, image: "https://placehold.co/300x200?text=Sweatpants", category: "joggers" },
-        { id: 6, name: "Shadow Rat Stealth Tee", price: 5700, image: "https://placehold.co/300x200?text=Tee", category: "tee" }
-    ];
-
-    let currentUser = null;
-
-    function displayProducts() {
-        const container = document.getElementById('products');
-        container.innerHTML = '';
-        productsList.forEach(p => {
-            container.innerHTML += `
-                <div class="product">
-                    <img src="${p.image}" alt="${p.name}">
-                    <h3>${p.name}</h3>
-                    <div class="price">${p.price.toLocaleString()} руб.</div>
-                    <button class="btn btn-primary" onclick="addToCart(${p.id})">В корзину</button>
+    <div class="section" id="catalog">
+        <h2 class="section-title">КАТАЛОГ</h2>
+        <div class="catalog-layout">
+            <div class="filters-sidebar">
+                <div class="filter-section">
+                    <div class="filter-title"><i class="fas fa-filter"></i> Категории</div>
+                    <div class="filter-categories" id="filterCategories">
+                        <button class="filter-category-btn active" data-category="all" onclick="filterByCategory('all', this)"><i class="fas fa-th-large"></i> Все товары</button>
+                        <button class="filter-category-btn" data-category="hoodie" onclick="filterByCategory('hoodie', this)"><i class="fas fa-tshirt"></i> Худи и Толстовки</button>
+                        <button class="filter-category-btn" data-category="jeans" onclick="filterByCategory('jeans', this)"><i class="fas fa-jeans"></i> Джинсы</button>
+                        <button class="filter-category-btn" data-category="joggers" onclick="filterByCategory('joggers', this)"><i class="fas fa-running"></i> Штаны</button>
+                        <button class="filter-category-btn" data-category="tee" onclick="filterByCategory('tee', this)"><i class="fas fa-tshirt"></i> Футболки</button>
+                    </div>
                 </div>
-            `;
+            </div>
+            <div class="products-right">
+                <div class="products-stats">
+                    <span class="products-count" id="productsCount">Найдено: 0 товаров</span>
+                    <button class="clear-filters" onclick="clearAllFilters()"><i class="fas fa-undo-alt"></i> Сбросить фильтры</button>
+                </div>
+                <div class="products-grid" id="products"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reviews-section">
+        <h2 class="section-title">ОТЗЫВЫ КЛИЕНТОВ</h2>
+        <div class="reviews-list" id="reviewsList"></div>
+    </div>
+
+    <footer class="modern-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>SoftSoul Studio</h3>
+                <p>Уникальная одежда с ручной росписью</p>
+                <div class="social-links">
+                    <a href="https://vk.com" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="https://ok.ru" target="_blank"><i class="fab fa-odnoklassniki"></i></a>
+                    <a href="https://avito.ru" target="_blank"><i class="fas fa-tag"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <p><i class="fas fa-phone"></i> +7 (999) 123-45-67</p>
+                <p><i class="fas fa-envelope"></i> info@softsoul.ru</p>
+                <p><i class="fas fa-map-marker-alt"></i> Москва, ул. Тверская, 10</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 SoftSoul Studio. Все права защищены. Одежда с ручной росписью</p>
+        </div>
+    </footer>
+
+    <!-- НОВЫЙ РАБОЧИЙ ПОПАП ВХОДА -->
+    <div id="newLoginPopup" class="modern-popup">
+        <div class="popup-content">
+            <span class="close-popup" onclick="closeNewLoginPopup()">×</span>
+            <h3>Вход в аккаунт</h3>
+            <div class="form-group">
+                <input type="text" id="newLoginName" placeholder="Имя пользователя или Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="newLoginPassword" placeholder="Пароль" required>
+            </div>
+            <button class="modern-btn primary" id="newLoginSubmitBtn">Войти</button>
+            <p class="login-link">
+                Нет аккаунта? <span onclick="closeNewLoginPopup(); openPopup('registerPopup')">Зарегистрироваться</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Register Popup -->
+    <div id="registerPopup" class="modern-popup">
+        <div class="popup-content">
+            <span class="close-popup" onclick="closePopup('registerPopup')">×</span>
+            <h3><i class="fas fa-user-plus"></i> Регистрация</h3>
+            <form class="auth-form" action="php/register.php" method="POST">
+                <input type="text" name="registerName" placeholder="Ваше имя" required>
+                <input type="email" name="registerEmail" placeholder="Email" required>
+                <input type="password" name="registerPassword" placeholder="Пароль" required>
+                <input type="password" name="registerConfirmPassword" placeholder="Повторите пароль" required>
+                <button type="submit" class="modern-btn primary">Зарегистрироваться</button>
+                <p class="login-link">Уже есть аккаунт? <span onclick="closePopup('registerPopup'); openNewLoginPopup()">Войти</span></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Order Popup -->
+    <div id="customOrderPopup" class="modern-popup large-popup">
+        <div class="popup-content">
+            <span class="close-popup" onclick="closePopup('customOrderPopup')">×</span>
+            <h3><i class="fas fa-palette"></i> Заказ уникального дизайна</h3>
+            <form class="auth-form" id="customOrderForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Тип одежды *</label>
+                    <div class="garment-buttons" id="garmentButtons">
+                        <button type="button" class="garment-btn" data-garment="hoodie" onclick="selectGarment('hoodie', this)"><i class="fas fa-tshirt"></i> Толстовка</button>
+                        <button type="button" class="garment-btn" data-garment="jeans" onclick="selectGarment('jeans', this)"><i class="fas fa-jeans"></i> Джинсы</button>
+                        <button type="button" class="garment-btn" data-garment="joggers" onclick="selectGarment('joggers', this)"><i class="fas fa-running"></i> Штаны</button>
+                        <button type="button" class="garment-btn" data-garment="tee" onclick="selectGarment('tee', this)"><i class="fas fa-tshirt"></i> Футболка</button>
+                    </div>
+                    <input type="hidden" id="selectedGarment" name="garment_type">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Размерный ряд *</label>
+                        <select id="sizeSelect" name="size_info" required>
+                            <option value="">Выберите размер</option>
+                            <option value="XS">XS (44-46)</option>
+                            <option value="S">S (46-48)</option>
+                            <option value="M">M (48-50)</option>
+                            <option value="L">L (50-52)</option>
+                            <option value="XL">XL (52-54)</option>
+                            <option value="XXL">XXL (54-56)</option>
+                            <option value="custom">Свой размер</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Свой размер</label>
+                        <input type="text" id="customSize" name="custom_size" placeholder="Грудь/Талия/Бёдра">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Описание дизайна *</label>
+                    <textarea id="customOrderDescription" name="description" placeholder="Опишите ваш дизайн, цветовую гамму, стиль..." required rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Фото референсы (до 10 фото)</label>
+                    <div class="image-upload-area">
+                        <input type="file" id="referenceImages" accept="image/*" multiple style="display: none;">
+                        <button type="button" class="upload-btn" onclick="document.getElementById('referenceImages').click()"><i class="fas fa-cloud-upload-alt"></i> Выбрать фото</button>
+                        <div class="image-preview-grid" id="imagePreviewGrid"></div>
+                        <small class="form-hint">Максимум 10 фото</small>
+                    </div>
+                </div>
+                <button type="submit" class="modern-btn primary">Отправить заявку</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="flyingCartItem" class="flying-item"></div>
+
+    <script src="js/script.js"></script>
+    
+<script>
+// ========== КАСТОМНЫЕ УВЕДОМЛЕНИЯ ==========
+function showToast(message, type) {
+    var existing = document.querySelector('.custom-toast');
+    if (existing) existing.remove();
+    
+    var toast = document.createElement('div');
+    toast.className = 'custom-toast';
+    
+    var icon = '';
+    if (type === 'success') icon = '<i class="fas fa-check-circle"></i>';
+    else if (type === 'error') icon = '<i class="fas fa-exclamation-circle"></i>';
+    else icon = '<i class="fas fa-info-circle"></i>';
+    
+    toast.innerHTML = '<div class="toast-content ' + type + '">' + icon + '<div class="toast-message">' + message + '</div></div>';
+    document.body.appendChild(toast);
+    
+    setTimeout(function() {
+        if (toast) toast.remove();
+    }, 3000);
+}
+
+// ========== ФУНКЦИИ ДЛЯ ПОПАПА ВХОДА ==========
+function openNewLoginPopup() {
+    document.getElementById('newLoginName').value = '';
+    document.getElementById('newLoginPassword').value = '';
+    document.getElementById('newLoginPopup').style.display = 'flex';
+}
+function closeNewLoginPopup() {
+    document.getElementById('newLoginPopup').style.display = 'none';
+}
+
+// Кнопка "Вход" в шапке
+document.getElementById('openLoginBtn').onclick = function() {
+    openNewLoginPopup();
+};
+
+// Функция входа (с красивыми уведомлениями)
+document.getElementById('newLoginSubmitBtn').onclick = function() {
+    var name = document.getElementById('newLoginName').value;
+    var pass = document.getElementById('newLoginPassword').value;
+    
+    if (!name || !pass) {
+        showToast('Заполните все поля', 'error');
+        return;
+    }
+    
+    var fd = new FormData();
+    fd.append('loginName', name);
+    fd.append('loginPassword', pass);
+    
+    fetch('login.php', { method: 'POST', body: fd })
+        .then(r => r.text())
+        .then(data => {
+            if (data.startsWith('success')) {
+                var parts = data.split('|');
+                var user = { id: parts[1], name: parts[2], email: parts[3] };
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showToast('Добро пожаловать, ' + user.name + '!', 'success');
+                closeNewLoginPopup();
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+            } else if (data === 'wrong_password') {
+                showToast('Неверный пароль', 'error');
+            } else if (data === 'user_not_found') {
+                showToast('Пользователь не найден', 'error');
+            } else {
+                showToast('Ошибка: ' + data, 'error');
+            }
+        })
+        .catch(function(err) {
+            showToast('Ошибка соединения: ' + err, 'error');
         });
-    }
+};
 
-    function addToCart(id) {
-        if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
-        let cart = JSON.parse(localStorage.getItem('cart_' + currentUser.id) || '[]');
-        let item = cart.find(i => i.id === id);
-        if (item) item.qty++;
-        else cart.push({ id: id, qty: 1 });
-        localStorage.setItem('cart_' + currentUser.id, JSON.stringify(cart));
-        updateCartCount();
-        alert("Товар добавлен в корзину!");
-    }
-
-    function updateCartCount() {
-        if (currentUser) {
-            let cart = JSON.parse(localStorage.getItem('cart_' + currentUser.id) || '[]');
-            let total = cart.reduce((s, i) => s + i.qty, 0);
-            document.getElementById('cartCount').innerText = total;
+// Восстановление сессии при загрузке страницы
+var savedUser = localStorage.getItem('currentUser');
+if (savedUser) {
+    try {
+        var userData = JSON.parse(savedUser);
+        var authBtns = document.getElementById('authButtons');
+        var userPanel = document.getElementById('userPanel');
+        var adminBtn = document.getElementById('adminBtn');
+        
+        if (authBtns) authBtns.style.display = 'none';
+        if (userPanel) userPanel.style.display = 'flex';
+        if (adminBtn) {
+            adminBtn.style.display = userData.name === 'admin' ? 'flex' : 'none';
         }
-    }
+    } catch(e) {}
+}
 
-    function updateFavCount() {
-        if (currentUser) {
-            let fav = JSON.parse(localStorage.getItem('fav_' + currentUser.id) || '[]');
-            document.getElementById('favCount').innerText = fav.length;
-        }
-    }
-
-    function register() {
-        let name = document.getElementById('regName').value.trim();
-        let email = document.getElementById('regEmail').value.trim();
-        let pass = document.getElementById('regPassword').value;
-        let confirm = document.getElementById('regConfirm').value;
-        if (!name || !email || !pass) { alert("Заполните поля"); return; }
-        if (pass !== confirm) { alert("Пароли не совпадают"); return; }
-        let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
-        if (users.find(u => u.email === email)) { alert("Email уже занят"); return; }
-        let newUser = { id: Date.now(), name, email, password: pass, isAdmin: name === 'admin' };
-        users.push(newUser);
-        localStorage.setItem('allUsers', JSON.stringify(users));
-        localStorage.setItem('currentUser', JSON.stringify({ id: newUser.id, name: newUser.name, email: newUser.email }));
-        alert("Регистрация успешна!");
-        closePopup('registerPopup');
-        location.reload();
-    }
-
-    function login() {
-        let loginVal = document.getElementById('loginName').value.trim();
-        let pass = document.getElementById('loginPassword').value;
-        let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
-        let user = users.find(u => (u.name === loginVal || u.email === loginVal) && u.password === pass);
-        if (!user) { alert("Неверный логин или пароль"); return; }
-        localStorage.setItem('currentUser', JSON.stringify({ id: user.id, name: user.name, email: user.email }));
-        alert("Добро пожаловать, " + user.name);
-        closePopup('loginPopup');
-        location.reload();
-    }
-
-    function logout() {
-        localStorage.removeItem('currentUser');
-        location.reload();
-    }
-
-    function submitDesign() {
-        if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
-        let desc = document.getElementById('designDesc').value;
-        if (!desc) { alert("Опишите дизайн"); return; }
-        alert("Заявка отправлена! Мы свяжемся с вами.");
-        closePopup('customPopup');
-        document.getElementById('designDesc').value = '';
-    }
-
-    function checkAuth() {
-        let user = localStorage.getItem('currentUser');
-        if (user) {
-            currentUser = JSON.parse(user);
-            document.getElementById('authButtons').style.display = 'none';
-            document.getElementById('userPanel').style.display = 'flex';
-            document.getElementById('userName').innerText = currentUser.name;
-            if (currentUser.name === 'admin') document.getElementById('adminLink').style.display = 'inline';
-            updateCartCount();
-            updateFavCount();
-        }
-    }
-
-    function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
-    function closePopup(id) { document.getElementById(id).style.display = 'none'; }
-
-    displayProducts();
-    checkAuth();
+// Остальные функции
+function openPopup(id) {
+    document.getElementById(id).style.display = 'flex';
+}
+function closePopup(id) {
+    document.getElementById(id).style.display = 'none';
+}
 </script>
 </body>
 </html>

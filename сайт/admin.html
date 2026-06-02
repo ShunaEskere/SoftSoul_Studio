@@ -1,17 +1,40 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><title>Админ панель</title></head>
-<body style="font-family:Arial; padding:40px; background:#f0f0f0;">
-    <h1>Админ панель</h1>
-    <h2>Пользователи</h2>
-    <div id="usersList"></div>
-    <br><a href="Main.html">На главную</a>
-    <script>
-        let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
-        let html = '<ul>';
-        users.forEach(u => { html += `<li>${u.name} (${u.email}) ${u.isAdmin ? '👑 Админ' : ''}</li>`; });
-        html += '</ul>';
-        document.getElementById('usersList').innerHTML = html;
-    </script>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ панель - SoftSoul Studio</title>
+    <style>
+        body { font-family: Arial; background: linear-gradient(135deg, #0f0c29, #302b63); min-height: 100vh; padding: 40px; color: white; }
+        .container { max-width: 800px; margin: 0 auto; background: rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; }
+        h1 { text-align: center; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        th { background: rgba(102,126,234,0.3); }
+        .btn { display: inline-block; margin-top: 20px; padding: 10px 25px; background: #667eea; color: white; text-decoration: none; border-radius: 25px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>👑 Админ панель</h1>
+    <h2>Список пользователей</h2>
+    <table id="usersTable">
+        <tr><th>ID</th><th>Имя</th><th>Email</th><th>Роль</th></tr>
+    </table>
+    <br>
+    <a href="Main.html" class="btn">← На главную</a>
+</div>
+<script>
+    let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
+    let html = '';
+    users.forEach(u => {
+        html += `<tr>
+                    <td>${u.id}</td>
+                    <td>${u.name}</td>
+                    <td>${u.email}</td>
+                    <td>${u.isAdmin ? '👑 Админ' : 'Пользователь'}</td>
+                 </tr>`;
+    });
+    document.getElementById('usersTable').innerHTML += html;
+</script>
 </body>
 </html>

@@ -2,27 +2,56 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SoftSoul Studio - Одежда с ручной росписью</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Дополнительные стили */
+        .nav-sections { background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); padding: 12px 0; position: sticky; top: 80px; z-index: 999; }
+        .nav-links { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+        .nav-link { color: white; text-decoration: none; font-size: 16px; font-weight: 500; padding-bottom: 5px; cursor: pointer; transition: all 0.3s; }
+        .nav-link:hover { color: #ffd700; border-bottom: 2px solid #ffd700; }
+        .new-badge { position: absolute; top: 15px; left: 15px; background: #ff6b6b; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; z-index: 10; }
+        .like-btn { position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; z-index: 20; }
+        .like-btn i { font-size: 20px; color: #ccc; }
+        .like-btn.active i { color: #ff6b6b; }
+        .empty-favorites { text-align: center; padding: 60px; background: rgba(255,255,255,0.95); border-radius: 20px; color: #666; }
+        .empty-favorites i { font-size: 64px; margin-bottom: 20px; color: #ccc; }
+        .catalog-link-btn { display: inline-block; margin-top: 20px; padding: 12px 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: 600; text-decoration: none; }
+        .care-content { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 40px; max-width: 800px; margin: 0 auto; }
+        .care-list { list-style: none; margin: 20px 0; }
+        .care-list li { padding: 10px 0; padding-left: 30px; position: relative; color: #555; }
+        .care-list li:before { content: "✓"; position: absolute; left: 0; color: #4caf50; font-weight: bold; }
+        .care-btn { margin-top: 30px; padding: 12px 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: 600; }
+        .forgot-password { text-align: right; margin-top: 5px; margin-bottom: 15px; }
+        .forgot-password span { color: #667eea; cursor: pointer; font-size: 12px; }
+        .reviews-section-compact { margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
+        .review-summary { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; color: #667eea; font-size: 13px; }
+        .product-reviews { display: none; margin-top: 10px; background: #f9f9f9; padding: 10px; border-radius: 10px; }
+        .product-reviews.show { display: block; }
+        .product-review-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+        .add-review-btn { margin-top: 10px; padding: 8px 15px; background: #f0f0f0; border: none; border-radius: 20px; cursor: pointer; font-size: 12px; color: #667eea; }
+        .product-card { cursor: pointer; }
+        .add-to-cart, .like-btn, .review-summary, .add-review-btn { cursor: pointer; }
+    </style>
 </head>
 <body>
     <div class="bg-animation" id="bgAnimation"></div>
 
     <header class="modern-header">
         <div class="logo" onclick="window.location.href='Main.html'">
-            <img src="images/Лого VIBE.png" alt="SoftSoul Studio" onerror="this.src='https://placehold.co/50x50?text=SSS'">
+            <img src="images/Лого VIBE.png" alt="SoftSoul Studio">
         </div>
         <div class="auth-buttons" id="authButtons">
-            <button class="modern-btn outline" id="workingLoginBtn">Вход</button>
+            <button class="modern-btn outline" onclick="openPopup('loginPopup')">Вход</button>
             <button class="modern-btn primary" onclick="openPopup('registerPopup')">Регистрация</button>
         </div>
         <div class="user-panel" id="userPanel" style="display: none;">
             <div class="user-icon" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i></div>
             <div class="cart-icon" onclick="window.location.href='cart.html'"><i class="fas fa-shopping-bag"></i><span class="cart-count" id="cartCount">0</span></div>
-            <div class="favorite-icon" onclick="window.location.href='profile.html?tab=favorites'"><i class="fas fa-heart"></i><span class="favorite-count" id="favoriteCount">0</span></div>
+            <div class="favorite-icon" onclick="scrollToFavorites()"><i class="fas fa-heart"></i><span class="favorite-count" id="favoriteCount">0</span></div>
             <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;"><i class="fas fa-cog"></i> Админ панель</a>
         </div>
     </header>
@@ -30,9 +59,9 @@
     <!-- Навигационные разделы -->
     <div class="nav-sections">
         <div class="nav-links">
-            <a class="nav-link" onclick="scrollToCatalog()">📦 Каталог</a>
-            <a class="nav-link" onclick="scrollToNew()">✨ Новое</a>
+            <a class="nav-link" onclick="scrollToNew()">✨ Новинки</a>
             <a class="nav-link" onclick="scrollToFavorites()">❤️ Избранное</a>
+            <a class="nav-link" onclick="scrollToCatalog()">📦 Каталог</a>
             <a class="nav-link" onclick="scrollToCare()">🧺 Уход</a>
         </div>
     </div>
@@ -46,6 +75,18 @@
                 <button class="modern-btn outline" onclick="scrollToCatalog()">Каталог</button>
             </div>
         </div>
+    </div>
+
+    <!-- Раздел: Новинки -->
+    <div class="section" id="newSection">
+        <h2 class="section-title">✨ НОВИНКИ</h2>
+        <div class="products-grid" id="newProducts"></div>
+    </div>
+
+    <!-- Раздел: Избранное -->
+    <div class="section" id="favoritesSection">
+        <h2 class="section-title">❤️ ИЗБРАННОЕ</h2>
+        <div id="favoritesContainer"></div>
     </div>
 
     <!-- Раздел: Каталог -->
@@ -74,18 +115,6 @@
         </div>
     </div>
 
-    <!-- Раздел: Новое -->
-    <div class="section" id="newSection">
-        <h2 class="section-title">✨ НОВЫЕ ПОСТУПЛЕНИЯ</h2>
-        <div class="products-grid" id="newProducts"></div>
-    </div>
-
-    <!-- Раздел: Избранное -->
-    <div class="section" id="favoritesSection">
-        <h2 class="section-title">❤️ ИЗБРАННОЕ</h2>
-        <div id="favoritesContainer"></div>
-    </div>
-
     <!-- Раздел: Уход -->
     <div class="section" id="careSection">
         <h2 class="section-title">🧺 ПРАВИЛА УХОДА</h2>
@@ -104,29 +133,37 @@
         </div>
     </div>
 
+    <!-- Попап входа (красивый, как регистрация) -->
+    <div id="loginPopup" class="modern-popup">
+        <div class="popup-content">
+            <span class="close-popup" onclick="closePopup('loginPopup')">×</span>
+            <h3><i class="fas fa-sign-in-alt"></i> Вход в аккаунт</h3>
+            <div class="form-group">
+                <input type="text" id="loginName" placeholder="Имя пользователя или Email">
+            </div>
+            <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Пароль">
+            </div>
+            <div class="forgot-password"><span onclick="alert('Обратитесь к администратору для восстановления пароля')">Забыли пароль?</span></div>
+            <button class="modern-btn primary" onclick="doLogin()">Войти</button>
+            <p class="login-link">Нет аккаунта? <span onclick="closePopup('loginPopup'); openPopup('registerPopup')">Зарегистрироваться</span></p>
+        </div>
+    </div>
+
     <!-- Попап регистрации -->
     <div id="registerPopup" class="modern-popup">
         <div class="popup-content">
             <span class="close-popup" onclick="closePopup('registerPopup')">×</span>
-            <h3>Регистрация</h3>
-            <div class="form-group">
-                <input type="text" id="regName" placeholder="Ваше имя">
-            </div>
-            <div class="form-group">
-                <input type="email" id="regEmail" placeholder="Email">
-            </div>
-            <div class="form-group">
-                <input type="password" id="regPassword" placeholder="Пароль">
-            </div>
-            <div class="form-group">
-                <input type="password" id="regConfirm" placeholder="Повторите пароль">
-            </div>
+            <h3><i class="fas fa-user-plus"></i> Регистрация</h3>
+            <div class="form-group"><input type="text" id="regName" placeholder="Ваше имя"></div>
+            <div class="form-group"><input type="email" id="regEmail" placeholder="Email"></div>
+            <div class="form-group"><input type="password" id="regPassword" placeholder="Пароль"></div>
+            <div class="form-group"><input type="password" id="regConfirm" placeholder="Повторите пароль"></div>
             <button class="modern-btn primary" onclick="doRegister()">Зарегистрироваться</button>
-            <p class="login-link">Уже есть аккаунт? <span onclick="closePopup('registerPopup'); alert('Используйте кнопку Вход в шапке')">Войти</span></p>
+            <p class="login-link">Уже есть аккаунт? <span onclick="closePopup('registerPopup'); openPopup('loginPopup')">Войти</span></p>
         </div>
     </div>
 
-    <!-- Попап заказа дизайна -->
     <div id="customOrderPopup" class="modern-popup">
         <div class="popup-content">
             <span class="close-popup" onclick="closePopup('customOrderPopup')">×</span>
@@ -143,7 +180,7 @@
         const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
 
-        // ========== ФУНКЦИЯ ВХОДА ==========
+        // ========== ФУНКЦИИ SUPABASE ==========
         async function supabaseLogin(login, password) {
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
@@ -161,7 +198,6 @@
             }
         }
 
-        // ========== ФУНКЦИЯ РЕГИСТРАЦИИ ==========
         async function supabaseRegister(name, email, password) {
             try {
                 const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/client?email=eq.${encodeURIComponent(email)}`, {
@@ -192,25 +228,28 @@
             }
         }
 
-        // ========== РАБОЧАЯ КНОПКА ВХОДА ==========
-        document.getElementById('workingLoginBtn').onclick = function() {
-            const login = prompt('Введите ваш логин (имя или email):');
-            if (!login) return;
-            const password = prompt('Введите пароль:');
-            if (!password) return;
+        // ========== ФУНКЦИИ ДЛЯ КНОПОК ==========
+        async function doLogin() {
+            const name = document.getElementById('loginName').value.trim();
+            const pass = document.getElementById('loginPassword').value;
             
-            supabaseLogin(login, password).then(result => {
-                if (result.success) {
-                    localStorage.setItem('currentUser', JSON.stringify(result.user));
-                    alert('Добро пожаловать, ' + result.user.name);
-                    location.reload();
-                } else {
-                    alert(result.message || 'Ошибка входа');
-                }
-            });
-        };
+            if (!name || !pass) {
+                alert('Заполните все поля');
+                return;
+            }
+            
+            const result = await supabaseLogin(name, pass);
+            
+            if (result.success) {
+                localStorage.setItem('currentUser', JSON.stringify(result.user));
+                alert('Добро пожаловать, ' + result.user.name);
+                closePopup('loginPopup');
+                location.reload();
+            } else {
+                alert(result.message);
+            }
+        }
 
-        // ========== ФУНКЦИЯ РЕГИСТРАЦИИ ДЛЯ КНОПКИ ==========
         async function doRegister() {
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
@@ -236,33 +275,8 @@
             }
         }
 
-        function submitCustomOrder() {
-            const name = document.getElementById('orderName').value;
-            const email = document.getElementById('orderEmail').value;
-            const desc = document.getElementById('orderDescription').value;
-            if (!name || !email || !desc) {
-                alert('Заполните все поля');
-                return;
-            }
-            alert('Заявка отправлена! Мы свяжемся с вами');
-            closePopup('customOrderPopup');
-            document.getElementById('orderName').value = '';
-            document.getElementById('orderEmail').value = '';
-            document.getElementById('orderDescription').value = '';
-        }
-
-        // ========== ОБЩИЕ ФУНКЦИИ ==========
-        function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
-        function closePopup(id) { document.getElementById(id).style.display = 'none'; }
-        function openCustomOrderPopup() { openPopup('customOrderPopup'); }
-        
-        function scrollToCatalog() { document.getElementById('catalogSection').scrollIntoView({ behavior: 'smooth' }); }
-        function scrollToNew() { document.getElementById('newSection').scrollIntoView({ behavior: 'smooth' }); }
-        function scrollToFavorites() { document.getElementById('favoritesSection').scrollIntoView({ behavior: 'smooth' }); }
-        function scrollToCare() { document.getElementById('careSection').scrollIntoView({ behavior: 'smooth' }); }
-
         // ========== ТОВАРЫ ==========
-        let allProducts = [
+        const productsList = [
             { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "images/Awax Demon Friend Hoodie.jpg", category: "hoodie", isNew: true, description: "Худи с авторским принтом 'Демон-друг'", materials: "80% хлопок, 20% полиэстер. Акриловые краски." },
             { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "images/Evil Eye Skeleton Hoodie.jpg", category: "hoodie", isNew: false, description: "Худи с принтом 'Скелет с глазом'", materials: "85% хлопок, 15% полиэстер. Акриловые краски." },
             { id: 3, name: "Graffiti Wave Jeans", price: 5000, image: "images/Graffiti Wave Jeans.jpg", category: "jeans", isNew: true, description: "Джинсы с граффити-принтом 'Волна'", materials: "100% хлопок. Акриловые краски." },
@@ -275,101 +289,147 @@
         let favorites = [];
         let currentCategory = 'all';
 
+        // Прокрутка
+        function scrollToCatalog() { document.getElementById('catalogSection').scrollIntoView({ behavior: 'smooth' }); }
+        function scrollToNew() { document.getElementById('newSection').scrollIntoView({ behavior: 'smooth' }); }
+        function scrollToFavorites() { document.getElementById('favoritesSection').scrollIntoView({ behavior: 'smooth' }); }
+        function scrollToCare() { document.getElementById('careSection').scrollIntoView({ behavior: 'smooth' }); }
+
+        function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
+        function closePopup(id) { document.getElementById(id).style.display = 'none'; }
+
+        // ОТКРЫТИЕ КАРТОЧКИ ТОВАРА
+        function openProductCard(productId) {
+            window.location.href = `product.html?id=${productId}`;
+        }
+
+        // Рендер карточки
+        function renderProductCard(p, isFav, isNew = false) {
+            return `
+                <div class="product-card" onclick="openProductCard(${p.id})">
+                    <div class="product-image">
+                        ${isNew ? '<div class="new-badge">НОВИНКА</div>' : ''}
+                        <img src="${p.image}" alt="${p.name}" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+                        <button class="like-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${p.id})">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="product-info">
+                        <h3>${p.name}</h3>
+                        <div class="product-price">${p.price.toLocaleString()} руб.</div>
+                        <div class="product-description">${p.description}</div>
+                        <div class="product-materials"><i class="fas fa-palette"></i> ${p.materials}</div>
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${p.id})">В корзину</button>
+                        <div class="reviews-section-compact">
+                            <div class="review-summary" onclick="event.stopPropagation(); toggleReviews(${p.id})">
+                                <i class="fas fa-comment"></i> Отзывы
+                            </div>
+                            <div id="reviews-${p.id}" class="product-reviews" onclick="event.stopPropagation()">
+                                <div id="reviews-list-${p.id}">Загрузка отзывов...</div>
+                                <button class="add-review-btn" onclick="event.stopPropagation(); addReview(${p.id})">➕ Оставить отзыв</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Отзывы (localStorage)
+        function toggleReviews(productId) {
+            const container = document.getElementById(`reviews-${productId}`);
+            if (container.classList.contains('show')) {
+                container.classList.remove('show');
+            } else {
+                container.classList.add('show');
+                loadReviews(productId);
+            }
+        }
+
+        function loadReviews(productId) {
+            const container = document.getElementById(`reviews-list-${productId}`);
+            let reviews = JSON.parse(localStorage.getItem(`reviews_${productId}`) || '[]');
+            if (reviews.length === 0) {
+                container.innerHTML = '<div style="padding:10px; text-align:center; color:#999;">Нет отзывов. Будьте первым!</div>';
+                return;
+            }
+            container.innerHTML = reviews.map(r => `
+                <div class="product-review-item">
+                    <b>${r.name}</b> 
+                    <span style="color:#ffc107;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+                    <p style="margin-top:5px;">${r.text}</p>
+                </div>
+            `).join('');
+        }
+
+        function addReview(productId) {
+            if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
+            let rating = prompt("Оцените товар (1-5):", "5");
+            if (!rating) return;
+            let text = prompt("Ваш отзыв:");
+            if (!text) return;
+            let reviews = JSON.parse(localStorage.getItem(`reviews_${productId}`) || '[]');
+            reviews.push({ name: currentUser.name, rating: parseInt(rating), text: text, date: new Date().toISOString() });
+            localStorage.setItem(`reviews_${productId}`, JSON.stringify(reviews));
+            alert("Спасибо за отзыв!");
+            loadReviews(productId);
+        }
+
+        // Отображение каталога
         function displayProducts() {
-            let filtered = currentCategory === 'all' ? allProducts : allProducts.filter(p => p.category === currentCategory);
             const container = document.getElementById('products');
-            if (!container) return;
+            const countSpan = document.getElementById('productsCount');
+            let filtered = currentCategory === 'all' ? productsList : productsList.filter(p => p.category === currentCategory);
+            if (countSpan) countSpan.textContent = `Найдено: ${filtered.length} товаров`;
             container.innerHTML = '';
             filtered.forEach(p => {
                 const isFav = favorites.includes(p.id);
-                container.innerHTML += `
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="${p.image}" alt="${p.name}" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
-                            <button class="like-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${p.id})">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        </div>
-                        <div class="product-info">
-                            <h3>${p.name}</h3>
-                            <div class="product-price">${p.price.toLocaleString()} руб.</div>
-                            <div class="product-description">${p.description}</div>
-                            <div class="product-materials"><i class="fas fa-palette"></i> ${p.materials}</div>
-                            <button class="add-to-cart" onclick="addToCart(${p.id})">В корзину</button>
-                        </div>
-                    </div>
-                `;
+                container.innerHTML += renderProductCard(p, isFav, false);
             });
         }
 
+        // Новинки
         function displayNewProducts() {
             const container = document.getElementById('newProducts');
-            if (!container) return;
-            const newItems = allProducts.filter(p => p.isNew);
+            const newItems = productsList.filter(p => p.isNew);
             container.innerHTML = '';
             newItems.forEach(p => {
                 const isFav = favorites.includes(p.id);
-                container.innerHTML += `
-                    <div class="product-card">
-                        <div class="product-image">
-                            <div class="new-badge">НОВИНКА</div>
-                            <img src="${p.image}" alt="${p.name}" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
-                            <button class="like-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${p.id})">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        </div>
-                        <div class="product-info">
-                            <h3>${p.name}</h3>
-                            <div class="product-price">${p.price.toLocaleString()} руб.</div>
-                            <div class="product-description">${p.description}</div>
-                            <div class="product-materials"><i class="fas fa-palette"></i> ${p.materials}</div>
-                            <button class="add-to-cart" onclick="addToCart(${p.id})">В корзину</button>
-                        </div>
-                    </div>
-                `;
+                container.innerHTML += renderProductCard(p, isFav, true);
             });
         }
 
+        // Избранное
         function displayFavorites() {
             const container = document.getElementById('favoritesContainer');
-            if (!container) return;
-            const favProducts = allProducts.filter(p => favorites.includes(p.id));
+            const favProducts = productsList.filter(p => favorites.includes(p.id));
             if (favProducts.length === 0) {
-                container.innerHTML = `<div class="empty-favorites"><i class="fas fa-heart-broken"></i><h3>Избранное пусто</h3><p>Добавьте понравившиеся товары, нажав на сердечко ❤️</p><button class="catalog-link-btn" onclick="scrollToCatalog()">🛍️ Перейти в каталог</button></div>`;
+                container.innerHTML = `
+                    <div class="empty-favorites">
+                        <i class="fas fa-heart-broken"></i>
+                        <h3>Избранное пусто</h3>
+                        <p>Добавьте понравившиеся товары, нажав на сердечко ❤️</p>
+                        <button class="catalog-link-btn" onclick="scrollToCatalog()">🛍️ Перейти в каталог</button>
+                    </div>
+                `;
                 return;
             }
             container.innerHTML = '<div class="products-grid"></div>';
             const grid = container.querySelector('.products-grid');
             favProducts.forEach(p => {
-                grid.innerHTML += `
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="${p.image}" alt="${p.name}" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
-                            <button class="like-btn active" onclick="event.stopPropagation(); toggleFavorite(${p.id})">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        </div>
-                        <div class="product-info">
-                            <h3>${p.name}</h3>
-                            <div class="product-price">${p.price.toLocaleString()} руб.</div>
-                            <div class="product-description">${p.description}</div>
-                            <div class="product-materials"><i class="fas fa-palette"></i> ${p.materials}</div>
-                            <button class="add-to-cart" onclick="addToCart(${p.id})">В корзину</button>
-                        </div>
-                    </div>
-                `;
+                grid.innerHTML += renderProductCard(p, true, false);
             });
         }
 
+        // Лайк
         function toggleFavorite(productId) {
-            if (!currentUser) { alert('Войдите в аккаунт'); return; }
+            if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
             const idx = favorites.indexOf(productId);
             if (idx === -1) {
                 favorites.push(productId);
-                alert('Добавлено в избранное');
+                alert("Добавлено в избранное");
             } else {
                 favorites.splice(idx, 1);
-                alert('Удалено из избранного');
+                alert("Удалено из избранного");
             }
             localStorage.setItem(`favorites_${currentUser.id}`, JSON.stringify(favorites));
             document.getElementById('favoriteCount').innerText = favorites.length;
@@ -378,23 +438,31 @@
             displayFavorites();
         }
 
+        // Корзина
         function addToCart(productId) {
-            if (!currentUser) { alert('Войдите в аккаунт'); return; }
+            if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
             let cart = JSON.parse(localStorage.getItem(`cart_${currentUser.id}`) || '[]');
             let item = cart.find(i => i.id === productId);
-            if (item) item.quantity++;
-            else cart.push({ id: productId, quantity: 1, size: 'M', price: allProducts.find(p => p.id === productId)?.price });
+            if (item) item.qty++;
+            else cart.push({ id: productId, qty: 1 });
             localStorage.setItem(`cart_${currentUser.id}`, JSON.stringify(cart));
-            updateCartCount();
-            alert('Товар добавлен в корзину');
+            let total = cart.reduce((s,i) => s + i.qty, 0);
+            document.getElementById('cartCount').innerText = total;
+            alert("Товар добавлен в корзину");
         }
 
-        function updateCartCount() {
-            if (currentUser) {
-                let cart = JSON.parse(localStorage.getItem(`cart_${currentUser.id}`) || '[]');
-                let total = cart.reduce((s, i) => s + i.quantity, 0);
-                document.getElementById('cartCount').innerText = total;
-            }
+        function submitCustomOrder() {
+            let name = document.getElementById('orderName').value;
+            let email = document.getElementById('orderEmail').value;
+            let desc = document.getElementById('orderDescription').value;
+            if (!name || !email || !desc) { alert("Заполните поля"); return; }
+            alert("Заявка отправлена!");
+            closePopup('customOrderPopup');
+        }
+
+        function openCustomOrderPopup() {
+            if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
+            openPopup('customOrderPopup');
         }
 
         function filterByCategory(category, btn) {
@@ -411,7 +479,7 @@
         }
 
         function checkAuth() {
-            const user = localStorage.getItem('currentUser');
+            let user = localStorage.getItem('currentUser');
             if (user) {
                 currentUser = JSON.parse(user);
                 document.getElementById('authButtons').style.display = 'none';
@@ -420,7 +488,8 @@
                 let fav = JSON.parse(localStorage.getItem(`favorites_${currentUser.id}`) || '[]');
                 favorites = fav;
                 document.getElementById('favoriteCount').innerText = favorites.length;
-                updateCartCount();
+                let cart = JSON.parse(localStorage.getItem(`cart_${currentUser.id}`) || '[]');
+                document.getElementById('cartCount').innerText = cart.reduce((s,i) => s + i.qty, 0);
             }
             displayProducts();
             displayNewProducts();
@@ -437,7 +506,7 @@
                 p.style.animationDuration = Math.random() * 12 + 6 + 's';
                 p.style.animationDelay = Math.random() * 5 + 's';
                 p.style.opacity = Math.random() * 0.3 + 0.1;
-                p.style.background = 'radial-gradient(circle, rgba(102,126,234,0.4) 0%, rgba(118,75,162,0.2) 100%)';
+                p.style.background = `radial-gradient(circle, rgba(102,126,234,0.4) 0%, rgba(118,75,162,0.2) 100%)`;
                 bg.appendChild(p);
             }
         }

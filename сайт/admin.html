@@ -189,7 +189,7 @@
                     document.getElementById('usersList').innerHTML = '<p>Нет пользователей</p>';
                     return;
                 }
-                let html = '<table><th>ID</th><th>Имя</th><th>Email</th><th>Действия</th></tr>';
+                let html = '<tr><th>ID</th><th>Имя</th><th>Email</th><th>Действия</th></tr>';
                 users.forEach(u => {
                     html += `<tr>
                         <td>${u.id}</td>
@@ -250,7 +250,6 @@
             const modal = document.getElementById('orderDetailModal');
             document.getElementById('detailModalTitle').innerText = `Детали кастомной заявки #${order.id}`;
             
-            // Парсим images - пробуем разные варианты
             let images = [];
             if (order.images) {
                 if (typeof order.images === 'string') {
@@ -264,7 +263,6 @@
                     images = order.images;
                 }
             }
-            // Фильтруем пустые значения
             images = images.filter(img => img && img !== 'null' && img !== 'undefined' && img !== '');
             
             document.getElementById('orderDetailContent').innerHTML = `

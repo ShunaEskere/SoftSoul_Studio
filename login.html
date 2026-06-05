@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход в аккаунт</title>
+</head>
+<body>
+    <h2>Вход</h2>
+    <input id="name" placeholder="Логин"><br><br>
+    <input id="pass" type="password" placeholder="Пароль"><br><br>
+    <button onclick="doLogin()">Войти</button>
+
+    <script>
+    function doLogin() {
+        var name = document.getElementById('name').value;
+        var pass = document.getElementById('pass').value;
+        
+        if (!name || !pass) {
+            alert("Заполните все поля");
+            return;
+        }
+        
+        var fd = new FormData();
+        fd.append('loginName', name);
+        fd.append('loginPassword', pass);
+        
+        fetch('login.php', { method: 'POST', body: fd })
+            .then(r => r.text())
+            .then(data => {
+                console.log("Ответ сервера:", data);
+                
+                if (data.startsWith('success')) {
+                    var parts = data.split('|');
+                    var user = {
+                        id: parts[1],
+                        name: parts[2],
+                        email: parts[3]
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    alert("Добро пожаловать, " + user.name);
+                    window.location.href = 'Main.html';
+                } else if (data === 'wrong_password') {
+                    alert("Неверный пароль");
+                } else if (data === 'user_not_found') {
+                    alert("Пользователь не найден");
+                } else {
+                    alert("Ошибка: " + data);
+                }
+            })
+            .catch(err => {
+                alert("Ошибка соединения: " + err);
+            });
+    }
+    </script>
+</body>
+</html>

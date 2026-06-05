@@ -24,8 +24,6 @@
         .care-list li { padding: 10px 0; padding-left: 30px; position: relative; color: #555; }
         .care-list li:before { content: "✓"; position: absolute; left: 0; color: #4caf50; font-weight: bold; }
         .care-btn { margin-top: 30px; padding: 12px 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: 600; }
-        .forgot-password { text-align: right; margin-top: 5px; margin-bottom: 15px; }
-        .forgot-password span { color: #667eea; cursor: pointer; font-size: 12px; }
         .reviews-section-compact { margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
         .review-summary { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; color: #667eea; font-size: 13px; }
         .product-reviews { display: none; margin-top: 10px; background: #f9f9f9; padding: 10px; border-radius: 10px; }
@@ -44,7 +42,7 @@
             <img src="images/Лого VIBE.png" alt="SoftSoul Studio">
         </div>
         <div class="auth-buttons" id="authButtons">
-            <button class="modern-btn outline" onclick="openPopup('loginPopup')">Вход</button>
+            <button class="modern-btn outline" id="workingLoginBtn">Вход</button>
             <button class="modern-btn primary" onclick="openPopup('registerPopup')">Регистрация</button>
         </div>
         <div class="user-panel" id="userPanel" style="display: none;">
@@ -127,42 +125,17 @@
         </div>
     </div>
 
-    <!-- ПОПАП РЕГИСТРАЦИИ (РАБОЧИЙ) -->
+    <!-- Попап регистрации -->
     <div id="registerPopup" class="modern-popup">
         <div class="popup-content">
             <span class="close-popup" onclick="closePopup('registerPopup')">×</span>
             <h3><i class="fas fa-user-plus"></i> Регистрация</h3>
-            <div class="form-group">
-                <input type="text" id="regName" placeholder="Ваше имя">
-            </div>
-            <div class="form-group">
-                <input type="email" id="regEmail" placeholder="Email">
-            </div>
-            <div class="form-group">
-                <input type="password" id="regPassword" placeholder="Пароль">
-            </div>
-            <div class="form-group">
-                <input type="password" id="regConfirm" placeholder="Повторите пароль">
-            </div>
+            <div class="form-group"><input type="text" id="regName" placeholder="Ваше имя"></div>
+            <div class="form-group"><input type="email" id="regEmail" placeholder="Email"></div>
+            <div class="form-group"><input type="password" id="regPassword" placeholder="Пароль"></div>
+            <div class="form-group"><input type="password" id="regConfirm" placeholder="Повторите пароль"></div>
             <button class="modern-btn primary" id="registerBtn">Зарегистрироваться</button>
-            <p class="login-link">Уже есть аккаунт? <span onclick="closePopup('registerPopup'); openPopup('loginPopup')">Войти</span></p>
-        </div>
-    </div>
-
-    <!-- ПОПАП ВХОДА (КОПИЯ ПОПАПА РЕГИСТРАЦИИ, ТОЛЬКО ПОЛЯ ДРУГИЕ) -->
-    <div id="loginPopup" class="modern-popup">
-        <div class="popup-content">
-            <span class="close-popup" onclick="closePopup('loginPopup')">×</span>
-            <h3><i class="fas fa-sign-in-alt"></i> Вход в аккаунт</h3>
-            <div class="form-group">
-                <input type="text" id="loginName" placeholder="Имя пользователя или Email">
-            </div>
-            <div class="form-group">
-                <input type="password" id="loginPassword" placeholder="Пароль">
-            </div>
-            <div class="forgot-password"><span onclick="alert('Обратитесь к администратору')">Забыли пароль?</span></div>
-            <button class="modern-btn primary" id="loginBtn">Войти</button>
-            <p class="login-link">Нет аккаунта? <span onclick="closePopup('loginPopup'); openPopup('registerPopup')">Зарегистрироваться</span></p>
+            <p class="login-link">Уже есть аккаунт? <span onclick="closePopup('registerPopup'); alert('Используйте кнопку Вход в шапке')">Войти</span></p>
         </div>
     </div>
 
@@ -184,55 +157,69 @@
 
         // ========== ФУНКЦИИ SUPABASE ==========
         async function supabaseLogin(login, password) {
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
-                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
-            });
-            const users = await res.json();
-            const user = users.find(u => (u.name === login || u.email === login) && u.passw === password);
-            if (user) return { success: true, user };
-            return { success: false, message: 'Неверный логин или пароль' };
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
+                    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+                });
+                const users = await res.json();
+                const user = users.find(u => (u.name === login || u.email === login) && u.passw === password);
+                if (user) return { success: true, user };
+                return { success: false, message: 'Неверный логин или пароль' };
+            } catch (error) {
+                return { success: false, message: error.message };
+            }
         }
 
         async function supabaseRegister(name, email, password) {
-            const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/client?email=eq.${encodeURIComponent(email)}`, {
-                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
-            });
-            const existing = await checkRes.json();
-            if (existing && existing.length > 0) return { success: false, message: 'Email уже используется' };
-            
-            const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
-                method: 'POST',
-                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, passw: password })
-            });
-            if (insertRes.ok) return { success: true, user: { name, email } };
-            return { success: false, message: 'Ошибка регистрации' };
+            try {
+                const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/client?email=eq.${encodeURIComponent(email)}`, {
+                    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+                });
+                const existing = await checkRes.json();
+                if (existing && existing.length > 0) return { success: false, message: 'Email уже используется' };
+                
+                const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
+                    method: 'POST',
+                    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, passw: password })
+                });
+                if (insertRes.ok) return { success: true, user: { name, email } };
+                return { success: false, message: 'Ошибка регистрации' };
+            } catch (error) {
+                return { success: false, message: error.message };
+            }
         }
 
-        // ========== КНОПКИ ==========
-        document.getElementById('loginBtn').onclick = async function() {
-            const name = document.getElementById('loginName').value.trim();
-            const pass = document.getElementById('loginPassword').value;
-            if (!name || !pass) { alert('Заполните все поля'); return; }
-            const result = await supabaseLogin(name, pass);
-            if (result.success) {
-                localStorage.setItem('currentUser', JSON.stringify(result.user));
-                alert('Добро пожаловать, ' + result.user.name);
-                closePopup('loginPopup');
-                location.reload();
-            } else {
-                alert(result.message);
-            }
+        // ========== РАБОЧАЯ КНОПКА ВХОДА ==========
+        document.getElementById('workingLoginBtn').onclick = function() {
+            const login = prompt('Введите ваш логин (имя или email):');
+            if (!login) return;
+            const password = prompt('Введите пароль:');
+            if (!password) return;
+            
+            supabaseLogin(login, password).then(result => {
+                if (result.success) {
+                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    alert('Добро пожаловать, ' + result.user.name);
+                    location.reload();
+                } else {
+                    alert(result.message || 'Ошибка входа');
+                }
+            });
         };
 
+        // ========== ФУНКЦИЯ РЕГИСТРАЦИИ ==========
         document.getElementById('registerBtn').onclick = async function() {
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const pass = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regConfirm').value;
+            
             if (!name || !email || !pass) { alert('Заполните все поля'); return; }
             if (pass !== confirm) { alert('Пароли не совпадают'); return; }
+            
             const result = await supabaseRegister(name, email, pass);
+            
             if (result.success) {
                 alert('Регистрация успешна! Теперь войдите');
                 closePopup('registerPopup');
@@ -240,6 +227,15 @@
                 alert(result.message);
             }
         };
+
+        function submitCustomOrder() {
+            const name = document.getElementById('orderName').value;
+            const email = document.getElementById('orderEmail').value;
+            const desc = document.getElementById('orderDescription').value;
+            if (!name || !email || !desc) { alert("Заполните поля"); return; }
+            alert("Заявка отправлена!");
+            closePopup('customOrderPopup');
+        }
 
         // ========== ОБЩИЕ ФУНКЦИИ ==========
         function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
@@ -251,14 +247,6 @@
         function openCustomOrderPopup() { 
             if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
             openPopup('customOrderPopup'); 
-        }
-        function submitCustomOrder() {
-            let name = document.getElementById('orderName').value;
-            let email = document.getElementById('orderEmail').value;
-            let desc = document.getElementById('orderDescription').value;
-            if (!name || !email || !desc) { alert("Заполните поля"); return; }
-            alert("Заявка отправлена!");
-            closePopup('customOrderPopup');
         }
 
         // ========== ТОВАРЫ ==========

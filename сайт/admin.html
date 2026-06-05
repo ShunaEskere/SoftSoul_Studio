@@ -189,7 +189,7 @@
                     document.getElementById('usersList').innerHTML = '<p>Нет пользователей</p>';
                     return;
                 }
-                let html = '<tr><th>ID</th><th>Имя</th><th>Email</th><th>Действия</th></tr>';
+                let html = '<table><th>ID</th><th>Имя</th><th>Email</th><th>Действия</th></table>';
                 users.forEach(u => {
                     html += `<tr>
                         <td>${u.id}</td>
@@ -252,15 +252,15 @@
             
             let images = [];
             if (order.images) {
-                if (typeof order.images === 'string') {
-                    try { 
+                if (Array.isArray(order.images)) {
+                    images = order.images;
+                } else if (typeof order.images === 'string') {
+                    try {
                         const parsed = JSON.parse(order.images);
                         images = Array.isArray(parsed) ? parsed : [parsed];
-                    } catch(e) { 
-                        images = [order.images]; 
+                    } catch(e) {
+                        images = [order.images];
                     }
-                } else if (Array.isArray(order.images)) {
-                    images = order.images;
                 }
             }
             images = images.filter(img => img && img !== 'null' && img !== 'undefined' && img !== '');
@@ -297,7 +297,7 @@
                     document.getElementById('ordersList').innerHTML = '<p>Нет заказов доставки</p>'; 
                     return; 
                 }
-                let html = '<table><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
+                let html = '</table><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Действия</th></table>';
                 allOrders.forEach(order => {
                     html += `<tr>
                         <td>${order.id}</td>
@@ -333,7 +333,7 @@
                     document.getElementById('ordersList').innerHTML = '<p>Нет кастомных заявок</p>'; 
                     return; 
                 }
-                let html = '<table><th>ID</th><th>Пользователь</th><th>Тип</th><th>Размер</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
+                let html = '</table><th>ID</th><th>Пользователь</th><th>Тип</th><th>Размер</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
                 allCustomOrders.forEach(order => {
                     html += `<tr>
                         <td>${order.id}</td>

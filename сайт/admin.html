@@ -11,14 +11,22 @@
         .admin-title { color: white; font-size: 32px; margin-bottom: 30px; }
         .admin-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 30px; }
         .admin-card h3 { color: #333; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f5f5f5; color: #333; }
-        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .status-pending { background: #fff3e0; color: #ff9800; }
-        .btn { padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; margin: 0 5px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .product-card { background: #f9f9f9; border-radius: 15px; padding: 15px; }
+        .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; }
+        .product-card h4 { margin: 10px 0; }
+        .btn { padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; margin: 5px; }
         .btn-primary { background: #667eea; color: white; }
         .btn-danger { background: #f44336; color: white; }
+        .btn-warning { background: #ff9800; color: white; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%; }
+        .modal input, .modal textarea, .modal select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f5f5f5; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-pending { background: #fff3e0; color: #ff9800; }
     </style>
 </head>
 <body>
@@ -26,15 +34,16 @@
     <header class="modern-header">
         <div class="logo" onclick="window.location.href='Main.html'"><img src="images/Лого VIBE.png" alt="SoftSoul Studio"></div>
         <a href="Main.html" class="back-button"><i class="fas fa-arrow-left"></i> На главную</a>
-        <div class="user-panel" id="userPanel">
-            <div class="user-icon" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i></div>
-            <div class="cart-icon" onclick="window.location.href='cart.html'"><i class="fas fa-shopping-bag"></i><span class="cart-count" id="cartCount">0</span></div>
-            <a href="#" class="admin-btn" id="adminBtn" style="display: none;"><i class="fas fa-cog"></i> Админ панель</a>
-        </div>
+        <div class="user-panel" id="userPanel"></div>
     </header>
 
     <div class="admin-container">
         <h1 class="admin-title"><i class="fas fa-cog"></i> Админ панель</h1>
+        
+        <div class="admin-card">
+            <h3><i class="fas fa-box"></i> Товары <button class="btn btn-primary" onclick="openAddProductModal()">+ Добавить товар</button></h3>
+            <div id="productsList" class="products-grid">Загрузка...</div>
+        </div>
         
         <div class="admin-card">
             <h3><i class="fas fa-users"></i> Пользователи</h3>
@@ -47,32 +56,176 @@
         </div>
     </div>
 
+    <!-- Модальное окно добавления/редактирования товара -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Добавить товар</h3>
+            <input type="hidden" id="productId">
+            <input type="text" id="productName" placeholder="Название товара">
+            <input type="number" id="productPrice" placeholder="Цена">
+            <select id="productCategory">
+                <option value="hoodie">Худи</option>
+                <option value="jeans">Джинсы</option>
+                <option value="joggers">Штаны</option>
+                <option value="tee">Футболка</option>
+            </select>
+            <textarea id="productDescription" rows="3" placeholder="Описание"></textarea>
+            <input type="text" id="productImage" placeholder="URL изображения">
+            <input type="text" id="productMaterials" placeholder="Материалы">
+            <div>
+                <label><input type="checkbox" id="productIsNew"> Новинка</label>
+            </div>
+            <button class="btn btn-primary" onclick="saveProduct()">Сохранить</button>
+            <button class="btn btn-danger" onclick="closeModal()">Отмена</button>
+        </div>
+    </div>
+
     <script>
         const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
 
-        async function fetchData(table) {
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+        // ========== ЗАГРУЗКА ДАННЫХ ==========
+        async function fetchData(table, options = {}) {
+            let url = `${SUPABASE_URL}/rest/v1/${table}?order=id.desc`;
+            if (options.userId) url += `&user_id=eq.${options.userId}`;
+            const res = await fetch(url, {
                 headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
             });
             return await res.json();
         }
 
-        async function loadData() {
-            // Загрузка пользователей
-            const users = await fetchData('client');
-            let usersHtml = '<table><tr><th>ID</th><th>Имя</th><th>Email</th></tr>';
-            users.forEach(u => {
-                usersHtml += `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.email}</td></tr>`;
+        async function postData(table, data) {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
             });
-            usersHtml += '</table>';
-            document.getElementById('usersList').innerHTML = usersHtml;
+            return await res.json();
+        }
+
+        async function updateData(table, id, data) {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+                method: 'PATCH',
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.ok;
+        }
+
+        async function deleteData(table, id) {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+                method: 'DELETE',
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+            });
+            return res.ok;
+        }
+
+        // ========== ТОВАРЫ ==========
+        async function loadProducts() {
+            const products = await fetchData('products');
+            const container = document.getElementById('productsList');
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p>Нет товаров</p>';
+                return;
+            }
+            container.innerHTML = '';
+            products.forEach(p => {
+                container.innerHTML += `
+                    <div class="product-card">
+                        <img src="${p.image_front || 'https://placehold.co/400x300'}" onerror="this.src='https://placehold.co/400x300'">
+                        <h4>${p.name}</h4>
+                        <p>${Number(p.price).toLocaleString()} руб.</p>
+                        <p>${p.category}</p>
+                        <button class="btn btn-warning" onclick="editProduct(${p.id})">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteProduct(${p.id})">🗑️</button>
+                    </div>
+                `;
+            });
+        }
+
+        async function saveProduct() {
+            const id = document.getElementById('productId').value;
+            const product = {
+                name: document.getElementById('productName').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                category: document.getElementById('productCategory').value,
+                description: document.getElementById('productDescription').value,
+                image_front: document.getElementById('productImage').value,
+                materials: document.getElementById('productMaterials').value,
+                is_new: document.getElementById('productIsNew').checked ? 1 : 0
+            };
             
-            // Загрузка заказов
+            if (id) {
+                await updateData('products', id, product);
+                alert('Товар обновлён');
+            } else {
+                await postData('products', product);
+                alert('Товар добавлен');
+            }
+            closeModal();
+            loadProducts();
+        }
+
+        async function deleteProduct(id) {
+            if (confirm('Удалить товар?')) {
+                await deleteData('products', id);
+                loadProducts();
+            }
+        }
+
+        function editProduct(id) {
+            fetch(`${SUPABASE_URL}/rest/v1/products?id=eq.${id}`, {
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+            })
+            .then(res => res.json())
+            .then(product => {
+                if (product[0]) {
+                    const p = product[0];
+                    document.getElementById('productId').value = p.id;
+                    document.getElementById('productName').value = p.name;
+                    document.getElementById('productPrice').value = p.price;
+                    document.getElementById('productCategory').value = p.category;
+                    document.getElementById('productDescription').value = p.description || '';
+                    document.getElementById('productImage').value = p.image_front || '';
+                    document.getElementById('productMaterials').value = p.materials || '';
+                    document.getElementById('productIsNew').checked = p.is_new === 1;
+                    document.getElementById('modalTitle').innerText = 'Редактировать товар';
+                    openModal();
+                }
+            });
+        }
+
+        function openAddProductModal() {
+            document.getElementById('productId').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productCategory').value = 'hoodie';
+            document.getElementById('productDescription').value = '';
+            document.getElementById('productImage').value = '';
+            document.getElementById('productMaterials').value = '';
+            document.getElementById('productIsNew').checked = false;
+            document.getElementById('modalTitle').innerText = 'Добавить товар';
+            openModal();
+        }
+
+        function openModal() { document.getElementById('productModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('productModal').style.display = 'none'; }
+
+        // ========== ПОЛЬЗОВАТЕЛИ ==========
+        async function loadUsers() {
+            const users = await fetchData('client');
+            let html = '<table><th>ID</th><th>Имя</th><th>Email</th><tr>';
+            users.forEach(u => { html += `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.email}</td></tr>`; });
+            html += '</table>';
+            document.getElementById('usersList').innerHTML = html;
+        }
+
+        // ========== ЗАКАЗЫ ==========
+        async function loadOrders() {
             const orders = await fetchData('orders');
-            let ordersHtml = '<table><tr><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr>';
+            let html = '<table><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr>';
             orders.forEach(o => {
-                ordersHtml += `<tr>
+                html += `<tr>
                     <td>${o.id}</td>
                     <td>${o.user_name || o.user_id}</td>
                     <td>${Number(o.total).toLocaleString()} руб.</td>
@@ -80,10 +233,11 @@
                     <td>${new Date(o.created_at).toLocaleDateString()}</td>
                 </tr>`;
             });
-            ordersHtml += '</table>';
-            document.getElementById('ordersList').innerHTML = ordersHtml;
+            html += '</table>';
+            document.getElementById('ordersList').innerHTML = html;
         }
-        
+
+        // ========== ПРОВЕРКА АДМИНА ==========
         function checkAuth() {
             const user = localStorage.getItem('currentUser');
             if (user) {
@@ -93,9 +247,11 @@
                 window.location.href = 'Main.html';
             }
         }
-        
+
         checkAuth();
-        loadData();
+        loadProducts();
+        loadUsers();
+        loadOrders();
     </script>
 </body>
 </html>

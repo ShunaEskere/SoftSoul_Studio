@@ -160,9 +160,6 @@
         let favorites = [];
         let cart = [];
         let currentCategory = 'all';
-        
-        // Базовый путь для фото (GitHub Pages)
-        const BASE_PATH = window.location.pathname.includes('/сайт/') ? '' : 'сайт/';
 
         // ========== ЗАГРУЗКА ТОВАРОВ ИЗ SUPABASE ==========
         async function loadProductsFromSupabase() {
@@ -337,10 +334,6 @@
 
         function renderProductCard(p, isFav, isNew = false) {
             let imgUrl = p.image_front || p.image || 'https://placehold.co/400x300?text=No+Image';
-            // Добавляем базовый путь если это локальное изображение
-            if (imgUrl && !imgUrl.startsWith('http') && !imgUrl.startsWith('https')) {
-                imgUrl = BASE_PATH + imgUrl;
-            }
             return `
                 <div class="product-card" onclick="openProductCard(${p.id})">
                     <div class="product-image">

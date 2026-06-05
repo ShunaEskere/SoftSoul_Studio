@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>SoftSoul Studio - Профиль</title>
+    <title>SoftSoul Studio - Профиль пользователя</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
@@ -13,27 +13,24 @@
         .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
         .bg-animation span { position: absolute; display: block; width: 20px; height: 20px; background: rgba(255,255,255,0.08); bottom: -150px; animation: floatUp 8s infinite; border-radius: 50%; }
         @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.5; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
-        
-        /* Хедер */
-        .modern-header { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; flex-wrap: wrap; gap: 15px; }
+        .modern-header { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
         .logo img { height: 50px; cursor: pointer; }
         .back-button { color: #667eea; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px; }
         .user-panel { display: flex; gap: 20px; align-items: center; }
         .user-icon, .cart-icon, .favorite-icon { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; position: relative; }
+        .favorite-icon { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); }
         .cart-count, .favorite-count { position: absolute; top: -8px; right: -8px; background: #ff6b6b; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; }
         .admin-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f44336, #d32f2f); color: white; padding: 8px 20px; border-radius: 30px; text-decoration: none; font-size: 14px; margin-left: 10px; }
-        
-        /* Профиль */
         .profile-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; position: relative; z-index: 1; }
         .profile-header { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; display: flex; align-items: center; gap: 30px; margin-bottom: 30px; }
         .profile-avatar { width: 100px; height: 100px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; color: white; }
         .profile-info h1 { color: white; font-size: 28px; margin-bottom: 8px; }
-        .profile-info p { color: rgba(255,255,255,0.8); }
+        .profile-info p { color: rgba(255,255,255,0.8); margin-bottom: 5px; }
         .profile-content { display: flex; gap: 30px; }
         .profile-sidebar { width: 280px; flex-shrink: 0; }
         .profile-menu { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; position: sticky; top: 100px; }
         .menu-btn { width: 100%; padding: 12px 15px; background: transparent; border: none; border-radius: 12px; color: white; font-size: 14px; font-weight: 500; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; transition: all 0.3s; }
-        .menu-btn i { width: 22px; color: #667eea; }
+        .menu-btn i { width: 20px; color: #667eea; }
         .menu-btn:hover { background: rgba(102,126,234,0.2); }
         .menu-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
         .menu-btn.active i { color: white; }
@@ -42,24 +39,15 @@
         .tab-content.active { display: block; }
         .section-title { color: white; font-size: 22px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid rgba(102,126,234,0.5); }
         .section-title i { margin-right: 10px; color: #667eea; }
-        
-        /* Формы */
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; color: white; margin-bottom: 8px; font-weight: 500; }
         .form-group input { width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.9); border: 2px solid transparent; border-radius: 12px; font-size: 14px; }
         .input-with-button { display: flex; gap: 15px; }
         .input-with-button input { flex: 1; }
-        
-        /* Единые кнопки */
-        .modern-btn { padding: 10px 28px; border-radius: 30px; font-weight: 600; cursor: pointer; border: none; font-size: 14px; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .modern-btn { padding: 10px 25px; border-radius: 25px; font-weight: 600; cursor: pointer; border: none; font-size: 14px; transition: all 0.3s; }
         .modern-btn.primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-        .modern-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
         .modern-btn.outline { background: transparent; border: 2px solid #667eea; color: #667eea; }
-        .modern-btn.outline:hover { background: #667eea; color: white; }
         .modern-btn.danger { background: #f44336; color: white; }
-        .modern-btn.danger:hover { background: #d32f2f; transform: translateY(-2px); }
-        
-        /* Заказы и избранное — единый стиль */
         .orders-list, .favorites-list, .custom-orders-list { display: flex; flex-direction: column; gap: 20px; }
         .order-card, .favorite-card, .custom-card { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; transition: transform 0.2s, box-shadow 0.2s; }
         .order-card:hover, .favorite-card:hover, .custom-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
@@ -71,60 +59,41 @@
         .status-confirmed { background: #e8f5e9; color: #4caf50; }
         .status-shipped { background: #e3f2fd; color: #2196f3; }
         .status-delivered { background: #e8f5e9; color: #4caf50; }
-        .status-processing { background: #e3f2fd; color: #2196f3; }
-        .status-completed { background: #e8f5e9; color: #4caf50; }
-        
         .card-body { margin-bottom: 15px; }
         .order-items-list { margin-bottom: 10px; }
         .order-item-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; color: #555; border-bottom: 1px solid #f0f0f0; }
         .card-total { text-align: right; font-weight: 700; font-size: 16px; color: #667eea; margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0; }
-        .card-footer { margin-top: 12px; text-align: right; }
-        
-        /* Пустое состояние */
+        .card-footer { margin-top: 12px; text-align: right; font-size: 13px; color: #888; }
         .empty-state { text-align: center; padding: 60px 30px; background: rgba(255,255,255,0.95); border-radius: 20px; color: #888; }
         .empty-state i { font-size: 60px; margin-bottom: 18px; color: #ccc; }
         .empty-state h4 { font-size: 20px; color: #444; margin-bottom: 10px; }
         .empty-state p { margin-bottom: 20px; }
-        
-        /* Карточки управления */
         .action-card { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
         .action-icon { width: 50px; height: 50px; background: rgba(102,126,234,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #667eea; }
         .action-card.danger .action-icon { background: rgba(244,67,54,0.1); color: #f44336; }
         .action-info { flex: 1; }
         .action-info h4 { color: #333; margin-bottom: 5px; }
         .action-info p { color: #666; font-size: 13px; }
-        
-        /* Модальные окна */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
         .modal-overlay.show { display: flex; }
         .modal-content { background: white; border-radius: 20px; max-width: 450px; width: 90%; padding: 25px; }
         .modal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
         .warning-text { color: #f44336; background: #fff5f5; padding: 12px; border-radius: 8px; margin: 15px 0; }
         .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-        
-        /* Уведомления */
         .notification-popup { position: fixed; bottom: 30px; right: 30px; z-index: 3000; transform: translateX(400px); transition: transform 0.3s ease; }
         .notification-popup.show { transform: translateX(0); }
         .notification-content { background: white; border-radius: 12px; padding: 15px 25px; display: flex; align-items: center; gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
-        
-        /* Избранное */
-        .favorite-card { display: flex; gap: 20px; align-items: center; }
-        .favorite-img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
-        .favorite-info { flex: 1; }
-        .favorite-info h4 { color: #333; margin-bottom: 5px; }
-        .favorite-price { color: #667eea; font-weight: bold; }
-        
         @media (max-width: 768px) {
-            .modern-header { flex-direction: column; justify-content: center; }
+            .modern-header { padding: 15px 20px; flex-wrap: wrap; }
             .profile-header { flex-direction: column; text-align: center; }
             .profile-content { flex-direction: column; }
             .profile-sidebar { width: 100%; }
             .profile-menu { display: flex; flex-wrap: wrap; gap: 10px; position: static; }
-            .menu-btn { width: auto; flex: 1; min-width: 100px; justify-content: center; }
+            .menu-btn { width: auto; flex: 1; min-width: 120px; justify-content: center; }
             .input-with-button { flex-direction: column; }
             .action-card { flex-direction: column; text-align: center; }
-            .favorite-card { flex-direction: column; text-align: center; }
             .card-header { flex-direction: column; align-items: flex-start; }
+            .order-item-row { flex-direction: column; gap: 5px; }
         }
     </style>
 </head>
@@ -165,45 +134,39 @@
             </div>
 
             <div class="profile-main">
-                <!-- Личные данные -->
                 <div class="tab-content active" id="tab-profile">
                     <div class="section-title"><i class="fas fa-user-edit"></i> Редактирование профиля</div>
                     <div class="form-group"><label>Имя пользователя</label><div class="input-with-button"><input type="text" id="editName" placeholder="Ваше имя"><button class="modern-btn primary" onclick="updateName()">Сохранить</button></div></div>
                     <div class="form-group"><label>Email</label><div class="input-with-button"><input type="email" id="editEmail" placeholder="Email" disabled><button class="modern-btn outline" disabled>Недоступно</button></div></div>
                 </div>
 
-                <!-- История заказов -->
                 <div class="tab-content" id="tab-orders">
                     <div class="section-title"><i class="fas fa-history"></i> История заказов</div>
                     <div id="ordersList" class="orders-list"></div>
                 </div>
 
-                <!-- Мои заявки -->
                 <div class="tab-content" id="tab-custom">
                     <div class="section-title"><i class="fas fa-palette"></i> Мои заявки на дизайн</div>
                     <div id="customOrdersList" class="orders-list"></div>
                 </div>
 
-                <!-- Избранное -->
                 <div class="tab-content" id="tab-favorites">
                     <div class="section-title"><i class="fas fa-heart"></i> Избранные товары</div>
                     <div id="favoritesList" class="favorites-list"></div>
                 </div>
 
-                <!-- Безопасность -->
                 <div class="tab-content" id="tab-security">
                     <div class="section-title"><i class="fas fa-key"></i> Смена пароля</div>
                     <div class="form-group"><label>Текущий пароль</label><input type="password" id="currentPassword" placeholder="Введите текущий пароль"></div>
                     <div class="form-group"><label>Новый пароль</label><input type="password" id="newPassword" placeholder="Введите новый пароль"></div>
                     <div class="form-group"><label>Подтверждение пароля</label><input type="password" id="confirmPassword" placeholder="Подтвердите новый пароль"></div>
-                    <button class="modern-btn primary" onclick="updatePassword()"><i class="fas fa-save"></i> Сменить пароль</button>
+                    <button class="modern-btn primary" onclick="updatePassword()">Сменить пароль</button>
                 </div>
 
-                <!-- Управление аккаунтом -->
                 <div class="tab-content" id="tab-account">
                     <div class="section-title"><i class="fas fa-cog"></i> Управление аккаунтом</div>
-                    <div class="action-card"><div class="action-icon"><i class="fas fa-sign-out-alt"></i></div><div class="action-info"><h4>Выход из аккаунта</h4><p>Выйдите из текущей сессии.</p></div><button class="modern-btn outline" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</button></div>
-                    <div class="action-card danger"><div class="action-icon"><i class="fas fa-trash-alt"></i></div><div class="action-info"><h4>Удалить аккаунт</h4><p>Внимание! Это действие необратимо.</p></div><button class="modern-btn danger" onclick="showDeleteConfirm()"><i class="fas fa-trash-alt"></i> Удалить аккаунт</button></div>
+                    <div class="action-card"><div class="action-icon"><i class="fas fa-sign-out-alt"></i></div><div class="action-info"><h4>Выход из аккаунта</h4><p>Выйдите из текущей сессии.</p></div><button class="modern-btn outline" onclick="logout()">Выйти</button></div>
+                    <div class="action-card danger"><div class="action-icon"><i class="fas fa-trash-alt"></i></div><div class="action-info"><h4>Удалить аккаунт</h4><p>Внимание! Это действие необратимо.</p></div><button class="modern-btn danger" onclick="showDeleteConfirm()">Удалить аккаунт</button></div>
                 </div>
             </div>
         </div>
@@ -219,20 +182,24 @@
     <div id="notificationPopup" class="notification-popup"><div class="notification-content"><i class="fas fa-check-circle"></i><p id="notificationMessage"></p></div></div>
 
     <script>
-        // ========== ПЕРЕМЕННЫЕ ==========
+        // ========== НАСТРОЙКИ SUPABASE ==========
+        const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
+
         let currentUser = null;
         let userOrders = [];
         let userCustomOrders = [];
         let favorites = [];
-        
-        // Товары для избранного
+        let allProducts = [];
+
+        // ========== ТОВАРЫ ДЛЯ ИЗБРАННОГО ==========
         const productsList = [
-            { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "images/Awax Demon Friend Hoodie.jpg" },
-            { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "images/Evil Eye Skeleton Hoodie.jpg" },
-            { id: 3, name: "Graffiti Wave Jeans", price: 5000, image: "images/Graffiti Wave Jeans.jpg" },
-            { id: 4, name: "Mystic Bloom Joggers", price: 4500, image: "images/Mystic Bloom Joggers.jpg" },
-            { id: 5, name: "Occult Edge Sweatpants", price: 3000, image: "images/Occult Edge Sweatpants.jpg" },
-            { id: 6, name: "Shadow Rat Stealth Tee", price: 5700, image: "images/Shadow Rat Stealth Tee.jpg" }
+            { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "https://raw.githubusercontent.com/ShunaEskere/SoftSoul_Studio/main/сайт/images/Awax%20Demon%20Friend%20Hoodie.jpg" },
+            { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "https://raw.githubusercontent.com/ShunaEskere/SoftSoul_Studio/main/сайт/images/Evil%20Eye%20Skeleton%20Hoodie.jpg" },
+            { id: 3, name: "Graffiti Wave Jeans", price: 5000, image: "https://raw.githubusercontent.com/ShunaEskere/SoftSoul_Studio/main/сайт/images/Graffiti%20Wave%20Jeans.jpg" },
+            { id: 4, name: "Mystic Bloom Joggers", price: 4500, image: "https://raw.githubusercontent.com/ShunaEskere/SoftSoul_Studio/main/сайт/images/Mystic%20Bloom%20Joggers.jpg" },
+            { id: 5, name: "Occult Edge Sweatpants", price: 3000, image: "https://raw.githubusercontent.com/ShunaEskere/SoftSoul_Studio/main/сайт/images/Occult%20Edge%20Sweatpants.jpg" },
+            { id: 6, name: "Shadow Rat Stealth Tee", price: 5700, image: "https://raw.githubusercontent.com/ShunaEskere/SoftSoul_Studio/main/сайт/images/Shadow%20Rat%20Stealth%20Tee.jpg" }
         ];
 
         // ========== УВЕДОМЛЕНИЯ ==========
@@ -249,7 +216,10 @@
         // ========== ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ==========
         function loadUserData() {
             const user = localStorage.getItem('currentUser');
-            if (!user) { window.location.href = 'Main.html'; return; }
+            if (!user) {
+                window.location.href = 'Main.html';
+                return;
+            }
             currentUser = JSON.parse(user);
             document.getElementById('profileName').innerText = currentUser.name;
             document.getElementById('profileEmail').innerText = currentUser.email || 'не указан';
@@ -269,7 +239,7 @@
 
         function loadCartCount() {
             const cart = JSON.parse(localStorage.getItem(`cart_${currentUser.id}`) || '[]');
-            const count = cart.reduce((s, i) => s + (i.quantity || i.qty || 0), 0);
+            const count = cart.reduce((s, i) => s + i.quantity, 0);
             document.getElementById('cartCount').innerText = count;
         }
 
@@ -289,13 +259,10 @@
                 return;
             }
             container.innerHTML = favProducts.map(p => `
-                <div class="favorite-card">
-                    <img src="${p.image}" class="favorite-img" onerror="this.src='images/placeholder.jpg'">
-                    <div class="favorite-info">
-                        <h4>${p.name}</h4>
-                        <div class="favorite-price">${p.price.toLocaleString()} руб.</div>
-                    </div>
-                    <button class="modern-btn outline" onclick="removeFromFavorites(${p.id})"><i class="fas fa-trash-alt"></i> Удалить</button>
+                <div class="favorite-card" style="display:flex; gap:15px; align-items:center; flex-wrap:wrap;">
+                    <img src="${p.image}" style="width:80px; height:80px; object-fit:cover; border-radius:10px;" onerror="this.src='https://placehold.co/80x80?text=No+Image'">
+                    <div style="flex:1;"><h4>${p.name}</h4><div class="price">${p.price.toLocaleString()} руб.</div></div>
+                    <button class="modern-btn outline" onclick="removeFromFavorites(${p.id})">Удалить</button>
                 </div>
             `).join('');
         }
@@ -308,154 +275,75 @@
             showNotification('Удалено из избранного', 'info');
         }
 
-        // ========== ЗАКАЗЫ ==========
-       async function loadOrders() {
-    const container = document.getElementById('ordersList');
-    if (!container) return;
-    
-    container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse"></i><h4>Загрузка заказов...</h4></div>';
-    
-    try {
-        const url = `php/get_orders.php?_=${Date.now()}`;
-        console.log('Запрос к:', url);
-        
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        console.log('Ответ от сервера:', data);
-        
-        if (data.success && data.orders && data.orders.length > 0) {
-            userOrders = data.orders;
-            displayOrders();
-        } else {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><h4>Нет заказов</h4><p>У вас пока нет оформленных заказов</p><button class="modern-btn outline" onclick="loadOrders()">🔄 Обновить</button><button class="modern-btn outline" onclick="window.location.href=\'cart.html\'" style="margin-left:10px;">🛒 Перейти в корзину</button></div>';
-        }
-    } catch (error) {
-        console.error('Ошибка загрузки заказов:', error);
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h4>Ошибка загрузки</h4><p>' + error.message + '</p><button class="modern-btn outline" onclick="loadOrders()">Повторить</button></div>';
-    }
-}
-
-function displayOrders() {
-    const container = document.getElementById('ordersList');
-    if (!container) return;
-    
-    if (!userOrders || userOrders.length === 0) {
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><h4>Нет заказов</h4><p>У вас пока нет оформленных заказов</p><button class="modern-btn outline" onclick="window.location.href=\'Main.html#catalog\'">Перейти в каталог</button></div>';
-        return;
-    }
-    
-    console.log('Отображаем заказы:', userOrders.length);
-    
-    container.innerHTML = userOrders.map(order => {
-        const items = order.items || [];
-        const statusText = getStatusText(order.status);
-        const orderDate = new Date(order.created_at);
-        const dateStr = orderDate.toLocaleString('ru-RU');
-        
-        return `
-            <div class="order-card">
-                <div class="card-header">
-                    <span class="card-id">Заказ #${order.id}</span>
-                    <span class="card-date">${dateStr}</span>
-                    <span class="card-status ${getStatusClass(order.status)}">${statusText}</span>
-                </div>
-                <div class="card-body">
-                    <div class="order-items-list">
-                        ${items.map(item => `
-                            <div class="order-item-row">
-                                <span>${item.name} ${item.size ? `(${item.size})` : ''}</span>
-                                <span>${item.quantity} шт. × ${item.price} руб.</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="card-total">Итого: ${Number(order.total).toLocaleString()} руб.</div>
-                </div>
-                <div class="card-footer">
-                    <span class="card-payment">Оплата: ${order.payment_method === 'sbp' ? 'СБП' : 'Наличные'}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-        function displayOrders() {
-    const container = document.getElementById('ordersList');
-    if (!container) return;
-    
-    if (!userOrders || userOrders.length === 0) {
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><h4>Нет заказов</h4><p>У вас пока нет оформленных заказов</p><button class="modern-btn outline" onclick="window.location.href=\'Main.html#catalog\'">Перейти в каталог</button></div>';
-        return;
-    }
-    
-    console.log('Отображаем заказы:', userOrders);
-    
-    container.innerHTML = userOrders.map(order => {
-        let items = [];
-        // Парсим items, если они пришли строкой
-        if (typeof order.items === 'string') {
+        // ========== ЗАКАЗЫ ИЗ SUPABASE ==========
+        async function loadOrders() {
+            const container = document.getElementById('ordersList');
+            if (!container) return;
+            
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse"></i><h4>Загрузка заказов...</h4></div>';
+            
             try {
-                items = JSON.parse(order.items);
-            } catch(e) {
-                items = [];
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/orders?user_id=eq.${currentUser.id}&order=id.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const orders = await response.json();
+                
+                if (orders && orders.length > 0) {
+                    displayOrders(orders);
+                } else {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><h4>Нет заказов</h4><p>У вас пока нет оформленных заказов</p><button class="modern-btn outline" onclick="window.location.href=\'cart.html\'">Перейти в корзину</button></div>';
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки заказов:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h4>Ошибка загрузки</h4><p>' + error.message + '</p><button class="modern-btn outline" onclick="loadOrders()">Повторить</button></div>';
             }
-        } else if (Array.isArray(order.items)) {
-            items = order.items;
         }
-        
-        const statusText = getStatusText(order.status);
-        let orderDate = 'Дата не указана';
-        if (order.created_at) {
-            try {
-                orderDate = new Date(order.created_at).toLocaleString('ru-RU');
-            } catch(e) {}
-        }
-        
-        return `
-            <div class="order-card">
-                <div class="card-header">
-                    <span class="card-id">Заказ #${order.id}</span>
-                    <span class="card-date">${orderDate}</span>
-                    <span class="card-status ${getStatusClass(order.status)}">${statusText}</span>
-                </div>
-                <div class="card-body">
-                    <div class="order-items-list">
-                        ${items.map(item => `
-                            <div class="order-item-row">
-                                <span>${item.name || 'Товар'} ${item.size ? `(${item.size})` : ''}</span>
-                                <span>${item.quantity || 1} шт. × ${Number(item.price || 0).toLocaleString()} руб.</span>
+
+        function displayOrders(orders) {
+            const container = document.getElementById('ordersList');
+            if (!container) return;
+            
+            container.innerHTML = orders.map(order => {
+                const items = order.items || [];
+                const statusText = getStatusText(order.status);
+                const orderDate = new Date(order.created_at).toLocaleString('ru-RU');
+                
+                return `
+                    <div class="order-card">
+                        <div class="card-header">
+                            <span class="card-id">Заказ #${order.id}</span>
+                            <span class="card-date">${orderDate}</span>
+                            <span class="card-status ${getStatusClass(order.status)}">${statusText}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="order-items-list">
+                                ${items.map(item => `
+                                    <div class="order-item-row">
+                                        <span>${escapeHtml(item.name)} ${item.size ? `(${item.size})` : ''}</span>
+                                        <span>${item.quantity} шт. × ${Number(item.price).toLocaleString()} руб.</span>
+                                    </div>
+                                `).join('')}
                             </div>
-                        `).join('')}
+                            <div class="card-total">Итого: ${Number(order.total).toLocaleString()} руб.</div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="card-payment">Оплата: ${order.payment_method === 'sbp' ? 'СБП' : 'Наличные'}</span>
+                        </div>
                     </div>
-                    <div class="card-total">Итого: ${Number(order.total).toLocaleString()} руб.</div>
-                </div>
-                <div class="card-footer">
-                    <span class="card-payment">Оплата: ${order.payment_method === 'sbp' ? 'СБП' : 'Наличные'}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
+                `;
+            }).join('');
+        }
 
         function getStatusText(status) {
-            const statuses = {
-                'pending': 'В обработке',
-                'confirmed': 'Подтверждён',
-                'shipped': 'Отправлен',
-                'delivered': 'Доставлен',
-                'cancelled': 'Отменён'
-            };
+            const statuses = { 'pending': 'В обработке', 'confirmed': 'Подтверждён', 'shipped': 'Отправлен', 'delivered': 'Доставлен', 'cancelled': 'Отменён' };
             return statuses[status] || status;
         }
 
         function getStatusClass(status) {
-            const classes = {
-                'pending': 'status-pending',
-                'confirmed': 'status-confirmed',
-                'shipped': 'status-shipped',
-                'delivered': 'status-delivered',
-                'cancelled': 'status-pending'
-            };
+            const classes = { 'pending': 'status-pending', 'confirmed': 'status-confirmed', 'shipped': 'status-shipped', 'delivered': 'status-delivered' };
             return classes[status] || 'status-pending';
         }
 
@@ -466,11 +354,16 @@ function displayOrders() {
             container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse"></i><h4>Загрузка...</h4></div>';
             
             try {
-                const response = await fetch(`php/get_custom_orders.php?user_id=${currentUser.id}`);
-                const data = await response.json();
-                if (data.success && data.orders && data.orders.length > 0) {
-                    userCustomOrders = data.orders;
-                    displayCustomOrders();
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/custom_orders?user_id=eq.${currentUser.id}&order=id.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const orders = await response.json();
+                
+                if (orders && orders.length > 0) {
+                    displayCustomOrders(orders);
                 } else {
                     container.innerHTML = '<div class="empty-state"><i class="fas fa-palette"></i><h4>Нет заявок</h4><p>У вас пока нет заявок на дизайн</p><button class="modern-btn outline" onclick="window.location.href=\'Main.html\'">Заказать дизайн</button></div>';
                 }
@@ -479,12 +372,11 @@ function displayOrders() {
             }
         }
 
-        function displayCustomOrders() {
+        function displayCustomOrders(orders) {
             const container = document.getElementById('customOrdersList');
             if (!container) return;
-            if (userCustomOrders.length === 0) return;
             
-            container.innerHTML = userCustomOrders.map(order => `
+            container.innerHTML = orders.map(order => `
                 <div class="order-card">
                     <div class="card-header">
                         <span class="card-id">Заявка #${order.id}</span>
@@ -553,29 +445,24 @@ function displayOrders() {
 
         // ========== ВКЛАДКИ ==========
         function setupTabs() {
-    const menuBtns = document.querySelectorAll('.menu-btn');
-    const tabs = document.querySelectorAll('.tab-content');
-    
-    menuBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabId = btn.getAttribute('data-tab');
-            menuBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            
-            // Принудительно загружаем данные при переключении
-            if (tabId === 'favorites') displayFavorites();
-            if (tabId === 'orders') {
-                console.log('Переключение на вкладку заказов, загружаем...');
-                loadOrders();
-            }
-            if (tabId === 'custom') loadCustomOrders();
-        });
-    });
-}
+            const menuBtns = document.querySelectorAll('.menu-btn');
+            const tabs = document.querySelectorAll('.tab-content');
+            menuBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.getAttribute('data-tab');
+                    menuBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    tabs.forEach(tab => tab.classList.remove('active'));
+                    document.getElementById(`tab-${tabId}`).classList.add('active');
+                    if (tabId === 'favorites') displayFavorites();
+                    if (tabId === 'orders') loadOrders();
+                    if (tabId === 'custom') loadCustomOrders();
+                });
+            });
+        }
 
-        // ========== ЧАСТИЦЫ ==========
+        function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+
         function createParticles() {
             const bg = document.getElementById('bgAnimation');
             for (let i = 0; i < 60; i++) {

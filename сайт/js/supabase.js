@@ -109,3 +109,99 @@ window.supabaseLogin = supabaseLogin;
 window.supabaseGetProducts = supabaseGetProducts;
 
 console.log('Supabase.js загружен!');
+
+// ========== ИЗБРАННОЕ (SUPABASE) ==========
+async function loadFavoritesFromSupabase() {
+    if (!currentUser) return;
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/favorites?user_id=eq.${currentUser.id}`, {
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+        });
+        const data = await res.json();
+        favorites = data.map(f => f.product_id);
+        document.getElementById('favoriteCount').innerText = favorites.length;
+        displayProducts();
+        displayNewProducts();
+        displayFavorites();
+    } catch (error) {
+        console.error('Ошибка загрузки избранного:', error);
+        favorites = [];
+    }
+}
+
+async function toggleFavorite(productId) {
+    if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
+    const idx = favorites.indexOf(productId);
+    if (idx === -1) {
+        // Добавляем
+        await fetch(`${SUPABASE_URL}/rest/v1/favorites`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ user_id: currentUser.id, product_id: productId })
+        });
+        favorites.push(productId);
+        alert("Добавлено в избранное");
+    } else {
+        // Удаляем
+        await fetch(`${SUPABASE_URL}/rest/v1/favorites?user_id=eq.${currentUser.id}&product_id=eq.${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+        });
+        favorites.splice(idx, 1);
+        alert("Удалено из избранного");
+    }
+    document.getElementById('favoriteCount').innerText = favorites.length;
+    displayProducts();
+    displayNewProducts();
+    displayFavorites();
+}
+// ========== ОТЗЫВЫ (SUPABASE) ==========
+async function loadReviewsFromSupabase(productId) {
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews?product_id=eq.${productId}&order=id.desc`, {
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+        });
+        return await res.json();
+    } catch (error) {
+        console.error('Ошибка загрузки отзывов:', error);
+        return [];
+    }
+}
+
+async function addReviewToSupabase(productId, rating, text) {
+    if (!currentUser) return false;
+    try {
+        await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                user_id: currentUser.id,
+                user_name: currentUser.name,
+                rating: rating,
+                text: text
+            })
+        });
+        return true;
+    } catch (error) {
+        console.error('Ошибка добавления отзыва:', error);
+        return false;
+    }
+}

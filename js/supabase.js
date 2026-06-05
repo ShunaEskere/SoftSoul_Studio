@@ -2,29 +2,32 @@
 const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
 
-// ========== ПРЯМЫЕ ЗАПРОСЫ (без сложных обёрток) ==========
-
-// РЕГИСТРАЦИЯ
+// ========== РЕГИСТРАЦИЯ ==========
 async function supabaseRegister(name, email, password) {
     try {
-        console.log('Регистрация:', { name, email });
+        console.log('1. Регистрация:', { name, email });
         
-        // Проверяем, есть ли уже такой email
-        const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/client?email=eq.${email}`, {
+        // Проверяем, есть ли пользователь с таким email
+        const checkUrl = `${SUPABASE_URL}/rest/v1/client?email=eq.${encodeURIComponent(email)}`;
+        console.log('2. Проверка URL:', checkUrl);
+        
+        const checkRes = await fetch(checkUrl, {
+            method: 'GET',
             headers: {
                 'apikey': SUPABASE_ANON_KEY,
                 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
             }
         });
         
+        console.log('3. Статус проверки:', checkRes.status);
         const existing = await checkRes.json();
-        console.log('Существующие пользователи:', existing);
+        console.log('4. Существующие:', existing);
         
         if (existing && existing.length > 0) {
             return { success: false, message: 'Email уже используется' };
         }
         
-        // Создаём нового пользователя
+        // Создаём пользователя
         const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
             method: 'POST',
             headers: {
@@ -35,24 +38,19 @@ async function supabaseRegister(name, email, password) {
             body: JSON.stringify({ name, email, passw: password })
         });
         
-        console.log('Статус ответа:', insertRes.status);
+        console.log('5. Статус вставки:', insertRes.status);
         
-        if (!insertRes.ok) {
+        if (insertRes.status === 201 || insertRes.status === 200) {
+            console.log('6. Успешно!');
+            return { 
+                success: true, 
+                user: { id: Date.now(), name, email, passw: password }
+            };
+        } else {
             const errorText = await insertRes.text();
-            console.error('Ошибка:', errorText);
+            console.error('7. Ошибка:', errorText);
             return { success: false, message: `Ошибка ${insertRes.status}: ${errorText}` };
         }
-        
-        // Пробуем получить результат
-        let result;
-        try {
-            result = await insertRes.json();
-        } catch(e) {
-            result = { message: 'Пользователь создан' };
-        }
-        
-        console.log('Результат:', result);
-        return { success: true, user: { name, email, id: Date.now() } };
         
     } catch (error) {
         console.error('Register error:', error);
@@ -60,12 +58,11 @@ async function supabaseRegister(name, email, password) {
     }
 }
 
-// ВХОД
+// ========== ВХОД ==========
 async function supabaseLogin(login, password) {
     try {
-        console.log('Вход:', login);
+        console.log('1. Вход:', login);
         
-        // Ищем пользователя по имени или email
         const res = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
             headers: {
                 'apikey': SUPABASE_ANON_KEY,
@@ -73,8 +70,9 @@ async function supabaseLogin(login, password) {
             }
         });
         
+        console.log('2. Статус:', res.status);
         const users = await res.json();
-        console.log('Все пользователи:', users);
+        console.log('3. Пользователи:', users);
         
         const user = users.find(u => (u.name === login || u.email === login) && u.passw === password);
         
@@ -89,7 +87,7 @@ async function supabaseLogin(login, password) {
     }
 }
 
-// ПОЛУЧИТЬ ТОВАРЫ
+// ========== ПОЛУЧИТЬ ТОВАРЫ ==========
 async function supabaseGetProducts() {
     try {
         const res = await fetch(`${SUPABASE_URL}/rest/v1/products`, {
@@ -104,3 +102,10 @@ async function supabaseGetProducts() {
         return [];
     }
 }
+
+// Для совместимости со старым кодом
+window.supabaseRegister = supabaseRegister;
+window.supabaseLogin = supabaseLogin;
+window.supabaseGetProducts = supabaseGetProducts;
+
+console.log('Supabase.js загружен!');

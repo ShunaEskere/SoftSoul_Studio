@@ -480,5 +480,31 @@
         createParticles();
         checkAuth();
     </script>
+    <!-- Простая кнопка входа -->
+<div style="position: fixed; bottom: 20px; right: 20px; z-index: 99999;">
+    <button id="simpleLoginBtn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        🔑 Войти
+    </button>
+</div>
+
+<script>
+    // Простая кнопка входа
+    document.getElementById('simpleLoginBtn').onclick = function() {
+        const login = prompt('Введите ваш логин (имя или email):');
+        if (!login) return;
+        const password = prompt('Введите пароль:');
+        if (!password) return;
+        
+        supabaseLogin(login, password).then(result => {
+            if (result.success) {
+                localStorage.setItem('currentUser', JSON.stringify(result.user));
+                alert('Добро пожаловать, ' + result.user.name);
+                location.reload();
+            } else {
+                alert(result.message || 'Ошибка входа');
+            }
+        });
+    };
+</script>
 </body>
 </html>

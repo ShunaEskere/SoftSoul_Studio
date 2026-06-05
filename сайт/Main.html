@@ -32,6 +32,16 @@
         .add-review-btn { margin-top: 10px; padding: 8px 15px; background: #f0f0f0; border: none; border-radius: 20px; cursor: pointer; font-size: 12px; color: #667eea; }
         .product-card { cursor: pointer; }
         .add-to-cart, .like-btn, .review-summary, .add-review-btn { cursor: pointer; }
+        
+        /* Стили для формы кастомного заказа */
+        .garment-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+        .garment-btn { padding: 10px 18px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 30px; cursor: pointer; transition: all 0.3s; font-size: 14px; }
+        .garment-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-color: transparent; }
+        .image-upload-area { border: 2px dashed #ddd; border-radius: 12px; padding: 20px; text-align: center; margin-top: 5px; }
+        .upload-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; }
+        .image-preview-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .form-hint { display: block; margin-top: 10px; color: #888; font-size: 12px; }
+        .large-popup .popup-content { max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -138,14 +148,63 @@
         </div>
     </div>
 
-    <div id="customOrderPopup" class="modern-popup">
+    <!-- Попап кастомного заказа (улучшенный) -->
+    <div id="customOrderPopup" class="modern-popup large-popup">
         <div class="popup-content">
             <span class="close-popup" onclick="closePopup('customOrderPopup')">×</span>
-            <h3>Заказ уникального принта</h3>
-            <div class="form-group"><input type="text" id="orderName" placeholder="Ваше имя"></div>
-            <div class="form-group"><input type="email" id="orderEmail" placeholder="Email"></div>
-            <div class="form-group"><textarea id="orderDescription" rows="4" placeholder="Опишите дизайн..."></textarea></div>
-            <button class="modern-btn primary" onclick="submitCustomOrder()">Отправить</button>
+            <h3><i class="fas fa-palette"></i> Заказ уникального дизайна</h3>
+            
+            <form id="customOrderForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Тип одежды *</label>
+                    <div class="garment-buttons">
+                        <button type="button" class="garment-btn" data-garment="hoodie" onclick="selectGarment('hoodie', this)"><i class="fas fa-tshirt"></i> Толстовка</button>
+                        <button type="button" class="garment-btn" data-garment="jeans" onclick="selectGarment('jeans', this)"><i class="fas fa-jeans"></i> Джинсы</button>
+                        <button type="button" class="garment-btn" data-garment="joggers" onclick="selectGarment('joggers', this)"><i class="fas fa-running"></i> Штаны</button>
+                        <button type="button" class="garment-btn" data-garment="tee" onclick="selectGarment('tee', this)"><i class="fas fa-tshirt"></i> Футболка</button>
+                    </div>
+                    <input type="hidden" id="selectedGarment" name="garment_type">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Размер *</label>
+                        <select id="sizeSelect" name="size_info" required>
+                            <option value="">Выберите размер</option>
+                            <option value="XS">XS (44-46)</option>
+                            <option value="S">S (46-48)</option>
+                            <option value="M">M (48-50)</option>
+                            <option value="L">L (50-52)</option>
+                            <option value="XL">XL (52-54)</option>
+                            <option value="XXL">XXL (54-56)</option>
+                            <option value="custom">Свой размер</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Свой размер</label>
+                        <input type="text" id="customSize" name="custom_size" placeholder="Грудь/Талия/Бёдра">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Описание дизайна *</label>
+                    <textarea id="customOrderDescription" name="description" rows="4" placeholder="Опишите ваш дизайн, цветовую гамму, стиль (абстракция, ботаника, космос, леттеринг, графика, аниме)..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Фото референсы (до 5 фото)</label>
+                    <div class="image-upload-area">
+                        <input type="file" id="referenceImages" name="images[]" accept="image/*" multiple style="display: none;">
+                        <button type="button" class="upload-btn" onclick="document.getElementById('referenceImages').click()">
+                            <i class="fas fa-cloud-upload-alt"></i> Выбрать фото
+                        </button>
+                        <div class="image-preview-grid" id="imagePreviewGrid"></div>
+                        <small class="form-hint">Максимум 5 фото. Поддерживаются JPG, PNG, GIF</small>
+                    </div>
+                </div>
+                
+                <button type="submit" class="modern-btn primary" style="width: 100%; margin-top: 20px;">Отправить заявку</button>
+            </form>
         </div>
     </div>
 
@@ -160,6 +219,7 @@
         let favorites = [];
         let cart = [];
         let currentCategory = 'all';
+        let selectedImages = [];
 
         // ========== ЗАГРУЗКА ТОВАРОВ ИЗ SUPABASE ==========
         async function loadProductsFromSupabase() {
@@ -196,7 +256,7 @@
             displayFavorites();
         }
 
-        // ========== ФУНКЦИИ SUPABASE ДЛЯ ВХОДА/РЕГИСТРАЦИИ ==========
+        // ========== ФУНКЦИИ SUPABASE ==========
         async function supabaseLogin(login, password) {
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
@@ -329,6 +389,141 @@
             }
         };
 
+        // ========== КАСТОМНЫЙ ЗАКАЗ ==========
+        function selectGarment(garment, btn) {
+            document.getElementById('selectedGarment').value = garment;
+            document.querySelectorAll('.garment-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        document.getElementById('referenceImages')?.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const maxFiles = 5;
+            if (selectedImages.length + files.length > maxFiles) {
+                alert(`Максимум ${maxFiles} фото`);
+                return;
+            }
+            
+            for (let file of files) {
+                if (!file.type.startsWith('image/')) continue;
+                selectedImages.push(file);
+                
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const previewGrid = document.getElementById('imagePreviewGrid');
+                    const previewDiv = document.createElement('div');
+                    previewDiv.style.position = 'relative';
+                    previewDiv.style.display = 'inline-block';
+                    previewDiv.style.margin = '5px';
+                    previewDiv.innerHTML = `
+                        <img src="${ev.target.result}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+                        <button type="button" style="position: absolute; top: -5px; right: -5px; width: 22px; height: 22px; background: #f44336; color: white; border: none; border-radius: 50%; cursor: pointer;" onclick="this.parentElement.remove(); removeImageFromList('${file.name}')">×</button>
+                    `;
+                    previewGrid.appendChild(previewDiv);
+                };
+                reader.readAsDataURL(file);
+            }
+            document.getElementById('referenceImages').value = '';
+        });
+
+        function removeImageFromList(fileName) {
+            selectedImages = selectedImages.filter(f => f.name !== fileName);
+        }
+
+        async function submitCustomOrder(e) {
+            if (e) e.preventDefault();
+            
+            if (!currentUser) {
+                alert('Войдите в аккаунт');
+                openPopup('loginPopup');
+                return;
+            }
+            
+            const garment = document.getElementById('selectedGarment').value;
+            const sizeSelect = document.getElementById('sizeSelect').value;
+            const customSize = document.getElementById('customSize').value;
+            const description = document.getElementById('customOrderDescription').value.trim();
+            
+            if (!garment) {
+                alert('Выберите тип одежды');
+                return;
+            }
+            if (!sizeSelect) {
+                alert('Выберите размер');
+                return;
+            }
+            if (!description) {
+                alert('Опишите дизайн');
+                return;
+            }
+            
+            const sizeInfo = sizeSelect === 'custom' ? customSize : sizeSelect;
+            
+            let imageUrls = [];
+            if (selectedImages.length > 0) {
+                alert('Загрузка фото...');
+                for (let file of selectedImages) {
+                    try {
+                        const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/custom-orders/${Date.now()}_${file.name}`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+                            body: file
+                        });
+                        if (uploadRes.ok) {
+                            const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/custom-orders/${Date.now()}_${file.name}`;
+                            imageUrls.push(publicUrl);
+                        }
+                    } catch(err) { console.error('Ошибка загрузки фото:', err); }
+                }
+            }
+            
+            const orderData = {
+                user_id: currentUser.id,
+                user_name: currentUser.name,
+                user_email: currentUser.email,
+                garment_type: garment,
+                size_info: sizeInfo,
+                description: description,
+                images: imageUrls,
+                status: 'pending',
+                created_at: new Date().toISOString()
+            };
+            
+            alert('Отправка заявки...');
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/custom_orders`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                if (response.ok) {
+                    alert('Заявка успешно отправлена!');
+                    closePopup('customOrderPopup');
+                    document.getElementById('selectedGarment').value = '';
+                    document.getElementById('sizeSelect').value = '';
+                    document.getElementById('customSize').value = '';
+                    document.getElementById('customOrderDescription').value = '';
+                    document.querySelectorAll('.garment-btn').forEach(b => b.classList.remove('active'));
+                    document.getElementById('imagePreviewGrid').innerHTML = '';
+                    selectedImages = [];
+                } else {
+                    alert('Ошибка при отправке заявки');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ошибка сервера: ' + error.message);
+            }
+        }
+
+        document.getElementById('customOrderForm')?.addEventListener('submit', submitCustomOrder);
+
         // ========== ОТОБРАЖЕНИЕ ТОВАРОВ ==========
         function openProductCard(productId) { window.location.href = `product.html?id=${productId}`; }
 
@@ -438,20 +633,8 @@
             displayProducts();
         }
 
-        function submitCustomOrder() {
-            const name = document.getElementById('orderName').value;
-            const email = document.getElementById('orderEmail').value;
-            const desc = document.getElementById('orderDescription').value;
-            if (!name || !email || !desc) { alert("Заполните поля"); return; }
-            alert("Заявка отправлена!");
-            closePopup('customOrderPopup');
-            document.getElementById('orderName').value = '';
-            document.getElementById('orderEmail').value = '';
-            document.getElementById('orderDescription').value = '';
-        }
-
         function openCustomOrderPopup() { 
-            if (!currentUser) { alert("Войдите в аккаунт"); return; }
+            if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
             openPopup('customOrderPopup'); 
         }
 

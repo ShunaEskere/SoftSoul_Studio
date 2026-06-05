@@ -28,8 +28,6 @@ function closePopup(id) {
 
 // ========== ФУНКЦИЯ ВХОДА ==========
 function login() {
-    console.log('login() вызвана!');
-    
     const loginName = document.getElementById('loginName').value.trim();
     const loginPassword = document.getElementById('loginPassword').value;
     
@@ -45,30 +43,20 @@ function login() {
         loginBtn.disabled = true;
     }
     
-    const formData = new FormData();
-    formData.append('loginName', loginName);
-    formData.append('loginPassword', loginPassword);
-    
     fetch('login.php', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ loginName: loginName, loginPassword: loginPassword })
     })
-    .then(response => response.text())
+    .then(response => response.json())
     .then(data => {
-        console.log('Ответ от сервера:', data);
-        
         if (loginBtn) {
             loginBtn.innerHTML = originalText;
             loginBtn.disabled = false;
         }
         
-        if (data.startsWith('success')) {
-            const parts = data.split('|');
-            currentUser = {
-                id: parts[1] || 1,
-                name: parts[2] || loginName,
-                email: parts[3] || ''
-            };
+        if (data.success) {
+            currentUser = data.user;
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             
             document.getElementById('authButtons').style.display = 'none';
@@ -79,7 +67,6 @@ function login() {
             if (adminBtn) adminBtn.style.display = isAdmin ? 'flex' : 'none';
             
             closePopup('loginPopup');
-            
             document.getElementById('loginName').value = '';
             document.getElementById('loginPassword').value = '';
             
@@ -88,16 +75,12 @@ function login() {
             loadCart();
             loadFavorites();
             displayProducts();
-        } else if (data === 'wrong_password') {
-            showToast('Неверный пароль', 'error');
-        } else if (data === 'user_not_found') {
-            showToast('Пользователь не найден', 'error');
         } else {
-            showToast('Ошибка: ' + data, 'error');
+            showToast(data.message || 'Ошибка входа', 'error');
         }
     })
     .catch(error => {
-        console.error('Ошибка fetch:', error);
+        console.error('Ошибка:', error);
         if (loginBtn) {
             loginBtn.innerHTML = originalText;
             loginBtn.disabled = false;
@@ -200,6 +183,7 @@ function clearAllFilters() {
     displayProducts();
 }
 
+// ========== ТОВАРЫ ==========
 function useLocalProducts() {
     allProducts = [
         { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image_front: "images/Awax Demon Friend Hoodie.jpg", category: "hoodie" },
@@ -231,14 +215,14 @@ function displayProducts() {
     for (let i = 0; i < filtered.length; i++) {
         const product = filtered[i];
         const isFav = favorites.includes(product.id);
-        const img = product.image_front || 'images/placeholder.jpg';
+        const img = product.image_front || product.image || 'images/placeholder.jpg';
         
         const div = document.createElement('div');
         div.className = 'product';
         div.setAttribute('data-product-id', product.id);
         div.innerHTML = `
             <div class="product-image-container" onclick="window.location.href='product.html?id=${product.id}'">
-                <img src="${img}" alt="${product.name}" onerror="this.src='https://placehold.co/300x300?text=No+Image'">
+                <img src="${img}" alt="${product.name}" onerror="this.src='images/placeholder.jpg'">
                 <button class="favorite-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${product.id})">
                     <i class="fas fa-heart"></i>
                 </button>
@@ -246,10 +230,40 @@ function displayProducts() {
             <div class="product-info">
                 <p>${escapeHtml(product.name)}</p>
                 <p class="price">${Number(product.price).toLocaleString()} руб.</p>
+                <button class="add-to-cart-btn-small" onclick="event.stopPropagation(); addToCartSimple(${product.id})">В корзину</button>
             </div>
         `;
         container.appendChild(div);
     }
+}
+
+// Простая функция добавления в корзину с главной
+function addToCartSimple(productId) {
+    if (!currentUser) {
+        showToast('Войдите в аккаунт', 'error');
+        openPopup('loginPopup');
+        return;
+    }
+    
+    const product = allProducts.find(p => p.id === productId);
+    if (!product) return;
+    
+    const existingItem = cart.find(item => item.id === productId);
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            size: 'M',
+            image: product.image_front
+        });
+    }
+    
+    saveCart();
+    showToast('Товар добавлен в корзину', 'success');
 }
 
 function escapeHtml(str) {
@@ -274,7 +288,6 @@ function checkAuth() {
             document.getElementById('authButtons').style.display = 'none';
             document.getElementById('userPanel').style.display = 'flex';
             
-            // Только эта строка отвечает за админ-кнопку
             if (adminBtn) {
                 adminBtn.style.display = isAdmin ? 'flex' : 'none';
             }
@@ -317,9 +330,9 @@ function selectGarment(garment, btn) {
 
 function loadReviews() {
     const reviews = [
-        { name: "Анна С.", rating: 5, text: "Отличное качество! Очень довольна покупкой.", avatar: "https://placehold.co/60x60?text=AS" },
-        { name: "Дмитрий П.", rating: 5, text: "Дизайн просто огонь! Заказал второй худи.", avatar: "https://placehold.co/60x60?text=DP" },
-        { name: "Екатерина М.", rating: 5, text: "Футболка супер! Качество печати отличное.", avatar: "https://placehold.co/60x60?text=EM" }
+        { name: "Анна С.", rating: 5, text: "Отличное качество! Очень довольна покупкой.", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
+        { name: "Дмитрий П.", rating: 5, text: "Дизайн просто огонь! Заказал второй худи.", avatar: "https://randomuser.me/api/portraits/men/32.jpg" },
+        { name: "Екатерина М.", rating: 5, text: "Футболка супер! Качество печати отличное.", avatar: "https://randomuser.me/api/portraits/women/68.jpg" }
     ];
     const container = document.getElementById('reviewsList');
     if (container) {
@@ -351,4 +364,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Добавляем стиль для маленькой кнопки корзины
+    const style = document.createElement('style');
+    style.textContent = `
+        .add-to-cart-btn-small {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .add-to-cart-btn-small:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+    `;
+    document.head.appendChild(style);
 });

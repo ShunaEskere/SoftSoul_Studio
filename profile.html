@@ -3,111 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>SoftSoul Studio - Профиль пользователя</title>
+    <title>SoftSoul Studio - Профиль</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', 'Inter', sans-serif; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); min-height: 100vh; }
         .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
         .bg-animation span { position: absolute; display: block; width: 20px; height: 20px; background: rgba(255,255,255,0.08); bottom: -150px; animation: floatUp 8s infinite; border-radius: 50%; }
         @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.5; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
-        .modern-header { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        
+        /* Хедер */
+        .modern-header { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; flex-wrap: wrap; gap: 15px; }
         .logo img { height: 50px; cursor: pointer; }
         .back-button { color: #667eea; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px; }
         .user-panel { display: flex; gap: 20px; align-items: center; }
         .user-icon, .cart-icon, .favorite-icon { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; position: relative; }
-        .favorite-icon { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); }
         .cart-count, .favorite-count { position: absolute; top: -8px; right: -8px; background: #ff6b6b; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; }
         .admin-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f44336, #d32f2f); color: white; padding: 8px 20px; border-radius: 30px; text-decoration: none; font-size: 14px; margin-left: 10px; }
+        
+        /* Профиль */
         .profile-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; position: relative; z-index: 1; }
         .profile-header { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; display: flex; align-items: center; gap: 30px; margin-bottom: 30px; }
         .profile-avatar { width: 100px; height: 100px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; color: white; }
         .profile-info h1 { color: white; font-size: 28px; margin-bottom: 8px; }
-        .profile-info p { color: rgba(255,255,255,0.8); margin-bottom: 5px; }
+        .profile-info p { color: rgba(255,255,255,0.8); }
         .profile-content { display: flex; gap: 30px; }
         .profile-sidebar { width: 280px; flex-shrink: 0; }
         .profile-menu { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; position: sticky; top: 100px; }
-        .menu-btn { width: 100%; padding: 12px 15px; background: transparent; border: none; border-radius: 12px; color: white; font-size: 14px; font-weight: 500; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-        .menu-btn i { width: 20px; color: #667eea; }
+        .menu-btn { width: 100%; padding: 12px 15px; background: transparent; border: none; border-radius: 12px; color: white; font-size: 14px; font-weight: 500; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; transition: all 0.3s; }
+        .menu-btn i { width: 22px; color: #667eea; }
         .menu-btn:hover { background: rgba(102,126,234,0.2); }
         .menu-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
         .menu-btn.active i { color: white; }
         .profile-main { flex: 1; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .settings-section h3, .orders-section h3, .custom-orders-section h3, .security-section h3, .account-section h3, .favorites-section h3 { color: white; font-size: 20px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid rgba(102,126,234,0.5); }
+        .section-title { color: white; font-size: 22px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid rgba(102,126,234,0.5); }
+        .section-title i { margin-right: 10px; color: #667eea; }
+        
+        /* Формы */
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; color: white; margin-bottom: 8px; font-weight: 500; }
         .form-group input { width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.9); border: 2px solid transparent; border-radius: 12px; font-size: 14px; }
         .input-with-button { display: flex; gap: 15px; }
         .input-with-button input { flex: 1; }
-        .modern-btn { padding: 10px 25px; border-radius: 25px; font-weight: 600; cursor: pointer; border: none; font-size: 14px; }
+        
+        /* Единые кнопки */
+        .modern-btn { padding: 10px 28px; border-radius: 30px; font-weight: 600; cursor: pointer; border: none; font-size: 14px; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
         .modern-btn.primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .modern-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
         .modern-btn.outline { background: transparent; border: 2px solid #667eea; color: #667eea; }
+        .modern-btn.outline:hover { background: #667eea; color: white; }
         .modern-btn.danger { background: #f44336; color: white; }
-        .orders-list { display: flex; flex-direction: column; gap: 15px; }
-        .order-item { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 20px; }
-        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #e0e0e0; flex-wrap: wrap; gap: 10px; }
-        .order-id { font-weight: bold; color: #667eea; }
-        .order-date { color: #999; font-size: 12px; }
-        .order-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .modern-btn.danger:hover { background: #d32f2f; transform: translateY(-2px); }
+        
+        /* Заказы и избранное — единый стиль */
+        .orders-list, .favorites-list, .custom-orders-list { display: flex; flex-direction: column; gap: 20px; }
+        .order-card, .favorite-card, .custom-card { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; transition: transform 0.2s, box-shadow 0.2s; }
+        .order-card:hover, .favorite-card:hover, .custom-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid #e0e0e0; }
+        .card-id { font-weight: 700; color: #667eea; font-size: 15px; }
+        .card-date { color: #999; font-size: 12px; }
+        .card-status { padding: 5px 14px; border-radius: 30px; font-size: 12px; font-weight: 600; background: #f0f0f0; color: #666; }
         .status-pending { background: #fff3e0; color: #ff9800; }
-        .status-processing { background: #e3f2fd; color: #2196f3; }
-        .status-completed { background: #e8f5e9; color: #4caf50; }
         .status-confirmed { background: #e8f5e9; color: #4caf50; }
         .status-shipped { background: #e3f2fd; color: #2196f3; }
         .status-delivered { background: #e8f5e9; color: #4caf50; }
-        .order-items { margin: 10px 0; }
-        .order-item-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
-        .order-total { text-align: right; font-weight: bold; margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0; color: #667eea; }
-        .view-details-btn { background: none; border: none; color: #667eea; cursor: pointer; font-size: 12px; margin-top: 10px; display: inline-flex; align-items: center; gap: 5px; }
-        .empty-orders { text-align: center; padding: 40px; color: rgba(255,255,255,0.7); }
-        .empty-orders i { font-size: 48px; margin-bottom: 15px; opacity: 0.5; }
-        .favorites-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .favorite-product { background: white; border-radius: 15px; overflow: hidden; }
-        .favorite-product-image { height: 200px; cursor: pointer; }
-        .favorite-product-image img { width: 100%; height: 100%; object-fit: cover; }
-        .favorite-product-info { padding: 15px; }
-        .favorite-product-info h4 { color: #333; margin-bottom: 8px; }
-        .favorite-product-info .price { color: #667eea; font-weight: bold; margin-bottom: 10px; }
-        .action-card { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 20px; display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+        .status-processing { background: #e3f2fd; color: #2196f3; }
+        .status-completed { background: #e8f5e9; color: #4caf50; }
+        
+        .card-body { margin-bottom: 15px; }
+        .order-items-list { margin-bottom: 10px; }
+        .order-item-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; color: #555; border-bottom: 1px solid #f0f0f0; }
+        .card-total { text-align: right; font-weight: 700; font-size: 16px; color: #667eea; margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0; }
+        .card-footer { margin-top: 12px; text-align: right; }
+        
+        /* Пустое состояние */
+        .empty-state { text-align: center; padding: 60px 30px; background: rgba(255,255,255,0.95); border-radius: 20px; color: #888; }
+        .empty-state i { font-size: 60px; margin-bottom: 18px; color: #ccc; }
+        .empty-state h4 { font-size: 20px; color: #444; margin-bottom: 10px; }
+        .empty-state p { margin-bottom: 20px; }
+        
+        /* Карточки управления */
+        .action-card { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
         .action-icon { width: 50px; height: 50px; background: rgba(102,126,234,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #667eea; }
         .action-card.danger .action-icon { background: rgba(244,67,54,0.1); color: #f44336; }
         .action-info { flex: 1; }
         .action-info h4 { color: #333; margin-bottom: 5px; }
         .action-info p { color: #666; font-size: 13px; }
-        .modern-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
-        .modern-popup.show { display: flex; }
-        .popup-content { background: white; border-radius: 20px; padding: 30px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-        .close-popup { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #999; }
-        .detail-row { display: flex; margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #eee; }
-        .detail-label { width: 150px; font-weight: 600; color: #667eea; }
-        .detail-value { flex: 1; color: #333; }
-        .order-full-description { background: #f9f9f9; padding: 15px; border-radius: 10px; margin: 5px 0; white-space: pre-wrap; }
+        
+        /* Модальные окна */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
         .modal-overlay.show { display: flex; }
-        .modal-overlay .modal-content { background: white; border-radius: 20px; max-width: 450px; width: 90%; padding: 25px; }
-        .modal-overlay .modal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-        .modal-overlay .modal-header i { font-size: 24px; color: #ff9800; }
+        .modal-content { background: white; border-radius: 20px; max-width: 450px; width: 90%; padding: 25px; }
+        .modal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
         .warning-text { color: #f44336; background: #fff5f5; padding: 12px; border-radius: 8px; margin: 15px 0; }
         .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        
+        /* Уведомления */
         .notification-popup { position: fixed; bottom: 30px; right: 30px; z-index: 3000; transform: translateX(400px); transition: transform 0.3s ease; }
         .notification-popup.show { transform: translateX(0); }
         .notification-content { background: white; border-radius: 12px; padding: 15px 25px; display: flex; align-items: center; gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        
+        /* Избранное */
+        .favorite-card { display: flex; gap: 20px; align-items: center; }
+        .favorite-img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
+        .favorite-info { flex: 1; }
+        .favorite-info h4 { color: #333; margin-bottom: 5px; }
+        .favorite-price { color: #667eea; font-weight: bold; }
+        
         @media (max-width: 768px) {
-            .modern-header { padding: 15px 20px; flex-wrap: wrap; }
+            .modern-header { flex-direction: column; justify-content: center; }
             .profile-header { flex-direction: column; text-align: center; }
             .profile-content { flex-direction: column; }
             .profile-sidebar { width: 100%; }
             .profile-menu { display: flex; flex-wrap: wrap; gap: 10px; position: static; }
-            .menu-btn { width: auto; flex: 1; min-width: 120px; justify-content: center; }
+            .menu-btn { width: auto; flex: 1; min-width: 100px; justify-content: center; }
             .input-with-button { flex-direction: column; }
             .action-card { flex-direction: column; text-align: center; }
-            .order-header { flex-direction: column; align-items: flex-start; }
-            .detail-row { flex-direction: column; }
-            .detail-label { width: 100%; margin-bottom: 5px; }
+            .favorite-card { flex-direction: column; text-align: center; }
+            .card-header { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -115,286 +132,468 @@
     <div class="bg-animation" id="bgAnimation"></div>
 
     <header class="modern-header">
-        <div class="logo" onclick="window.location.href='Main.html'">
-            <img src="images/Лого VIBE.png" alt="SoftSoul Studio">
-        </div>
-        <a href="Main.html" class="back-button">
-            <i class="fas fa-arrow-left"></i> На главную
-        </a>
+        <div class="logo" onclick="window.location.href='Main.html'"><img src="images/Лого VIBE.png" alt="SoftSoul Studio"></div>
+        <a href="Main.html" class="back-button"><i class="fas fa-arrow-left"></i> На главную</a>
         <div class="user-panel" id="userPanel">
-            <div class="user-icon" onclick="window.location.href='profile.html'">
-                <i class="fas fa-user"></i>
-            </div>
-            <div class="cart-icon" onclick="window.location.href='cart.html'">
-                <i class="fas fa-shopping-bag"></i>
-                <span class="cart-count" id="cartCount">0</span>
-            </div>
-            <div class="favorite-icon" onclick="window.location.href='profile.html?tab=favorites'">
-                <i class="fas fa-heart"></i>
-                <span class="favorite-count" id="favoriteCount">0</span>
-            </div>
-            <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;">
-                <i class="fas fa-cog"></i> Админ панель
-            </a>
+            <div class="user-icon" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i></div>
+            <div class="cart-icon" onclick="window.location.href='cart.html'"><i class="fas fa-shopping-bag"></i><span class="cart-count" id="cartCount">0</span></div>
+            <div class="favorite-icon" onclick="window.location.href='profile.html?tab=favorites'"><i class="fas fa-heart"></i><span class="favorite-count" id="favoriteCount">0</span></div>
+            <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;"><i class="fas fa-cog"></i> Админ панель</a>
         </div>
     </header>
 
     <div class="profile-container">
         <div class="profile-header">
-            <div class="profile-avatar">
-                <i class="fas fa-user-circle"></i>
-            </div>
+            <div class="profile-avatar"><i class="fas fa-user-circle"></i></div>
             <div class="profile-info">
                 <h1 id="profileName">Загрузка...</h1>
                 <p id="profileEmail">загрузка...</p>
-                <p class="profile-date">ID пользователя: <span id="userId">—</span></p>
-                <p class="profile-date">Дата регистрации: <span id="registerDate">—</span></p>
+                <p>ID пользователя: <span id="userId">—</span></p>
             </div>
         </div>
 
         <div class="profile-content">
             <div class="profile-sidebar">
                 <div class="profile-menu">
-                    <button class="menu-btn active" data-tab="profile">
-                        <i class="fas fa-user"></i> Личные данные
-                    </button>
-                    <button class="menu-btn" data-tab="orders">
-                        <i class="fas fa-shopping-bag"></i> История заказов
-                    </button>
-                    <button class="menu-btn" data-tab="custom">
-                        <i class="fas fa-palette"></i> Мои заявки
-                    </button>
-                    <button class="menu-btn" data-tab="favorites">
-                        <i class="fas fa-heart"></i> Избранное
-                    </button>
-                    <button class="menu-btn" data-tab="security">
-                        <i class="fas fa-shield-alt"></i> Безопасность
-                    </button>
-                    <button class="menu-btn" data-tab="account">
-                        <i class="fas fa-cog"></i> Управление аккаунтом
-                    </button>
+                    <button class="menu-btn active" data-tab="profile"><i class="fas fa-user"></i> Личные данные</button>
+                    <button class="menu-btn" data-tab="orders"><i class="fas fa-shopping-bag"></i> История заказов</button>
+                    <button class="menu-btn" data-tab="custom"><i class="fas fa-palette"></i> Мои заявки</button>
+                    <button class="menu-btn" data-tab="favorites"><i class="fas fa-heart"></i> Избранное</button>
+                    <button class="menu-btn" data-tab="security"><i class="fas fa-shield-alt"></i> Безопасность</button>
+                    <button class="menu-btn" data-tab="account"><i class="fas fa-cog"></i> Управление аккаунтом</button>
                 </div>
             </div>
 
             <div class="profile-main">
+                <!-- Личные данные -->
                 <div class="tab-content active" id="tab-profile">
-                    <div class="settings-section">
-                        <h3><i class="fas fa-user-edit"></i> Редактирование профиля</h3>
-                        <div class="settings-form">
-                            <div class="form-group">
-                                <label>Имя пользователя</label>
-                                <div class="input-with-button">
-                                    <input type="text" id="editName" placeholder="Ваше имя">
-                                    <button class="modern-btn primary" onclick="updateName()">
-                                        <i class="fas fa-save"></i> Сохранить
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Email</label>
-                                <div class="input-with-button">
-                                    <input type="email" id="editEmail" placeholder="Email" disabled>
-                                    <button class="modern-btn outline" disabled>Недоступно</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="section-title"><i class="fas fa-user-edit"></i> Редактирование профиля</div>
+                    <div class="form-group"><label>Имя пользователя</label><div class="input-with-button"><input type="text" id="editName" placeholder="Ваше имя"><button class="modern-btn primary" onclick="updateName()">Сохранить</button></div></div>
+                    <div class="form-group"><label>Email</label><div class="input-with-button"><input type="email" id="editEmail" placeholder="Email" disabled><button class="modern-btn outline" disabled>Недоступно</button></div></div>
                 </div>
 
+                <!-- История заказов -->
                 <div class="tab-content" id="tab-orders">
-                    <div class="orders-section">
-                        <h3><i class="fas fa-history"></i> История заказов</h3>
-                        <div id="ordersList" class="orders-list"></div>
-                    </div>
+                    <div class="section-title"><i class="fas fa-history"></i> История заказов</div>
+                    <div id="ordersList" class="orders-list"></div>
                 </div>
 
+                <!-- Мои заявки -->
                 <div class="tab-content" id="tab-custom">
-                    <div class="custom-orders-section">
-                        <h3><i class="fas fa-palette"></i> Мои заявки на дизайн</h3>
-                        <div id="customOrdersList" class="orders-list"></div>
-                    </div>
+                    <div class="section-title"><i class="fas fa-palette"></i> Мои заявки на дизайн</div>
+                    <div id="customOrdersList" class="orders-list"></div>
                 </div>
 
+                <!-- Избранное -->
                 <div class="tab-content" id="tab-favorites">
-                    <div class="favorites-section">
-                        <h3><i class="fas fa-heart"></i> Избранные товары</h3>
-                        <div id="favoritesList" class="favorites-grid"></div>
-                    </div>
+                    <div class="section-title"><i class="fas fa-heart"></i> Избранные товары</div>
+                    <div id="favoritesList" class="favorites-list"></div>
                 </div>
 
+                <!-- Безопасность -->
                 <div class="tab-content" id="tab-security">
-                    <div class="security-section">
-                        <h3><i class="fas fa-key"></i> Смена пароля</h3>
-                        <div class="settings-form">
-                            <div class="form-group">
-                                <label>Текущий пароль</label>
-                                <input type="password" id="currentPassword" placeholder="Введите текущий пароль">
-                            </div>
-                            <div class="form-group">
-                                <label>Новый пароль</label>
-                                <input type="password" id="newPassword" placeholder="Введите новый пароль">
-                            </div>
-                            <div class="form-group">
-                                <label>Подтверждение пароля</label>
-                                <input type="password" id="confirmPassword" placeholder="Подтвердите новый пароль">
-                            </div>
-                            <button class="modern-btn primary" onclick="updatePassword()">
-                                <i class="fas fa-save"></i> Сменить пароль
-                            </button>
-                        </div>
-                    </div>
+                    <div class="section-title"><i class="fas fa-key"></i> Смена пароля</div>
+                    <div class="form-group"><label>Текущий пароль</label><input type="password" id="currentPassword" placeholder="Введите текущий пароль"></div>
+                    <div class="form-group"><label>Новый пароль</label><input type="password" id="newPassword" placeholder="Введите новый пароль"></div>
+                    <div class="form-group"><label>Подтверждение пароля</label><input type="password" id="confirmPassword" placeholder="Подтвердите новый пароль"></div>
+                    <button class="modern-btn primary" onclick="updatePassword()"><i class="fas fa-save"></i> Сменить пароль</button>
                 </div>
 
+                <!-- Управление аккаунтом -->
                 <div class="tab-content" id="tab-account">
-                    <div class="account-section">
-                        <h3><i class="fas fa-cog"></i> Управление аккаунтом</h3>
-                        <div class="account-actions">
-                            <div class="action-card">
-                                <div class="action-icon"><i class="fas fa-sign-out-alt"></i></div>
-                                <div class="action-info">
-                                    <h4>Выход из аккаунта</h4>
-                                    <p>Выйдите из текущей сессии.</p>
-                                </div>
-                                <button class="modern-btn outline" onclick="logout()">Выйти</button>
-                            </div>
-                            <div class="action-card danger">
-                                <div class="action-icon"><i class="fas fa-trash-alt"></i></div>
-                                <div class="action-info">
-                                    <h4>Удалить аккаунт</h4>
-                                    <p>Внимание! Это действие необратимо.</p>
-                                </div>
-                                <button class="modern-btn danger" onclick="showDeleteConfirm()">Удалить аккаунт</button>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="section-title"><i class="fas fa-cog"></i> Управление аккаунтом</div>
+                    <div class="action-card"><div class="action-icon"><i class="fas fa-sign-out-alt"></i></div><div class="action-info"><h4>Выход из аккаунта</h4><p>Выйдите из текущей сессии.</p></div><button class="modern-btn outline" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</button></div>
+                    <div class="action-card danger"><div class="action-icon"><i class="fas fa-trash-alt"></i></div><div class="action-info"><h4>Удалить аккаунт</h4><p>Внимание! Это действие необратимо.</p></div><button class="modern-btn danger" onclick="showDeleteConfirm()"><i class="fas fa-trash-alt"></i> Удалить аккаунт</button></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно просмотра деталей заказа -->
-    <div id="orderDetailModal" class="modern-popup">
-        <div class="popup-content">
-            <span class="close-popup" onclick="closePopup('orderDetailModal')">×</span>
-            <h3 id="modalOrderTitle">Детали заказа</h3>
-            <div id="orderDetailContent" class="modal-body"></div>
-        </div>
-    </div>
-
-    <!-- Модальное окно подтверждения удаления -->
     <div id="deleteConfirmModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h3>Удаление аккаунта</h3>
-            </div>
-            <div class="modal-body">
-                <p>Вы действительно хотите удалить свой аккаунт?</p>
-                <p class="warning-text">Это действие нельзя отменить. Все ваши данные будут удалены.</p>
-                <div class="modal-buttons">
-                    <button class="modern-btn outline" onclick="closeDeleteConfirm()">Отмена</button>
-                    <button class="modern-btn danger" onclick="deleteAccount()">Да, удалить</button>
+            <div class="modal-header"><i class="fas fa-exclamation-triangle"></i><h3>Удаление аккаунта</h3></div>
+            <div class="modal-body"><p>Вы действительно хотите удалить свой аккаунт?</p><p class="warning-text">Это действие нельзя отменить. Все ваши данные будут удалены.</p><div class="modal-buttons"><button class="modern-btn outline" onclick="closeDeleteConfirm()">Отмена</button><button class="modern-btn danger" onclick="deleteAccount()">Да, удалить</button></div></div>
+        </div>
+    </div>
+
+    <div id="notificationPopup" class="notification-popup"><div class="notification-content"><i class="fas fa-check-circle"></i><p id="notificationMessage"></p></div></div>
+
+    <script>
+        // ========== ПЕРЕМЕННЫЕ ==========
+        let currentUser = null;
+        let userOrders = [];
+        let userCustomOrders = [];
+        let favorites = [];
+        
+        // Товары для избранного
+        const productsList = [
+            { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "images/Awax Demon Friend Hoodie.jpg" },
+            { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "images/Evil Eye Skeleton Hoodie.jpg" },
+            { id: 3, name: "Graffiti Wave Jeans", price: 5000, image: "images/Graffiti Wave Jeans.jpg" },
+            { id: 4, name: "Mystic Bloom Joggers", price: 4500, image: "images/Mystic Bloom Joggers.jpg" },
+            { id: 5, name: "Occult Edge Sweatpants", price: 3000, image: "images/Occult Edge Sweatpants.jpg" },
+            { id: 6, name: "Shadow Rat Stealth Tee", price: 5700, image: "images/Shadow Rat Stealth Tee.jpg" }
+        ];
+
+        // ========== УВЕДОМЛЕНИЯ ==========
+        function showNotification(message, type) {
+            const notification = document.getElementById('notificationPopup');
+            const msgElement = document.getElementById('notificationMessage');
+            const icon = notification.querySelector('i');
+            msgElement.textContent = message;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
+
+        // ========== ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ==========
+        function loadUserData() {
+            const user = localStorage.getItem('currentUser');
+            if (!user) { window.location.href = 'Main.html'; return; }
+            currentUser = JSON.parse(user);
+            document.getElementById('profileName').innerText = currentUser.name;
+            document.getElementById('profileEmail').innerText = currentUser.email || 'не указан';
+            document.getElementById('userId').innerText = currentUser.id || '—';
+            document.getElementById('editName').value = currentUser.name;
+            document.getElementById('editEmail').value = currentUser.email || '';
+            
+            const isAdmin = currentUser.name === 'admin';
+            const adminBtn = document.getElementById('adminBtn');
+            if (adminBtn) adminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+            
+            loadCartCount();
+            loadFavorites();
+            loadOrders();
+            loadCustomOrders();
+        }
+
+        function loadCartCount() {
+            const cart = JSON.parse(localStorage.getItem(`cart_${currentUser.id}`) || '[]');
+            const count = cart.reduce((s, i) => s + (i.quantity || i.qty || 0), 0);
+            document.getElementById('cartCount').innerText = count;
+        }
+
+        // ========== ИЗБРАННОЕ ==========
+        function loadFavorites() {
+            favorites = JSON.parse(localStorage.getItem(`favorites_${currentUser.id}`) || '[]');
+            document.getElementById('favoriteCount').innerText = favorites.length;
+            displayFavorites();
+        }
+
+        function displayFavorites() {
+            const container = document.getElementById('favoritesList');
+            if (!container) return;
+            const favProducts = productsList.filter(p => favorites.includes(p.id));
+            if (favProducts.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-heart-broken"></i><h4>Избранное пусто</h4><p>Добавьте понравившиеся товары, нажав на сердечко ❤️</p><button class="modern-btn outline" onclick="window.location.href=\'Main.html#catalog\'">Перейти в каталог</button></div>';
+                return;
+            }
+            container.innerHTML = favProducts.map(p => `
+                <div class="favorite-card">
+                    <img src="${p.image}" class="favorite-img" onerror="this.src='images/placeholder.jpg'">
+                    <div class="favorite-info">
+                        <h4>${p.name}</h4>
+                        <div class="favorite-price">${p.price.toLocaleString()} руб.</div>
+                    </div>
+                    <button class="modern-btn outline" onclick="removeFromFavorites(${p.id})"><i class="fas fa-trash-alt"></i> Удалить</button>
+                </div>
+            `).join('');
+        }
+
+        function removeFromFavorites(productId) {
+            favorites = favorites.filter(id => id !== productId);
+            localStorage.setItem(`favorites_${currentUser.id}`, JSON.stringify(favorites));
+            document.getElementById('favoriteCount').innerText = favorites.length;
+            displayFavorites();
+            showNotification('Удалено из избранного', 'info');
+        }
+
+        // ========== ЗАКАЗЫ ==========
+       async function loadOrders() {
+    const container = document.getElementById('ordersList');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse"></i><h4>Загрузка заказов...</h4></div>';
+    
+    try {
+        const url = `php/get_orders.php?_=${Date.now()}`;
+        console.log('Запрос к:', url);
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        console.log('Ответ от сервера:', data);
+        
+        if (data.success && data.orders && data.orders.length > 0) {
+            userOrders = data.orders;
+            displayOrders();
+        } else {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><h4>Нет заказов</h4><p>У вас пока нет оформленных заказов</p><button class="modern-btn outline" onclick="loadOrders()">🔄 Обновить</button><button class="modern-btn outline" onclick="window.location.href=\'cart.html\'" style="margin-left:10px;">🛒 Перейти в корзину</button></div>';
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки заказов:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h4>Ошибка загрузки</h4><p>' + error.message + '</p><button class="modern-btn outline" onclick="loadOrders()">Повторить</button></div>';
+    }
+}
+
+function displayOrders() {
+    const container = document.getElementById('ordersList');
+    if (!container) return;
+    
+    if (!userOrders || userOrders.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><h4>Нет заказов</h4><p>У вас пока нет оформленных заказов</p><button class="modern-btn outline" onclick="window.location.href=\'Main.html#catalog\'">Перейти в каталог</button></div>';
+        return;
+    }
+    
+    console.log('Отображаем заказы:', userOrders.length);
+    
+    container.innerHTML = userOrders.map(order => {
+        const items = order.items || [];
+        const statusText = getStatusText(order.status);
+        const orderDate = new Date(order.created_at);
+        const dateStr = orderDate.toLocaleString('ru-RU');
+        
+        return `
+            <div class="order-card">
+                <div class="card-header">
+                    <span class="card-id">Заказ #${order.id}</span>
+                    <span class="card-date">${dateStr}</span>
+                    <span class="card-status ${getStatusClass(order.status)}">${statusText}</span>
+                </div>
+                <div class="card-body">
+                    <div class="order-items-list">
+                        ${items.map(item => `
+                            <div class="order-item-row">
+                                <span>${item.name} ${item.size ? `(${item.size})` : ''}</span>
+                                <span>${item.quantity} шт. × ${item.price} руб.</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="card-total">Итого: ${Number(order.total).toLocaleString()} руб.</div>
+                </div>
+                <div class="card-footer">
+                    <span class="card-payment">Оплата: ${order.payment_method === 'sbp' ? 'СБП' : 'Наличные'}</span>
                 </div>
             </div>
-        </div>
-    </div>
+        `;
+    }).join('');
+}
 
-    <div id="notificationPopup" class="notification-popup">
-        <div class="notification-content">
-            <i class="fas fa-check-circle"></i>
-            <p id="notificationMessage"></p>
-        </div>
-    </div>
-
-    <script src="js/profile.js"></script>
+        function displayOrders() {
+    const container = document.getElementById('ordersList');
+    if (!container) return;
     
-    <!-- ДОБАВЛЯЕМ ФУНКЦИИ ДЛЯ УДАЛЕНИЯ АККАУНТА -->
-    <script>
-    // Показываем модальное окно подтверждения
-    function showDeleteConfirm() {
-        var modal = document.getElementById('deleteConfirmModal');
-        if (modal) modal.classList.add('show');
+    if (!userOrders || userOrders.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><h4>Нет заказов</h4><p>У вас пока нет оформленных заказов</p><button class="modern-btn outline" onclick="window.location.href=\'Main.html#catalog\'">Перейти в каталог</button></div>';
+        return;
     }
     
-    // Закрываем модальное окно
-    function closeDeleteConfirm() {
-        var modal = document.getElementById('deleteConfirmModal');
-        if (modal) modal.classList.remove('show');
-    }
+    console.log('Отображаем заказы:', userOrders);
     
-    // Уведомление
-    function showNotification(message, type) {
-        var notification = document.getElementById('notificationPopup');
-        var msgElement = document.getElementById('notificationMessage');
-        var icon = notification.querySelector('i');
-        
-        msgElement.textContent = message;
-        
-        if (type === 'success') {
-            icon.className = 'fas fa-check-circle';
-            icon.style.color = '#4caf50';
-        } else if (type === 'error') {
-            icon.className = 'fas fa-exclamation-circle';
-            icon.style.color = '#f44336';
-        } else {
-            icon.className = 'fas fa-info-circle';
-            icon.style.color = '#2196f3';
-        }
-        
-        notification.classList.add('show');
-        setTimeout(function() {
-            notification.classList.remove('show');
-        }, 3000);
-    }
-    
-    // Удаление аккаунта
-    function deleteAccount() {
-        var user = localStorage.getItem('currentUser');
-        if (!user) {
-            showNotification('Вы не авторизованы', 'error');
-            closeDeleteConfirm();
-            return;
-        }
-        
-        var userData = JSON.parse(user);
-        var userId = userData.id;
-        
-        fetch('php/delete_account.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: userId })
-        })
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (data.success) {
-                // Очищаем все данные пользователя
-                localStorage.removeItem('currentUser');
-                localStorage.removeItem('cart_' + userId);
-                localStorage.removeItem('favorites_' + userId);
-                
-                showNotification('Аккаунт успешно удалён! До свидания!', 'success');
-                closeDeleteConfirm();
-                
-                setTimeout(function() {
-                    window.location.href = 'Main.html';
-                }, 1500);
-            } else {
-                showNotification(data.message || 'Ошибка при удалении', 'error');
-                closeDeleteConfirm();
+    container.innerHTML = userOrders.map(order => {
+        let items = [];
+        // Парсим items, если они пришли строкой
+        if (typeof order.items === 'string') {
+            try {
+                items = JSON.parse(order.items);
+            } catch(e) {
+                items = [];
             }
-        })
-        .catch(function(error) {
-            console.error('Ошибка:', error);
-            showNotification('Ошибка соединения с сервером', 'error');
-            closeDeleteConfirm();
-        });
-    }
+        } else if (Array.isArray(order.items)) {
+            items = order.items;
+        }
+        
+        const statusText = getStatusText(order.status);
+        let orderDate = 'Дата не указана';
+        if (order.created_at) {
+            try {
+                orderDate = new Date(order.created_at).toLocaleString('ru-RU');
+            } catch(e) {}
+        }
+        
+        return `
+            <div class="order-card">
+                <div class="card-header">
+                    <span class="card-id">Заказ #${order.id}</span>
+                    <span class="card-date">${orderDate}</span>
+                    <span class="card-status ${getStatusClass(order.status)}">${statusText}</span>
+                </div>
+                <div class="card-body">
+                    <div class="order-items-list">
+                        ${items.map(item => `
+                            <div class="order-item-row">
+                                <span>${item.name || 'Товар'} ${item.size ? `(${item.size})` : ''}</span>
+                                <span>${item.quantity || 1} шт. × ${Number(item.price || 0).toLocaleString()} руб.</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="card-total">Итого: ${Number(order.total).toLocaleString()} руб.</div>
+                </div>
+                <div class="card-footer">
+                    <span class="card-payment">Оплата: ${order.payment_method === 'sbp' ? 'СБП' : 'Наличные'}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+        function getStatusText(status) {
+            const statuses = {
+                'pending': 'В обработке',
+                'confirmed': 'Подтверждён',
+                'shipped': 'Отправлен',
+                'delivered': 'Доставлен',
+                'cancelled': 'Отменён'
+            };
+            return statuses[status] || status;
+        }
+
+        function getStatusClass(status) {
+            const classes = {
+                'pending': 'status-pending',
+                'confirmed': 'status-confirmed',
+                'shipped': 'status-shipped',
+                'delivered': 'status-delivered',
+                'cancelled': 'status-pending'
+            };
+            return classes[status] || 'status-pending';
+        }
+
+        // ========== ЗАЯВКИ НА ДИЗАЙН ==========
+        async function loadCustomOrders() {
+            const container = document.getElementById('customOrdersList');
+            if (!container) return;
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse"></i><h4>Загрузка...</h4></div>';
+            
+            try {
+                const response = await fetch(`php/get_custom_orders.php?user_id=${currentUser.id}`);
+                const data = await response.json();
+                if (data.success && data.orders && data.orders.length > 0) {
+                    userCustomOrders = data.orders;
+                    displayCustomOrders();
+                } else {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-palette"></i><h4>Нет заявок</h4><p>У вас пока нет заявок на дизайн</p><button class="modern-btn outline" onclick="window.location.href=\'Main.html\'">Заказать дизайн</button></div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h4>Ошибка загрузки</h4><button class="modern-btn outline" onclick="loadCustomOrders()">Повторить</button></div>';
+            }
+        }
+
+        function displayCustomOrders() {
+            const container = document.getElementById('customOrdersList');
+            if (!container) return;
+            if (userCustomOrders.length === 0) return;
+            
+            container.innerHTML = userCustomOrders.map(order => `
+                <div class="order-card">
+                    <div class="card-header">
+                        <span class="card-id">Заявка #${order.id}</span>
+                        <span class="card-date">${new Date(order.created_at).toLocaleString('ru-RU')}</span>
+                        <span class="card-status ${order.status === 'pending' ? 'status-pending' : order.status === 'processing' ? 'status-shipped' : 'status-confirmed'}">${order.status === 'pending' ? 'В обработке' : order.status === 'processing' ? 'В работе' : 'Выполнена'}</span>
+                    </div>
+                    <div class="card-body">
+                        <div><strong>Тип одежды:</strong> ${order.garment_type || '—'}</div>
+                        <div><strong>Размер:</strong> ${order.size_info || '—'}</div>
+                        <div><strong>Описание:</strong> ${(order.description || '').substring(0, 150)}${(order.description || '').length > 150 ? '...' : ''}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ========== УПРАВЛЕНИЕ АККАУНТОМ ==========
+        function updateName() {
+            const newName = document.getElementById('editName').value.trim();
+            if (!newName) { showNotification('Введите имя', 'error'); return; }
+            currentUser.name = newName;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            let allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            const userIndex = allUsers.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) allUsers[userIndex].name = newName;
+            localStorage.setItem('allUsers', JSON.stringify(allUsers));
+            
+            document.getElementById('profileName').innerText = newName;
+            showNotification('Имя обновлено!', 'success');
+        }
+
+        function updatePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            if (!current || !newPass || !confirm) { showNotification('Заполните все поля', 'error'); return; }
+            if (newPass !== confirm) { showNotification('Пароли не совпадают', 'error'); return; }
+            
+            let allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            const userIndex = allUsers.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1 && allUsers[userIndex].password !== current) { showNotification('Неверный текущий пароль', 'error'); return; }
+            if (userIndex !== -1) allUsers[userIndex].password = newPass;
+            localStorage.setItem('allUsers', JSON.stringify(allUsers));
+            
+            showNotification('Пароль изменён!', 'success');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function logout() { localStorage.removeItem('currentUser'); window.location.href = 'Main.html'; }
+        
+        function showDeleteConfirm() { document.getElementById('deleteConfirmModal').classList.add('show'); }
+        function closeDeleteConfirm() { document.getElementById('deleteConfirmModal').classList.remove('show'); }
+        
+        function deleteAccount() {
+            let allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            allUsers = allUsers.filter(u => u.id !== currentUser.id);
+            localStorage.setItem('allUsers', JSON.stringify(allUsers));
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem(`cart_${currentUser.id}`);
+            localStorage.removeItem(`favorites_${currentUser.id}`);
+            showNotification('Аккаунт удалён', 'success');
+            setTimeout(() => window.location.href = 'Main.html', 1500);
+        }
+
+        // ========== ВКЛАДКИ ==========
+        function setupTabs() {
+    const menuBtns = document.querySelectorAll('.menu-btn');
+    const tabs = document.querySelectorAll('.tab-content');
     
-    // Функция для закрытия попапов
-    function closePopup(id) {
-        var popup = document.getElementById(id);
-        if (popup) popup.classList.remove('show');
-    }
+    menuBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            menuBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            // Принудительно загружаем данные при переключении
+            if (tabId === 'favorites') displayFavorites();
+            if (tabId === 'orders') {
+                console.log('Переключение на вкладку заказов, загружаем...');
+                loadOrders();
+            }
+            if (tabId === 'custom') loadCustomOrders();
+        });
+    });
+}
+
+        // ========== ЧАСТИЦЫ ==========
+        function createParticles() {
+            const bg = document.getElementById('bgAnimation');
+            for (let i = 0; i < 60; i++) {
+                const p = document.createElement('span');
+                p.style.width = Math.random() * 40 + 10 + 'px';
+                p.style.height = p.style.width;
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDuration = Math.random() * 12 + 6 + 's';
+                p.style.animationDelay = Math.random() * 5 + 's';
+                p.style.opacity = Math.random() * 0.3 + 0.1;
+                p.style.background = 'radial-gradient(circle, rgba(102,126,234,0.4) 0%, rgba(118,75,162,0.2) 100%)';
+                bg.appendChild(p);
+            }
+        }
+
+        createParticles();
+        loadUserData();
+        setupTabs();
     </script>
 </body>
 </html>

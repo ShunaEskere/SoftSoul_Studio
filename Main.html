@@ -319,14 +319,44 @@
             loadReviews(productId);
         }
 
-        function displayProducts() {
-            const container = document.getElementById('products');
-            const countSpan = document.getElementById('productsCount');
-            let filtered = currentCategory === 'all' ? productsList : productsList.filter(p => p.category === currentCategory);
-            if (countSpan) countSpan.textContent = `Найдено: ${filtered.length} товаров`;
-            container.innerHTML = '';
-            filtered.forEach(p => { const isFav = favorites.includes(p.id); container.innerHTML += renderProductCard(p, isFav, false); });
+        // ========== ЗАГРУЗКА ТОВАРОВ ИЗ SUPABASE ==========
+let allProducts = [];
+
+async function loadProductsFromSupabase() {
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/products?order=id.asc`, {
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+        });
+        const data = await res.json();
+        if (data && data.length > 0) {
+            allProducts = data;
+            displayProducts();
+            displayNewProducts();
+            displayFavorites();
         }
+    } catch (error) {
+        console.error('Ошибка загрузки товаров:', error);
+        // Используем локальные товары как запасной вариант
+        useLocalProducts();
+    }
+}
+
+function useLocalProducts() {
+    allProducts = [
+        { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "images/Awax Demon Friend Hoodie.jpg", category: "hoodie", is_new: true, description: "Худи с авторским принтом 'Демон-друг'", materials: "80% хлопок, 20% полиэстер. Акриловые краски." },
+        { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "images/Evil Eye Skeleton Hoodie.jpg", category: "hoodie", is_new: false, description: "Худи с принтом 'Скелет с глазом'", materials: "85% хлопок, 15% полиэстер. Акриловые краски." },
+        { id: 3, name: "Graffiti Wave Jeans", price: 5000, image: "images/Graffiti Wave Jeans.jpg", category: "jeans", is_new: true, description: "Джинсы с граффити-принтом 'Волна'", materials: "100% хлопок. Акриловые краски." },
+        { id: 4, name: "Mystic Bloom Joggers", price: 4500, image: "images/Mystic Bloom Joggers.jpg", category: "joggers", is_new: false, description: "Штаны с мистическим цветочным принтом", materials: "70% хлопок, 30% полиэстер. Акриловые краски." },
+        { id: 5, name: "Occult Edge Sweatpants", price: 3000, image: "images/Occult Edge Sweatpants.jpg", category: "joggers", is_new: true, description: "Спортивные штаны с оккультным дизайном", materials: "75% хлопок, 25% полиэстер. Акриловые краски." },
+        { id: 6, name: "Shadow Rat Stealth Tee", price: 5700, image: "images/Shadow Rat Stealth Tee.jpg", category: "tee", is_new: false, description: "Футболка с принтом 'Теневая крыса'", materials: "100% хлопок. Акриловые краски." }
+    ];
+    displayProducts();
+    displayNewProducts();
+    displayFavorites();
+}
 
         function displayNewProducts() {
             const container = document.getElementById('newProducts');
@@ -413,6 +443,63 @@
 
         createParticles();
         checkAuth();
+        // ========== КОРЗИНА (SUPABASE) ==========
+async function loadCartFromSupabase() {
+    if (!currentUser) return;
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/cart?user_id=eq.${currentUser.id}`, {
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+        });
+        const data = await res.json();
+        cart = data.map(item => ({ id: item.product_id, quantity: item.quantity, size: item.size || 'M' }));
+        updateCartCount();
+    } catch (error) {
+        console.error('Ошибка загрузки корзины:', error);
+        cart = [];
+    }
+}
+
+async function saveCartToSupabase() {
+    if (!currentUser) return;
+    // Сначала удаляем старую корзину
+    await fetch(`${SUPABASE_URL}/rest/v1/cart?user_id=eq.${currentUser.id}`, {
+        method: 'DELETE',
+        headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        }
+    });
+    // Добавляем новые товары
+    for (const item of cart) {
+        await fetch(`${SUPABASE_URL}/rest/v1/cart`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: currentUser.id,
+                product_id: item.id,
+                quantity: item.quantity,
+                size: item.size || 'M'
+            })
+        });
+    }
+}
+
+function addToCart(productId) {
+    if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
+    const item = cart.find(i => i.id === productId);
+    if (item) item.quantity++;
+    else cart.push({ id: productId, quantity: 1, size: 'M' });
+    saveCartToSupabase();
+    updateCartCount();
+    alert("Товар добавлен в корзину");
+}
     </script>
 </body>
 </html>

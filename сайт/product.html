@@ -93,9 +93,6 @@
     <script>
         const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
-        
-        // Базовый путь для фото
-        const BASE_PATH = window.location.pathname.includes('/сайт/') ? '' : 'сайт/';
 
         let currentProduct = null;
         let selectedSize = null;
@@ -135,10 +132,10 @@
             
             // Собираем все фото в галерею
             galleryImages = [];
-            if (currentProduct.image_front) galleryImages.push(fixImagePath(currentProduct.image_front));
-            if (currentProduct.image_back) galleryImages.push(fixImagePath(currentProduct.image_back));
-            if (currentProduct.image_model_front) galleryImages.push(fixImagePath(currentProduct.image_model_front));
-            if (currentProduct.image_model_back) galleryImages.push(fixImagePath(currentProduct.image_model_back));
+            if (currentProduct.image_front) galleryImages.push(currentProduct.image_front);
+            if (currentProduct.image_back) galleryImages.push(currentProduct.image_back);
+            if (currentProduct.image_model_front) galleryImages.push(currentProduct.image_model_front);
+            if (currentProduct.image_model_back) galleryImages.push(currentProduct.image_model_back);
             if (galleryImages.length === 0) galleryImages.push('https://placehold.co/400x300?text=No+Image');
             
             document.getElementById('mainImage').src = galleryImages[0];
@@ -166,12 +163,6 @@
                 btn.onclick = () => selectSize(size, btn);
                 sizeContainer.appendChild(btn);
             });
-        }
-
-        function fixImagePath(path) {
-            if (!path) return 'https://placehold.co/400x300?text=No+Image';
-            if (path.startsWith('http')) return path;
-            return BASE_PATH + path;
         }
 
         function changeImage(index) {

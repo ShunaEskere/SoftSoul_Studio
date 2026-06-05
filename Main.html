@@ -163,25 +163,24 @@
 
         // ========== ЗАГРУЗКА ТОВАРОВ ИЗ SUPABASE ==========
         async function loadProductsFromSupabase() {
-            try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/products?order=id.asc`, {
-                    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
-                });
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    allProducts = data;
-                } else {
-                    useLocalProducts();
-                }
-                displayProducts();
-                displayNewProducts();
-                displayFavorites();
-            } catch (error) {
-                console.error('Ошибка загрузки товаров:', error);
-                useLocalProducts();
-            }
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/products?order=id.asc`, {
+            headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+        });
+        const data = await res.json();
+        if (data && data.length > 0) {
+            allProducts = data;
+        } else {
+            useLocalProducts();
         }
-
+        displayProducts();
+        displayNewProducts();
+        displayFavorites();
+    } catch (error) {
+        console.error('Ошибка загрузки товаров:', error);
+        useLocalProducts();
+    }
+}
         function useLocalProducts() {
             allProducts = [
                 { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image_front: "https://placehold.co/400x300?text=Hoodie+1", category: "hoodie", is_new: 1, description: "Худи с авторским принтом 'Демон-друг'", materials: "80% хлопок, 20% полиэстер. Акриловые краски." },

@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* Дополнительные стили */
         .nav-sections { background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); padding: 12px 0; position: sticky; top: 80px; z-index: 999; }
         .nav-links { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
         .nav-link { color: white; text-decoration: none; font-size: 16px; font-weight: 500; padding-bottom: 5px; cursor: pointer; transition: all 0.3s; }
@@ -56,7 +55,6 @@
         </div>
     </header>
 
-    <!-- Навигационные разделы -->
     <div class="nav-sections">
         <div class="nav-links">
             <a class="nav-link" onclick="scrollToNew()">✨ Новинки</a>
@@ -77,19 +75,16 @@
         </div>
     </div>
 
-    <!-- Раздел: Новинки -->
     <div class="section" id="newSection">
         <h2 class="section-title">✨ НОВИНКИ</h2>
         <div class="products-grid" id="newProducts"></div>
     </div>
 
-    <!-- Раздел: Избранное -->
     <div class="section" id="favoritesSection">
         <h2 class="section-title">❤️ ИЗБРАННОЕ</h2>
         <div id="favoritesContainer"></div>
     </div>
 
-    <!-- Раздел: Каталог -->
     <div class="section" id="catalogSection">
         <h2 class="section-title">КАТАЛОГ</h2>
         <div class="catalog-layout">
@@ -115,7 +110,6 @@
         </div>
     </div>
 
-    <!-- Раздел: Уход -->
     <div class="section" id="careSection">
         <h2 class="section-title">🧺 ПРАВИЛА УХОДА</h2>
         <div class="care-content">
@@ -133,29 +127,42 @@
         </div>
     </div>
 
-    <!-- Попапы -->
-    <div id="loginPopup" class="modern-popup">
-        <div class="popup-content">
-            <span class="close-popup" onclick="closePopup('loginPopup')">×</span>
-            <h3>Вход в аккаунт</h3>
-            <div class="form-group"><input type="text" id="loginName" placeholder="Имя пользователя или Email"></div>
-            <div class="form-group"><input type="password" id="loginPassword" placeholder="Пароль"></div>
-            <div class="forgot-password"><span onclick="alert('Обратитесь к администратору для восстановления пароля')">Забыли пароль?</span></div>
-            <button class="modern-btn primary" onclick="login()">Войти</button>
-            <p class="login-link">Нет аккаунта? <span onclick="closePopup('loginPopup'); openPopup('registerPopup')">Зарегистрироваться</span></p>
-        </div>
-    </div>
-
+    <!-- ПОПАП РЕГИСТРАЦИИ (РАБОЧИЙ) -->
     <div id="registerPopup" class="modern-popup">
         <div class="popup-content">
             <span class="close-popup" onclick="closePopup('registerPopup')">×</span>
-            <h3>Регистрация</h3>
-            <div class="form-group"><input type="text" id="regName" placeholder="Ваше имя"></div>
-            <div class="form-group"><input type="email" id="regEmail" placeholder="Email"></div>
-            <div class="form-group"><input type="password" id="regPassword" placeholder="Пароль"></div>
-            <div class="form-group"><input type="password" id="regConfirm" placeholder="Повторите пароль"></div>
-            <button class="modern-btn primary" onclick="register()">Зарегистрироваться</button>
+            <h3><i class="fas fa-user-plus"></i> Регистрация</h3>
+            <div class="form-group">
+                <input type="text" id="regName" placeholder="Ваше имя">
+            </div>
+            <div class="form-group">
+                <input type="email" id="regEmail" placeholder="Email">
+            </div>
+            <div class="form-group">
+                <input type="password" id="regPassword" placeholder="Пароль">
+            </div>
+            <div class="form-group">
+                <input type="password" id="regConfirm" placeholder="Повторите пароль">
+            </div>
+            <button class="modern-btn primary" id="registerBtn">Зарегистрироваться</button>
             <p class="login-link">Уже есть аккаунт? <span onclick="closePopup('registerPopup'); openPopup('loginPopup')">Войти</span></p>
+        </div>
+    </div>
+
+    <!-- ПОПАП ВХОДА (КОПИЯ ПОПАПА РЕГИСТРАЦИИ, ТОЛЬКО ПОЛЯ ДРУГИЕ) -->
+    <div id="loginPopup" class="modern-popup">
+        <div class="popup-content">
+            <span class="close-popup" onclick="closePopup('loginPopup')">×</span>
+            <h3><i class="fas fa-sign-in-alt"></i> Вход в аккаунт</h3>
+            <div class="form-group">
+                <input type="text" id="loginName" placeholder="Имя пользователя или Email">
+            </div>
+            <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Пароль">
+            </div>
+            <div class="forgot-password"><span onclick="alert('Обратитесь к администратору')">Забыли пароль?</span></div>
+            <button class="modern-btn primary" id="loginBtn">Войти</button>
+            <p class="login-link">Нет аккаунта? <span onclick="closePopup('loginPopup'); openPopup('registerPopup')">Зарегистрироваться</span></p>
         </div>
     </div>
 
@@ -171,6 +178,89 @@
     </div>
 
     <script>
+        // ========== НАСТРОЙКИ SUPABASE ==========
+        const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
+
+        // ========== ФУНКЦИИ SUPABASE ==========
+        async function supabaseLogin(login, password) {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+            });
+            const users = await res.json();
+            const user = users.find(u => (u.name === login || u.email === login) && u.passw === password);
+            if (user) return { success: true, user };
+            return { success: false, message: 'Неверный логин или пароль' };
+        }
+
+        async function supabaseRegister(name, email, password) {
+            const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/client?email=eq.${encodeURIComponent(email)}`, {
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+            });
+            const existing = await checkRes.json();
+            if (existing && existing.length > 0) return { success: false, message: 'Email уже используется' };
+            
+            const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, passw: password })
+            });
+            if (insertRes.ok) return { success: true, user: { name, email } };
+            return { success: false, message: 'Ошибка регистрации' };
+        }
+
+        // ========== КНОПКИ ==========
+        document.getElementById('loginBtn').onclick = async function() {
+            const name = document.getElementById('loginName').value.trim();
+            const pass = document.getElementById('loginPassword').value;
+            if (!name || !pass) { alert('Заполните все поля'); return; }
+            const result = await supabaseLogin(name, pass);
+            if (result.success) {
+                localStorage.setItem('currentUser', JSON.stringify(result.user));
+                alert('Добро пожаловать, ' + result.user.name);
+                closePopup('loginPopup');
+                location.reload();
+            } else {
+                alert(result.message);
+            }
+        };
+
+        document.getElementById('registerBtn').onclick = async function() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            if (!name || !email || !pass) { alert('Заполните все поля'); return; }
+            if (pass !== confirm) { alert('Пароли не совпадают'); return; }
+            const result = await supabaseRegister(name, email, pass);
+            if (result.success) {
+                alert('Регистрация успешна! Теперь войдите');
+                closePopup('registerPopup');
+            } else {
+                alert(result.message);
+            }
+        };
+
+        // ========== ОБЩИЕ ФУНКЦИИ ==========
+        function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
+        function closePopup(id) { document.getElementById(id).style.display = 'none'; }
+        function scrollToCatalog() { document.getElementById('catalogSection').scrollIntoView({ behavior: 'smooth' }); }
+        function scrollToNew() { document.getElementById('newSection').scrollIntoView({ behavior: 'smooth' }); }
+        function scrollToFavorites() { document.getElementById('favoritesSection').scrollIntoView({ behavior: 'smooth' }); }
+        function scrollToCare() { document.getElementById('careSection').scrollIntoView({ behavior: 'smooth' }); }
+        function openCustomOrderPopup() { 
+            if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
+            openPopup('customOrderPopup'); 
+        }
+        function submitCustomOrder() {
+            let name = document.getElementById('orderName').value;
+            let email = document.getElementById('orderEmail').value;
+            let desc = document.getElementById('orderDescription').value;
+            if (!name || !email || !desc) { alert("Заполните поля"); return; }
+            alert("Заявка отправлена!");
+            closePopup('customOrderPopup');
+        }
+
         // ========== ТОВАРЫ ==========
         const productsList = [
             { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "images/Awax Demon Friend Hoodie.jpg", category: "hoodie", isNew: true, description: "Худи с авторским принтом 'Демон-друг'", materials: "80% хлопок, 20% полиэстер. Акриловые краски." },
@@ -185,22 +275,8 @@
         let favorites = [];
         let currentCategory = 'all';
 
-        // Прокрутка
-        function scrollToCatalog() { document.getElementById('catalogSection').scrollIntoView({ behavior: 'smooth' }); }
-        function scrollToNew() { document.getElementById('newSection').scrollIntoView({ behavior: 'smooth' }); }
-        function scrollToFavorites() { document.getElementById('favoritesSection').scrollIntoView({ behavior: 'smooth' }); }
-        function scrollToCare() { document.getElementById('careSection').scrollIntoView({ behavior: 'smooth' }); }
+        function openProductCard(productId) { window.location.href = `product.html?id=${productId}`; }
 
-        function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
-        function closePopup(id) { document.getElementById(id).style.display = 'none'; }
-        function showToast(msg) { alert(msg); }
-
-        // ОТКРЫТИЕ КАРТОЧКИ ТОВАРА
-        function openProductCard(productId) {
-            window.location.href = `product.html?id=${productId}`;
-        }
-
-        // Рендер карточки
         function renderProductCard(p, isFav, isNew = false) {
             return `
                 <div class="product-card" onclick="openProductCard(${p.id})">
@@ -218,11 +294,9 @@
                         <div class="product-materials"><i class="fas fa-palette"></i> ${p.materials}</div>
                         <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${p.id})">В корзину</button>
                         <div class="reviews-section-compact">
-                            <div class="review-summary" onclick="event.stopPropagation(); toggleReviews(${p.id})">
-                                <i class="fas fa-comment"></i> Отзывы
-                            </div>
+                            <div class="review-summary" onclick="event.stopPropagation(); toggleReviews(${p.id})"><i class="fas fa-comment"></i> Отзывы</div>
                             <div id="reviews-${p.id}" class="product-reviews" onclick="event.stopPropagation()">
-                                <div id="reviews-list-${p.id}">Загрузка отзывов...</div>
+                                <div id="reviews-list-${p.id}">Загрузка...</div>
                                 <button class="add-review-btn" onclick="event.stopPropagation(); addReview(${p.id})">➕ Оставить отзыв</button>
                             </div>
                         </div>
@@ -231,31 +305,17 @@
             `;
         }
 
-        // Отзывы (localStorage)
         function toggleReviews(productId) {
             const container = document.getElementById(`reviews-${productId}`);
-            if (container.classList.contains('show')) {
-                container.classList.remove('show');
-            } else {
-                container.classList.add('show');
-                loadReviews(productId);
-            }
+            if (container.classList.contains('show')) container.classList.remove('show');
+            else { container.classList.add('show'); loadReviews(productId); }
         }
 
         function loadReviews(productId) {
             const container = document.getElementById(`reviews-list-${productId}`);
             let reviews = JSON.parse(localStorage.getItem(`reviews_${productId}`) || '[]');
-            if (reviews.length === 0) {
-                container.innerHTML = '<div style="padding:10px; text-align:center; color:#999;">Нет отзывов. Будьте первым!</div>';
-                return;
-            }
-            container.innerHTML = reviews.map(r => `
-                <div class="product-review-item">
-                    <b>${r.name}</b> 
-                    <span style="color:#ffc107;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
-                    <p style="margin-top:5px;">${r.text}</p>
-                </div>
-            `).join('');
+            if (reviews.length === 0) { container.innerHTML = '<div style="padding:10px; text-align:center; color:#999;">Нет отзывов. Будьте первым!</div>'; return; }
+            container.innerHTML = reviews.map(r => `<div class="product-review-item"><b>${r.name}</b> <span style="color:#ffc107;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span><p>${r.text}</p></div>`).join('');
         }
 
         function addReview(productId) {
@@ -271,126 +331,52 @@
             loadReviews(productId);
         }
 
-        // Отображение каталога
         function displayProducts() {
             const container = document.getElementById('products');
             const countSpan = document.getElementById('productsCount');
             let filtered = currentCategory === 'all' ? productsList : productsList.filter(p => p.category === currentCategory);
             if (countSpan) countSpan.textContent = `Найдено: ${filtered.length} товаров`;
             container.innerHTML = '';
-            filtered.forEach(p => {
-                const isFav = favorites.includes(p.id);
-                container.innerHTML += renderProductCard(p, isFav, false);
-            });
+            filtered.forEach(p => { const isFav = favorites.includes(p.id); container.innerHTML += renderProductCard(p, isFav, false); });
         }
 
-        // Новинки
         function displayNewProducts() {
             const container = document.getElementById('newProducts');
             const newItems = productsList.filter(p => p.isNew);
             container.innerHTML = '';
-            newItems.forEach(p => {
-                const isFav = favorites.includes(p.id);
-                container.innerHTML += renderProductCard(p, isFav, true);
-            });
+            newItems.forEach(p => { const isFav = favorites.includes(p.id); container.innerHTML += renderProductCard(p, isFav, true); });
         }
 
-        // Избранное
         function displayFavorites() {
             const container = document.getElementById('favoritesContainer');
             const favProducts = productsList.filter(p => favorites.includes(p.id));
             if (favProducts.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-favorites">
-                        <i class="fas fa-heart-broken"></i>
-                        <h3>Избранное пусто</h3>
-                        <p>Добавьте понравившиеся товары, нажав на сердечко ❤️</p>
-                        <button class="catalog-link-btn" onclick="scrollToCatalog()">🛍️ Перейти в каталог</button>
-                    </div>
-                `;
+                container.innerHTML = `<div class="empty-favorites"><i class="fas fa-heart-broken"></i><h3>Избранное пусто</h3><p>Добавьте понравившиеся товары, нажав на сердечко ❤️</p><button class="catalog-link-btn" onclick="scrollToCatalog()">🛍️ Перейти в каталог</button></div>`;
                 return;
             }
             container.innerHTML = '<div class="products-grid"></div>';
             const grid = container.querySelector('.products-grid');
-            favProducts.forEach(p => {
-                grid.innerHTML += renderProductCard(p, true, false);
-            });
+            favProducts.forEach(p => { grid.innerHTML += renderProductCard(p, true, false); });
         }
 
-        // Лайк
         function toggleFavorite(productId) {
             if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
             const idx = favorites.indexOf(productId);
-            if (idx === -1) {
-                favorites.push(productId);
-                alert("Добавлено в избранное");
-            } else {
-                favorites.splice(idx, 1);
-                alert("Удалено из избранного");
-            }
+            if (idx === -1) { favorites.push(productId); alert("Добавлено в избранное"); }
+            else { favorites.splice(idx, 1); alert("Удалено из избранного"); }
             localStorage.setItem(`favorites_${currentUser.id}`, JSON.stringify(favorites));
             document.getElementById('favoriteCount').innerText = favorites.length;
-            displayProducts();
-            displayNewProducts();
-            displayFavorites();
+            displayProducts(); displayNewProducts(); displayFavorites();
         }
 
-        // Корзина
         function addToCart(productId) {
             if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
             let cart = JSON.parse(localStorage.getItem(`cart_${currentUser.id}`) || '[]');
             let item = cart.find(i => i.id === productId);
-            if (item) item.qty++;
-            else cart.push({ id: productId, qty: 1 });
+            if (item) item.qty++; else cart.push({ id: productId, qty: 1 });
             localStorage.setItem(`cart_${currentUser.id}`, JSON.stringify(cart));
-            let total = cart.reduce((s,i) => s + i.qty, 0);
-            document.getElementById('cartCount').innerText = total;
+            document.getElementById('cartCount').innerText = cart.reduce((s,i) => s + i.qty, 0);
             alert("Товар добавлен в корзину");
-        }
-
-        // Регистрация и вход
-        function register() {
-            let name = document.getElementById('regName').value.trim();
-            let email = document.getElementById('regEmail').value.trim();
-            let pass = document.getElementById('regPassword').value;
-            let confirm = document.getElementById('regConfirm').value;
-            if (!name || !email || !pass) { alert("Заполните поля"); return; }
-            if (pass !== confirm) { alert("Пароли не совпадают"); return; }
-            let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
-            if (users.find(u => u.email === email)) { alert("Email уже используется"); return; }
-            let newUser = { id: Date.now(), name, email, password: pass, isAdmin: name === 'admin' };
-            users.push(newUser);
-            localStorage.setItem('allUsers', JSON.stringify(users));
-            localStorage.setItem('currentUser', JSON.stringify({ id: newUser.id, name: newUser.name, email: newUser.email }));
-            alert("Регистрация успешна!");
-            closePopup('registerPopup');
-            location.reload();
-        }
-
-        function login() {
-            let loginVal = document.getElementById('loginName').value.trim();
-            let pass = document.getElementById('loginPassword').value;
-            let users = JSON.parse(localStorage.getItem('allUsers') || '[]');
-            let user = users.find(u => (u.name === loginVal || u.email === loginVal) && u.password === pass);
-            if (!user) { alert("Неверный логин или пароль"); return; }
-            localStorage.setItem('currentUser', JSON.stringify({ id: user.id, name: user.name, email: user.email }));
-            alert("Добро пожаловать, " + user.name);
-            closePopup('loginPopup');
-            location.reload();
-        }
-
-        function submitCustomOrder() {
-            let name = document.getElementById('orderName').value;
-            let email = document.getElementById('orderEmail').value;
-            let desc = document.getElementById('orderDescription').value;
-            if (!name || !email || !desc) { alert("Заполните поля"); return; }
-            alert("Заявка отправлена!");
-            closePopup('customOrderPopup');
-        }
-
-        function openCustomOrderPopup() {
-            if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
-            openPopup('customOrderPopup');
         }
 
         function filterByCategory(category, btn) {
@@ -407,7 +393,7 @@
         }
 
         function checkAuth() {
-            let user = localStorage.getItem('currentUser');
+            const user = localStorage.getItem('currentUser');
             if (user) {
                 currentUser = JSON.parse(user);
                 document.getElementById('authButtons').style.display = 'none';
@@ -419,9 +405,7 @@
                 let cart = JSON.parse(localStorage.getItem(`cart_${currentUser.id}`) || '[]');
                 document.getElementById('cartCount').innerText = cart.reduce((s,i) => s + i.qty, 0);
             }
-            displayProducts();
-            displayNewProducts();
-            displayFavorites();
+            displayProducts(); displayNewProducts(); displayFavorites();
         }
 
         function createParticles() {

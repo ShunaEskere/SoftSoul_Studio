@@ -16,7 +16,7 @@
             <img src="images/Лого VIBE.png" alt="SoftSoul Studio" onerror="this.src='https://placehold.co/50x50?text=SSS'">
         </div>
         <div class="auth-buttons" id="authButtons">
-            <button class="modern-btn outline" onclick="openPopup('loginPopup')">Вход</button>
+            <button class="modern-btn outline" id="workingLoginBtn">Вход</button>
             <button class="modern-btn primary" onclick="openPopup('registerPopup')">Регистрация</button>
         </div>
         <div class="user-panel" id="userPanel" style="display: none;">
@@ -104,23 +104,6 @@
         </div>
     </div>
 
-    <!-- Попап входа -->
-    <div id="loginPopup" class="modern-popup">
-        <div class="popup-content">
-            <span class="close-popup" onclick="closePopup('loginPopup')">×</span>
-            <h3>Вход в аккаунт</h3>
-            <div class="form-group">
-                <input type="text" id="loginName" placeholder="Имя пользователя или Email">
-            </div>
-            <div class="form-group">
-                <input type="password" id="loginPassword" placeholder="Пароль">
-            </div>
-            <button class="modern-btn primary" onclick="doLogin()">Войти</button>
-            <div class="forgot-password"><span onclick="alert('Обратитесь к администратору')">Забыли пароль?</span></div>
-            <p class="login-link">Нет аккаунта? <span onclick="closePopup('loginPopup'); openPopup('registerPopup')">Зарегистрироваться</span></p>
-        </div>
-    </div>
-
     <!-- Попап регистрации -->
     <div id="registerPopup" class="modern-popup">
         <div class="popup-content">
@@ -139,7 +122,7 @@
                 <input type="password" id="regConfirm" placeholder="Повторите пароль">
             </div>
             <button class="modern-btn primary" onclick="doRegister()">Зарегистрироваться</button>
-            <p class="login-link">Уже есть аккаунт? <span onclick="closePopup('registerPopup'); openPopup('loginPopup')">Войти</span></p>
+            <p class="login-link">Уже есть аккаунт? <span onclick="closePopup('registerPopup'); alert('Используйте кнопку Вход в шапке')">Войти</span></p>
         </div>
     </div>
 
@@ -209,29 +192,25 @@
             }
         }
 
-        // ========== ФУНКЦИИ ДЛЯ КНОПОК ==========
-        async function doLogin() {
-            const name = document.getElementById('loginName').value.trim();
-            const pass = document.getElementById('loginPassword').value;
+        // ========== РАБОЧАЯ КНОПКА ВХОДА ==========
+        document.getElementById('workingLoginBtn').onclick = function() {
+            const login = prompt('Введите ваш логин (имя или email):');
+            if (!login) return;
+            const password = prompt('Введите пароль:');
+            if (!password) return;
             
-            if (!name || !pass) {
-                showToast('Заполните все поля', 'error');
-                return;
-            }
-            
-            showToast('Вход...', 'info');
-            const result = await supabaseLogin(name, pass);
-            
-            if (result.success) {
-                localStorage.setItem('currentUser', JSON.stringify(result.user));
-                showToast(`Добро пожаловать, ${result.user.name}!`, 'success');
-                closePopup('loginPopup');
-                location.reload();
-            } else {
-                showToast(result.message, 'error');
-            }
-        }
+            supabaseLogin(login, password).then(result => {
+                if (result.success) {
+                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    alert('Добро пожаловать, ' + result.user.name);
+                    location.reload();
+                } else {
+                    alert(result.message || 'Ошибка входа');
+                }
+            });
+        };
 
+        // ========== ФУНКЦИЯ РЕГИСТРАЦИИ ДЛЯ КНОПКИ ==========
         async function doRegister() {
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
@@ -239,24 +218,21 @@
             const confirm = document.getElementById('regConfirm').value;
             
             if (!name || !email || !pass) {
-                showToast('Заполните все поля', 'error');
+                alert('Заполните все поля');
                 return;
             }
             if (pass !== confirm) {
-                showToast('Пароли не совпадают', 'error');
+                alert('Пароли не совпадают');
                 return;
             }
             
-            showToast('Регистрация...', 'info');
             const result = await supabaseRegister(name, email, pass);
             
             if (result.success) {
-                showToast('Регистрация успешна! Теперь войдите', 'success');
+                alert('Регистрация успешна! Теперь войдите');
                 closePopup('registerPopup');
-                document.getElementById('loginName').value = name;
-                openPopup('loginPopup');
             } else {
-                showToast(result.message, 'error');
+                alert(result.message);
             }
         }
 
@@ -265,10 +241,10 @@
             const email = document.getElementById('orderEmail').value;
             const desc = document.getElementById('orderDescription').value;
             if (!name || !email || !desc) {
-                showToast('Заполните все поля', 'error');
+                alert('Заполните все поля');
                 return;
             }
-            showToast('Заявка отправлена! Мы свяжемся с вами', 'success');
+            alert('Заявка отправлена! Мы свяжемся с вами');
             closePopup('customOrderPopup');
             document.getElementById('orderName').value = '';
             document.getElementById('orderEmail').value = '';
@@ -276,17 +252,6 @@
         }
 
         // ========== ОБЩИЕ ФУНКЦИИ ==========
-        function showToast(message, type) {
-            const existing = document.querySelector('.custom-toast');
-            if (existing) existing.remove();
-            const toast = document.createElement('div');
-            toast.className = 'custom-toast';
-            let icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
-            toast.innerHTML = `<div class="toast-content ${type}">${icon}<span>${message}</span></div>`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
         function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
         function closePopup(id) { document.getElementById(id).style.display = 'none'; }
         function openCustomOrderPopup() { openPopup('customOrderPopup'); }
@@ -397,14 +362,14 @@
         }
 
         function toggleFavorite(productId) {
-            if (!currentUser) { showToast('Войдите в аккаунт', 'error'); openPopup('loginPopup'); return; }
+            if (!currentUser) { alert('Войдите в аккаунт'); return; }
             const idx = favorites.indexOf(productId);
             if (idx === -1) {
                 favorites.push(productId);
-                showToast('Добавлено в избранное', 'success');
+                alert('Добавлено в избранное');
             } else {
                 favorites.splice(idx, 1);
-                showToast('Удалено из избранного', 'info');
+                alert('Удалено из избранного');
             }
             localStorage.setItem(`favorites_${currentUser.id}`, JSON.stringify(favorites));
             document.getElementById('favoriteCount').innerText = favorites.length;
@@ -414,14 +379,14 @@
         }
 
         function addToCart(productId) {
-            if (!currentUser) { showToast('Войдите в аккаунт', 'error'); openPopup('loginPopup'); return; }
+            if (!currentUser) { alert('Войдите в аккаунт'); return; }
             let cart = JSON.parse(localStorage.getItem(`cart_${currentUser.id}`) || '[]');
             let item = cart.find(i => i.id === productId);
             if (item) item.quantity++;
             else cart.push({ id: productId, quantity: 1, size: 'M', price: allProducts.find(p => p.id === productId)?.price });
             localStorage.setItem(`cart_${currentUser.id}`, JSON.stringify(cart));
             updateCartCount();
-            showToast('Товар добавлен в корзину', 'success');
+            alert('Товар добавлен в корзину');
         }
 
         function updateCartCount() {
@@ -480,31 +445,5 @@
         createParticles();
         checkAuth();
     </script>
-    <!-- Простая кнопка входа -->
-<div style="position: fixed; bottom: 20px; right: 20px; z-index: 99999;">
-    <button id="simpleLoginBtn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-        🔑 Войти
-    </button>
-</div>
-
-<script>
-    // Простая кнопка входа
-    document.getElementById('simpleLoginBtn').onclick = function() {
-        const login = prompt('Введите ваш логин (имя или email):');
-        if (!login) return;
-        const password = prompt('Введите пароль:');
-        if (!password) return;
-        
-        supabaseLogin(login, password).then(result => {
-            if (result.success) {
-                localStorage.setItem('currentUser', JSON.stringify(result.user));
-                alert('Добро пожаловать, ' + result.user.name);
-                location.reload();
-            } else {
-                alert(result.message || 'Ошибка входа');
-            }
-        });
-    };
-</script>
 </body>
 </html>

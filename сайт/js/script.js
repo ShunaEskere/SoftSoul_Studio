@@ -387,3 +387,31 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(style);
 });
+async function register() {
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const pass = document.getElementById('regPassword').value;
+    const confirm = document.getElementById('regConfirm').value;
+    
+    if (!name || !email || !pass) {
+        showToast('Заполните все поля', 'error');
+        return;
+    }
+    if (pass !== confirm) {
+        showToast('Пароли не совпадают', 'error');
+        return;
+    }
+    
+    showToast('Регистрация...', 'info');
+    
+    const result = await supabaseRegister(name, email, pass);
+    
+    if (result.success) {
+        showToast('Регистрация успешна!', 'success');
+        localStorage.setItem('currentUser', JSON.stringify(result.user));
+        closePopup('registerPopup');
+        location.reload();
+    } else {
+        showToast(result.message || 'Ошибка регистрации', 'error');
+    }
+}

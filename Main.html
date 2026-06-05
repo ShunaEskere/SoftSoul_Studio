@@ -410,21 +410,22 @@ function useLocalProducts() {
             displayProducts();
         }
 
-        function checkAuth() {
-            const user = localStorage.getItem('currentUser');
-            if (user) {
-                currentUser = JSON.parse(user);
-                document.getElementById('authButtons').style.display = 'none';
-                document.getElementById('userPanel').style.display = 'flex';
-                if (currentUser.name === 'admin') document.getElementById('adminBtn').style.display = 'inline-flex';
-                let fav = JSON.parse(localStorage.getItem(`favorites_${currentUser.id}`) || '[]');
-                favorites = fav;
-                document.getElementById('favoriteCount').innerText = favorites.length;
-                let cart = JSON.parse(localStorage.getItem(`cart_${currentUser.id}`) || '[]');
-                document.getElementById('cartCount').innerText = cart.reduce((s,i) => s + i.qty, 0);
-            }
-            displayProducts(); displayNewProducts(); displayFavorites();
-        }
+       async function checkAuth() {
+    const user = localStorage.getItem('currentUser');
+    if (user) {
+        currentUser = JSON.parse(user);
+        document.getElementById('authButtons').style.display = 'none';
+        document.getElementById('userPanel').style.display = 'flex';
+        if (currentUser.name === 'admin') document.getElementById('adminBtn').style.display = 'inline-flex';
+        
+        // Загружаем все данные из Supabase
+        await loadFavoritesFromSupabase();
+        await loadCartFromSupabase();
+        await loadProductsFromSupabase();
+    } else {
+        await loadProductsFromSupabase();
+    }
+}
 
         function createParticles() {
             const bg = document.getElementById('bgAnimation');

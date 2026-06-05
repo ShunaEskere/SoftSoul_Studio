@@ -7,26 +7,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .admin-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .admin-container { max-width: 1400px; margin: 40px auto; padding: 0 20px; }
         .admin-title { color: white; font-size: 32px; margin-bottom: 30px; }
         .admin-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 30px; }
-        .admin-card h3 { color: #333; margin-bottom: 20px; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .product-card { background: #f9f9f9; border-radius: 15px; padding: 15px; }
-        .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; }
-        .product-card h4 { margin: 10px 0; }
-        .btn { padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; margin: 5px; }
-        .btn-primary { background: #667eea; color: white; }
+        .admin-card h3 { color: #333; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .product-card { background: #f9f9f9; border-radius: 15px; padding: 15px; transition: transform 0.2s; }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; background: #e0e0e0; }
+        .product-card h4 { margin: 10px 0; font-size: 16px; }
+        .product-card .price { color: #667eea; font-weight: bold; }
+        .product-card .category { color: #999; font-size: 12px; }
+        .btn { padding: 8px 16px; border-radius: 25px; border: none; cursor: pointer; margin: 5px; font-size: 13px; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
         .btn-danger { background: #f44336; color: white; }
         .btn-warning { background: #ff9800; color: white; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%; }
-        .modal input, .modal textarea, .modal select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        .modal-content { background: white; border-radius: 20px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal-content h3 { margin-bottom: 20px; }
+        .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        .image-row { display: flex; gap: 10px; align-items: center; }
+        .image-row input { flex: 1; }
+        .image-row img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #f5f5f5; }
         .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .status-pending { background: #fff3e0; color: #ff9800; }
+        .flex-buttons { display: flex; gap: 8px; margin-top: 10px; }
+        @media (max-width: 768px) { .products-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -41,7 +51,9 @@
         <h1 class="admin-title"><i class="fas fa-cog"></i> Админ панель</h1>
         
         <div class="admin-card">
-            <h3><i class="fas fa-box"></i> Товары <button class="btn btn-primary" onclick="openAddProductModal()">+ Добавить товар</button></h3>
+            <h3><i class="fas fa-box"></i> Управление товарами 
+                <button class="btn btn-primary btn-sm" onclick="openAddProductModal()" style="float:right">+ Добавить товар</button>
+            </h3>
             <div id="productsList" class="products-grid">Загрузка...</div>
         </div>
         
@@ -61,22 +73,43 @@
         <div class="modal-content">
             <h3 id="modalTitle">Добавить товар</h3>
             <input type="hidden" id="productId">
-            <input type="text" id="productName" placeholder="Название товара">
-            <input type="number" id="productPrice" placeholder="Цена">
+            
+            <input type="text" id="productName" placeholder="Название товара *">
+            <input type="number" id="productPrice" placeholder="Цена *">
             <select id="productCategory">
-                <option value="hoodie">Худи</option>
+                <option value="hoodie">Худи / Толстовка</option>
                 <option value="jeans">Джинсы</option>
                 <option value="joggers">Штаны</option>
                 <option value="tee">Футболка</option>
             </select>
-            <textarea id="productDescription" rows="3" placeholder="Описание"></textarea>
-            <input type="text" id="productImage" placeholder="URL изображения">
-            <input type="text" id="productMaterials" placeholder="Материалы">
+            <textarea id="productDescription" rows="3" placeholder="Описание товара"></textarea>
+            
+            <h4>Фотографии товара</h4>
+            <div class="image-row">
+                <input type="text" id="imageFront" placeholder="Фото спереди (URL или путь)">
+                <img id="previewFront" style="display:none">
+            </div>
+            <div class="image-row">
+                <input type="text" id="imageBack" placeholder="Фото сзади (URL или путь)">
+                <img id="previewBack" style="display:none">
+            </div>
+            <div class="image-row">
+                <input type="text" id="imageModelFront" placeholder="Фото на модели (спереди)">
+                <img id="previewModelFront" style="display:none">
+            </div>
+            <div class="image-row">
+                <input type="text" id="imageModelBack" placeholder="Фото на модели (сзади)">
+                <img id="previewModelBack" style="display:none">
+            </div>
+            
+            <input type="text" id="productMaterials" placeholder="Материалы (например: 80% хлопок, 20% полиэстер)">
             <div>
                 <label><input type="checkbox" id="productIsNew"> Новинка</label>
             </div>
-            <button class="btn btn-primary" onclick="saveProduct()">Сохранить</button>
-            <button class="btn btn-danger" onclick="closeModal()">Отмена</button>
+            <div class="flex-buttons">
+                <button class="btn btn-primary" onclick="saveProduct()">Сохранить</button>
+                <button class="btn btn-danger" onclick="closeModal()">Отмена</button>
+            </div>
         </div>
     </div>
 
@@ -84,10 +117,10 @@
         const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
 
-        // ========== ЗАГРУЗКА ДАННЫХ ==========
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
         async function fetchData(table, options = {}) {
-            let url = `${SUPABASE_URL}/rest/v1/${table}?order=id.desc`;
-            if (options.userId) url += `&user_id=eq.${options.userId}`;
+            let url = `${SUPABASE_URL}/rest/v1/${table}?order=id.asc`;
+            if (options.id) url = `${SUPABASE_URL}/rest/v1/${table}?id=eq.${options.id}`;
             const res = await fetch(url, {
                 headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
             });
@@ -120,24 +153,46 @@
             return res.ok;
         }
 
+        // Предпросмотр фото
+        function updatePreview(inputId, previewId) {
+            const url = document.getElementById(inputId).value;
+            const preview = document.getElementById(previewId);
+            if (url) {
+                preview.src = url;
+                preview.style.display = 'inline-block';
+                preview.style.width = '60px';
+                preview.style.height = '60px';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        
+        document.getElementById('imageFront').addEventListener('input', () => updatePreview('imageFront', 'previewFront'));
+        document.getElementById('imageBack').addEventListener('input', () => updatePreview('imageBack', 'previewBack'));
+        document.getElementById('imageModelFront').addEventListener('input', () => updatePreview('imageModelFront', 'previewModelFront'));
+        document.getElementById('imageModelBack').addEventListener('input', () => updatePreview('imageModelBack', 'previewModelBack'));
+
         // ========== ТОВАРЫ ==========
         async function loadProducts() {
             const products = await fetchData('products');
             const container = document.getElementById('productsList');
             if (!products || products.length === 0) {
-                container.innerHTML = '<p>Нет товаров</p>';
+                container.innerHTML = '<p>Нет товаров. Добавьте первый!</p>';
                 return;
             }
             container.innerHTML = '';
             products.forEach(p => {
+                const imgUrl = p.image_front || 'https://placehold.co/400x300?text=No+Image';
                 container.innerHTML += `
                     <div class="product-card">
-                        <img src="${p.image_front || 'https://placehold.co/400x300'}" onerror="this.src='https://placehold.co/400x300'">
-                        <h4>${p.name}</h4>
-                        <p>${Number(p.price).toLocaleString()} руб.</p>
-                        <p>${p.category}</p>
-                        <button class="btn btn-warning" onclick="editProduct(${p.id})">✏️</button>
-                        <button class="btn btn-danger" onclick="deleteProduct(${p.id})">🗑️</button>
+                        <img src="${imgUrl}" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+                        <h4>${escapeHtml(p.name)}</h4>
+                        <div class="price">${Number(p.price).toLocaleString()} руб.</div>
+                        <div class="category">${p.category}</div>
+                        <div class="flex-buttons">
+                            <button class="btn btn-warning btn-sm" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i> Редактировать</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i> Удалить</button>
+                        </div>
                     </div>
                 `;
             });
@@ -150,14 +205,23 @@
                 price: parseFloat(document.getElementById('productPrice').value),
                 category: document.getElementById('productCategory').value,
                 description: document.getElementById('productDescription').value,
-                image_front: document.getElementById('productImage').value,
+                image_front: document.getElementById('imageFront').value,
+                image_back: document.getElementById('imageBack').value,
+                image_model_front: document.getElementById('imageModelFront').value,
+                image_model_back: document.getElementById('imageModelBack').value,
                 materials: document.getElementById('productMaterials').value,
                 is_new: document.getElementById('productIsNew').checked ? 1 : 0
             };
             
+            if (!product.name || !product.price) {
+                alert('Заполните название и цену');
+                return;
+            }
+            
             if (id) {
-                await updateData('products', id, product);
-                alert('Товар обновлён');
+                const success = await updateData('products', id, product);
+                if (success) alert('Товар обновлён');
+                else alert('Ошибка обновления');
             } else {
                 await postData('products', product);
                 alert('Товар добавлен');
@@ -173,26 +237,28 @@
             }
         }
 
-        function editProduct(id) {
-            fetch(`${SUPABASE_URL}/rest/v1/products?id=eq.${id}`, {
-                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
-            })
-            .then(res => res.json())
-            .then(product => {
-                if (product[0]) {
-                    const p = product[0];
-                    document.getElementById('productId').value = p.id;
-                    document.getElementById('productName').value = p.name;
-                    document.getElementById('productPrice').value = p.price;
-                    document.getElementById('productCategory').value = p.category;
-                    document.getElementById('productDescription').value = p.description || '';
-                    document.getElementById('productImage').value = p.image_front || '';
-                    document.getElementById('productMaterials').value = p.materials || '';
-                    document.getElementById('productIsNew').checked = p.is_new === 1;
-                    document.getElementById('modalTitle').innerText = 'Редактировать товар';
-                    openModal();
-                }
-            });
+        async function editProduct(id) {
+            const products = await fetchData('products', { id });
+            if (products && products[0]) {
+                const p = products[0];
+                document.getElementById('productId').value = p.id;
+                document.getElementById('productName').value = p.name;
+                document.getElementById('productPrice').value = p.price;
+                document.getElementById('productCategory').value = p.category;
+                document.getElementById('productDescription').value = p.description || '';
+                document.getElementById('imageFront').value = p.image_front || '';
+                document.getElementById('imageBack').value = p.image_back || '';
+                document.getElementById('imageModelFront').value = p.image_model_front || '';
+                document.getElementById('imageModelBack').value = p.image_model_back || '';
+                document.getElementById('productMaterials').value = p.materials || '';
+                document.getElementById('productIsNew').checked = p.is_new === 1;
+                document.getElementById('modalTitle').innerText = 'Редактировать товар';
+                updatePreview('imageFront', 'previewFront');
+                updatePreview('imageBack', 'previewBack');
+                updatePreview('imageModelFront', 'previewModelFront');
+                updatePreview('imageModelBack', 'previewModelBack');
+                openModal();
+            }
         }
 
         function openAddProductModal() {
@@ -201,10 +267,17 @@
             document.getElementById('productPrice').value = '';
             document.getElementById('productCategory').value = 'hoodie';
             document.getElementById('productDescription').value = '';
-            document.getElementById('productImage').value = '';
+            document.getElementById('imageFront').value = '';
+            document.getElementById('imageBack').value = '';
+            document.getElementById('imageModelFront').value = '';
+            document.getElementById('imageModelBack').value = '';
             document.getElementById('productMaterials').value = '';
             document.getElementById('productIsNew').checked = false;
             document.getElementById('modalTitle').innerText = 'Добавить товар';
+            document.getElementById('previewFront').style.display = 'none';
+            document.getElementById('previewBack').style.display = 'none';
+            document.getElementById('previewModelFront').style.display = 'none';
+            document.getElementById('previewModelBack').style.display = 'none';
             openModal();
         }
 
@@ -214,8 +287,8 @@
         // ========== ПОЛЬЗОВАТЕЛИ ==========
         async function loadUsers() {
             const users = await fetchData('client');
-            let html = '<table><th>ID</th><th>Имя</th><th>Email</th><tr>';
-            users.forEach(u => { html += `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.email}</td></tr>`; });
+            let html = '<tr><th>ID</th><th>Имя</th><th>Email</th></tr>';
+            users.forEach(u => { html += `<tr><td>${u.id}</td><td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.email)}</td></tr>`; });
             html += '</table>';
             document.getElementById('usersList').innerHTML = html;
         }
@@ -227,7 +300,7 @@
             orders.forEach(o => {
                 html += `<tr>
                     <td>${o.id}</td>
-                    <td>${o.user_name || o.user_id}</td>
+                    <td>${escapeHtml(o.user_name || o.user_id)}</td>
                     <td>${Number(o.total).toLocaleString()} руб.</td>
                     <td><span class="status-badge status-${o.status}">${o.status}</span></td>
                     <td>${new Date(o.created_at).toLocaleDateString()}</td>
@@ -247,6 +320,8 @@
                 window.location.href = 'Main.html';
             }
         }
+
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { return m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'; }); }
 
         checkAuth();
         loadProducts();

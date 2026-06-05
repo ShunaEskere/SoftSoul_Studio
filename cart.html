@@ -18,19 +18,21 @@
         .back-button { color: #667eea; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 8px; }
         .user-panel { display: flex; gap: 20px; align-items: center; }
         .user-icon, .cart-icon, .favorite-icon { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; position: relative; }
+        .favorite-icon { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); }
         .cart-count, .favorite-count { position: absolute; top: -8px; right: -8px; background: #ff6b6b; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+        .admin-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f44336, #d32f2f); color: white; padding: 8px 20px; border-radius: 30px; text-decoration: none; font-size: 14px; margin-left: 10px; }
         .cart-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; position: relative; z-index: 1; }
         .cart-title { color: white; font-size: 32px; margin-bottom: 30px; text-align: center; }
         .cart-content { display: grid; grid-template-columns: 1fr 380px; gap: 30px; }
         .cart-items { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; min-height: 400px; }
-        .cart-item { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid #e0e0e0; }
+        .cart-item { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid #e0e0e0; flex-wrap: wrap; }
         .cart-item-image { width: 100px; height: 100px; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
         .cart-item-image img { width: 100%; height: 100%; object-fit: cover; }
-        .cart-item-details { flex: 1; }
+        .cart-item-details { flex: 1; min-width: 150px; }
         .cart-item-name { font-size: 16px; font-weight: 600; color: #333; }
         .cart-item-size { font-size: 13px; color: #666; margin: 5px 0; }
         .cart-item-price { font-size: 14px; color: #667eea; font-weight: 500; }
-        .cart-item-actions { display: flex; align-items: center; gap: 15px; }
+        .cart-item-actions { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .quantity-control { display: flex; align-items: center; gap: 8px; }
         .quantity-btn { width: 30px; height: 30px; border: 1px solid #e0e0e0; background: white; border-radius: 8px; cursor: pointer; }
         .quantity-input { width: 45px; height: 30px; text-align: center; border: 1px solid #e0e0e0; border-radius: 8px; }
@@ -52,8 +54,8 @@
         .modal-body { padding: 25px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: inherit; }
         .order-summary { background: #f9f9f9; border-radius: 12px; padding: 15px; margin: 20px 0; }
         .step-buttons { display: flex; gap: 15px; justify-content: space-between; margin-top: 20px; }
         .btn-back, .btn-next, .btn-submit { padding: 12px 25px; border-radius: 30px; font-weight: 600; cursor: pointer; border: none; }
@@ -61,6 +63,12 @@
         .btn-next, .btn-submit { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
         .step-content { display: none; }
         .step-content.active { display: block; }
+        .payment-options { display: flex; gap: 15px; margin: 15px 0; }
+        .payment-option { flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .payment-option.selected { border-color: #667eea; background: #f0f0ff; }
+        .payment-option i { font-size: 24px; margin-bottom: 5px; display: block; }
+        .sbp-info { background: #e8f5e9; border-radius: 12px; padding: 15px; text-align: center; margin: 15px 0; display: none; }
+        .sbp-info i { font-size: 32px; color: #4caf50; margin-bottom: 10px; }
         .custom-toast { position: fixed; bottom: 30px; right: 30px; z-index: 10000; animation: slideInRight 0.3s ease; }
         .toast-content { background: white; border-radius: 12px; padding: 16px 24px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); min-width: 280px; }
         .toast-content i { font-size: 20px; }
@@ -72,46 +80,12 @@
         @media (max-width: 768px) {
             .modern-header { padding: 15px 20px; flex-wrap: wrap; gap: 10px; }
             .cart-content { grid-template-columns: 1fr; }
-            .cart-item { flex-wrap: wrap; }
+            .cart-item { flex-direction: column; align-items: center; text-align: center; }
+            .cart-item-image { margin: 0 auto; }
+            .cart-item-actions { justify-content: center; }
             .form-row { grid-template-columns: 1fr; }
-        }
-        
-        /* Стили для СБП */
-        .payment-options {
-            display: flex;
-            gap: 15px;
-            margin: 15px 0;
-        }
-        .payment-option {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .payment-option.selected {
-            border-color: #667eea;
-            background: #f0f0ff;
-        }
-        .payment-option i {
-            font-size: 24px;
-            margin-bottom: 5px;
-            display: block;
-        }
-        .sbp-info {
-            background: #e8f5e9;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            margin: 15px 0;
-            display: none;
-        }
-        .sbp-info i {
-            font-size: 32px;
-            color: #4caf50;
-            margin-bottom: 10px;
+            .step-buttons { flex-direction: column; }
+            .step-buttons button { width: 100%; }
         }
     </style>
 </head>
@@ -182,18 +156,14 @@
                         <p class="total"><strong>Итого: <span id="orderTotal">0</span> руб.</strong></p>
                     </div>
                     
-                    <!-- Выбор оплаты -->
-                    <div class="form-group">
-                        <label>Способ оплаты</label>
-                        <div class="payment-options">
-                            <div class="payment-option" data-payment="sbp" onclick="selectPayment('sbp', this)">
-                                <i class="fas fa-mobile-alt"></i>
-                                <span>СБП</span>
-                            </div>
-                            <div class="payment-option" data-payment="cash" onclick="selectPayment('cash', this)">
-                                <i class="fas fa-money-bill-wave"></i>
-                                <span>Наличные</span>
-                            </div>
+                    <div class="payment-options">
+                        <div class="payment-option" data-payment="sbp" onclick="selectPayment('sbp', this)">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>СБП</span>
+                        </div>
+                        <div class="payment-option" data-payment="cash" onclick="selectPayment('cash', this)">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Наличные</span>
                         </div>
                     </div>
                     <div id="sbpInfo" class="sbp-info">
@@ -219,11 +189,15 @@
     </div>
 
     <script>
+        // ========== НАСТРОЙКИ SUPABASE ==========
+        const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
+
         let currentUser = null;
         let cart = [];
         let deliveryPrices = { courier: 300, pickup: 0, post: 200 };
         let selectedPayment = 'sbp';
-        let allProducts = [];
+        let productsInfo = {};
 
         function showToast(message, type) {
             const existing = document.querySelector('.custom-toast');
@@ -238,6 +212,17 @@
 
         function getCartKey() { return currentUser ? `cart_${currentUser.id}` : 'cart_guest'; }
 
+        async function loadProductsInfo() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/products`, {
+                    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+                });
+                const products = await response.json();
+                products.forEach(p => { productsInfo[p.id] = p; });
+                displayCart();
+            } catch(e) { console.error('Ошибка загрузки товаров:', e); }
+        }
+
         function loadCart() {
             const saved = localStorage.getItem(getCartKey());
             cart = saved ? JSON.parse(saved) : [];
@@ -245,24 +230,12 @@
             updateCartCount();
         }
 
-        function saveCart() { localStorage.setItem(getCartKey(), JSON.stringify(cart)); updateCartCount(); }
+        function saveCart() { localStorage.setItem(getCartKey(), JSON.stringify(cart)); }
 
         function updateCartCount() {
             const count = cart.reduce((s, i) => s + i.quantity, 0);
             const cartCount = document.getElementById('cartCount');
             if (cartCount) cartCount.textContent = count;
-        }
-
-        function loadProducts() {
-            // Используем те же товары, что на главной
-            allProducts = [
-                { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "images/Awax Demon Friend Hoodie.jpg" },
-                { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "images/Evil Eye Skeleton Hoodie.jpg" },
-                { id: 3, name: "Graffiti Wave Jeans", price: 5000, image: "images/Graffiti Wave Jeans.jpg" },
-                { id: 4, name: "Mystic Bloom Joggers", price: 4500, image: "images/Mystic Bloom Joggers.jpg" },
-                { id: 5, name: "Occult Edge Sweatpants", price: 3000, image: "images/Occult Edge Sweatpants.jpg" },
-                { id: 6, name: "Shadow Rat Stealth Tee", price: 5700, image: "images/Shadow Rat Stealth Tee.jpg" }
-            ];
         }
 
         function displayCart() {
@@ -283,14 +256,15 @@
             let subtotal = 0;
             for (let i = 0; i < cart.length; i++) {
                 const item = cart[i];
-                const product = allProducts.find(p => p.id === item.id);
+                const product = productsInfo[item.id];
                 const itemName = product ? product.name : `Товар #${item.id}`;
-                const itemPrice = product ? product.price : item.price;
+                const itemPrice = product ? product.price : 0;
                 const itemTotal = itemPrice * item.quantity;
+                const imgUrl = product?.image_front || 'https://placehold.co/100x100?text=No+Image';
                 subtotal += itemTotal;
                 container.innerHTML += `
                     <div class="cart-item">
-                        <div class="cart-item-image"><img src="${item.image || 'images/placeholder.jpg'}"></div>
+                        <div class="cart-item-image"><img src="${imgUrl}" onerror="this.src='https://placehold.co/100x100?text=No+Image'"></div>
                         <div class="cart-item-details">
                             <div class="cart-item-name">${escapeHtml(itemName)}</div>
                             <div class="cart-item-size">Размер: ${item.size || 'M'}</div>
@@ -340,8 +314,8 @@
 
         function updateOrderSummary() {
             const subtotal = cart.reduce((s, i) => {
-                const product = allProducts.find(p => p.id === i.id);
-                return s + ((product ? product.price : i.price) * i.quantity);
+                const product = productsInfo[i.id];
+                return s + (product ? product.price * i.quantity : 0);
             }, 0);
             const delivery = deliveryPrices[document.getElementById('deliveryMethod').value];
             const total = subtotal + delivery;
@@ -356,8 +330,8 @@
             document.getElementById(`step${step}`).classList.add('active');
             if (step === 3) {
                 const subtotal = cart.reduce((s, i) => {
-                    const product = allProducts.find(p => p.id === i.id);
-                    return s + ((product ? product.price : i.price) * i.quantity);
+                    const product = productsInfo[i.id];
+                    return s + (product ? product.price * i.quantity : 0);
                 }, 0);
                 const delivery = deliveryPrices[document.getElementById('deliveryMethod').value];
                 const total = subtotal + delivery;
@@ -375,7 +349,7 @@
                     <p><strong>Оплата:</strong> ${paymentText}</p>
                     <div><strong>Товары:</strong></div>
                     ${cart.map(item => {
-                        const product = allProducts.find(p => p.id === item.id);
+                        const product = productsInfo[item.id];
                         return `<div>${product ? product.name : 'Товар'} (${item.size}) - ${item.quantity} шт.</div>`;
                     }).join('')}
                     <p><strong>Итого: ${total.toLocaleString()} руб.</strong></p>
@@ -386,7 +360,7 @@
         function selectPayment(method, element) {
             selectedPayment = method;
             document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
-            element.classList.add('selected');
+            if (element) element.classList.add('selected');
             const sbpInfo = document.getElementById('sbpInfo');
             if (sbpInfo) sbpInfo.style.display = method === 'sbp' ? 'block' : 'none';
         }
@@ -403,87 +377,87 @@
 
         function closeCheckoutForm() { document.getElementById('checkoutModal').classList.remove('show'); }
 
-        function submitOrder() {
-    const fullName = document.getElementById('fullName').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const deliveryMethod = document.getElementById('deliveryMethod').value;
-    const city = document.getElementById('city').value.trim();
-    const address = document.getElementById('address').value.trim();
-    const comment = document.getElementById('comment').value.trim();
-    
-    if (!fullName || !phone || !email || !city || !address) {
-        showToast('Заполните все поля', 'error');
-        goToStep(1);
-        return;
-    }
-    
-    // Формируем массив товаров с ПРАВИЛЬНЫМИ данными
-    const orderItems = cart.map(item => {
-        // Ищем товар в списке allProducts
-        const product = allProducts.find(p => p.id === item.id);
-        return {
-            id: item.id,
-            name: product ? product.name : `Товар #${item.id}`,
-            price: product ? product.price : (item.price || 0),
-            size: item.size || 'M',
-            quantity: item.quantity
-        };
-    });
-    
-    const subtotal = orderItems.reduce((s, i) => s + i.price * i.quantity, 0);
-    const delivery = deliveryPrices[deliveryMethod];
-    const total = subtotal + delivery;
-    
-    // ПРОВЕРКА: убедись, что user_id есть
-    if (!currentUser.id) {
-        showToast('Ошибка: не найден ID пользователя', 'error');
-        return;
-    }
-    
-    const orderData = {
-        userId: currentUser.id,
-        userName: currentUser.name,
-        userEmail: currentUser.email,
-        fullName, phone, email, deliveryMethod, deliveryPrice: delivery,
-        city, address, comment, items: orderItems, subtotal, total,
-        paymentMethod: selectedPayment
-    };
-    
-    console.log('Отправляем заказ:', orderData);
-    showToast('Оформление заказа...', 'info');
-    
-    fetch('php/create_order.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Ответ сервера:', data);
-        if (data.success) {
-            cart = [];
-            saveCart();
-            closeCheckoutForm();
-            if (selectedPayment === 'sbp') {
-                showToast('Перенаправление на оплату через СБП...', 'info');
-                setTimeout(() => {
-                    showToast('Заказ успешно оформлен!', 'success');
-                    setTimeout(() => window.location.href = 'profile.html?tab=orders', 1500);
-                }, 1000);
-            } else {
-                showToast('Заказ успешно оформлен!', 'success');
-                setTimeout(() => window.location.href = 'profile.html?tab=orders', 1500);
+        async function submitOrder() {
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const deliveryMethod = document.getElementById('deliveryMethod').value;
+            const city = document.getElementById('city').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const comment = document.getElementById('comment').value.trim();
+            
+            if (!fullName || !phone || !email || !city || !address) {
+                showToast('Заполните все поля', 'error');
+                goToStep(1);
+                return;
             }
-        } else {
-            showToast(data.message || 'Ошибка при оформлении', 'error');
+            
+            const orderItems = cart.map(item => {
+                const product = productsInfo[item.id];
+                return {
+                    id: item.id,
+                    name: product ? product.name : 'Товар',
+                    price: product ? product.price : 0,
+                    size: item.size || 'M',
+                    quantity: item.quantity
+                };
+            });
+            
+            const subtotal = orderItems.reduce((s, i) => s + i.price * i.quantity, 0);
+            const delivery = deliveryPrices[deliveryMethod];
+            const total = subtotal + delivery;
+            
+            const orderData = {
+                order_number: 'ORD-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                user_id: currentUser.id,
+                user_name: currentUser.name,
+                user_email: currentUser.email,
+                full_name: fullName,
+                phone: phone,
+                email: email,
+                delivery_method: deliveryMethod,
+                delivery_price: delivery,
+                city: city,
+                address: address,
+                comment: comment,
+                items: orderItems,
+                subtotal: subtotal,
+                total: total,
+                payment_method: selectedPayment,
+                status: 'pending',
+                created_at: new Date().toISOString()
+            };
+            
+            showToast('Оформление заказа...', 'info');
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                if (response.ok) {
+                    cart = [];
+                    saveCart();
+                    closeCheckoutForm();
+                    showToast('Заказ успешно оформлен!', 'success');
+                    setTimeout(() => { window.location.href = 'profile.html?tab=orders'; }, 1500);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Ошибка:', errorText);
+                    showToast('Ошибка при оформлении заказа', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Ошибка: ' + error.message, 'error');
+            }
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('Ошибка сервера: ' + error.message, 'error');
-    });
-}
 
         function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
@@ -496,17 +470,17 @@
                     const adminBtn = document.getElementById('adminBtn');
                     if (adminBtn) adminBtn.style.display = 'inline-flex';
                 }
-                loadCart();
                 const favorites = JSON.parse(localStorage.getItem(`favorites_${currentUser.id}`) || '[]');
                 const favCount = document.getElementById('favoriteCount');
                 if (favCount) favCount.textContent = favorites.length;
+                loadCart();
             } else {
                 window.location.href = 'Main.html';
             }
         }
 
         function createParticles() {
-            const container = document.getElementById('bgAnimation');
+            const bg = document.getElementById('bgAnimation');
             for (let i = 0; i < 60; i++) {
                 const p = document.createElement('span');
                 p.style.width = Math.random() * 40 + 10 + 'px';
@@ -516,17 +490,15 @@
                 p.style.animationDelay = Math.random() * 5 + 's';
                 p.style.opacity = Math.random() * 0.3 + 0.1;
                 p.style.background = 'radial-gradient(circle, rgba(102,126,234,0.4) 0%, rgba(118,75,162,0.2) 100%)';
-                container.appendChild(p);
+                bg.appendChild(p);
             }
         }
 
-        loadProducts();
         createParticles();
-        checkAuth();
-
+        loadProductsInfo().then(() => { checkAuth(); });
+        
         document.getElementById('deliveryMethod').addEventListener('change', function() { updateOrderSummary(); });
         
-        // Инициализация выбора оплаты по умолчанию
         setTimeout(() => {
             const defaultPayment = document.querySelector('.payment-option');
             if (defaultPayment) defaultPayment.click();

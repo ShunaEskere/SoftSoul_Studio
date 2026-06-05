@@ -69,7 +69,6 @@
         </div>
     </header>
 
-    <!-- Навигационные разделы -->
     <div class="nav-sections">
         <div class="nav-links">
             <a class="nav-link" onclick="scrollToSection('usersSection')">👥 Пользователи</a>
@@ -81,13 +80,11 @@
     <div class="admin-container">
         <h1 class="admin-title"><i class="fas fa-cog"></i> Админ панель</h1>
         
-        <!-- Пользователи -->
         <div id="usersSection" class="admin-card">
             <h3><i class="fas fa-users"></i> Пользователи</h3>
             <div id="usersList">Загрузка...</div>
         </div>
         
-        <!-- Заказы -->
         <div id="ordersSection" class="admin-card">
             <h3><i class="fas fa-shopping-cart"></i> Заказы</h3>
             <div class="order-tabs">
@@ -97,7 +94,6 @@
             <div id="ordersList">Загрузка...</div>
         </div>
         
-        <!-- Товары -->
         <div id="productsSection" class="admin-card">
             <h3><i class="fas fa-box"></i> Управление товарами 
                 <button class="btn btn-primary btn-sm" onclick="openAddProductModal()" style="float:right">+ Добавить товар</button>
@@ -122,12 +118,7 @@
             <input type="hidden" id="productId">
             <input type="text" id="productName" placeholder="Название товара *">
             <input type="number" id="productPrice" placeholder="Цена *">
-            <select id="productCategory">
-                <option value="hoodie">Худи / Толстовка</option>
-                <option value="jeans">Джинсы</option>
-                <option value="joggers">Штаны</option>
-                <option value="tee">Футболка</option>
-            </select>
+            <select id="productCategory"><option value="hoodie">Худи / Толстовка</option><option value="jeans">Джинсы</option><option value="joggers">Штаны</option><option value="tee">Футболка</option></select>
             <textarea id="productDescription" rows="3" placeholder="Описание товара"></textarea>
             <h4>Фотографии товара</h4>
             <div class="image-row"><input type="text" id="imageFront" placeholder="Фото спереди (URL)"><img id="previewFront" style="display:none"></div>
@@ -144,7 +135,6 @@
         const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
         const BASE_PATH = window.location.pathname.includes('/сайт/') ? '' : 'сайт/';
-        let currentOrderTab = 'delivery';
         let allOrders = [];
         let allCustomOrders = [];
 
@@ -194,41 +184,29 @@
         // ========== ПОЛЬЗОВАТЕЛИ ==========
         async function loadUsers() {
             const users = await fetchData('client');
-            let html = '<table><th>ID</th><th>Имя</th><th>Email</th><th>Действия</th></tr>';
-            users.forEach(u => {
-                html += `<tr>
-                    <td>${u.id}</td>
-                    <td>${escapeHtml(u.name)}</td>
-                    <td>${escapeHtml(u.email)}</td>
-                    <td><button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Удалить</button></td>
-                </tr>`;
-            });
+            let html = '<tr><th>ID</th><th>Имя</th><th>Email</th><th>Действия</th></tr>';
+            users.forEach(u => { html += `<tr><td>${u.id}</td><td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.email)}</td><td><button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Удалить</button></td></tr>`; });
             html += '</table>';
             document.getElementById('usersList').innerHTML = html;
         }
 
         async function deleteUser(userId) {
-            if (!confirm('Удалить пользователя? Все его данные (заказы, избранное, корзина) также будут удалены.')) return;
+            if (!confirm('Удалить пользователя? Все его данные также будут удалены.')) return;
             try {
                 await deleteData('client', userId);
                 await deleteData('orders', userId);
                 await deleteData('custom_orders', userId);
                 showToast('Пользователь удалён', 'success');
                 loadUsers();
-            } catch (error) {
-                showToast('Ошибка удаления', 'error');
-            }
+            } catch (error) { showToast('Ошибка удаления', 'error'); }
         }
 
         // ========== ДЕТАЛИ ЗАКАЗОВ ==========
         function showDeliveryOrderDetails(order) {
             const modal = document.getElementById('orderDetailModal');
-            const title = document.getElementById('detailModalTitle');
-            const content = document.getElementById('orderDetailContent');
-            
-            title.innerText = `Детали заказа #${order.id}`;
+            document.getElementById('detailModalTitle').innerText = `Детали заказа #${order.id}`;
             const items = order.items || [];
-            content.innerHTML = `
+            document.getElementById('orderDetailContent').innerHTML = `
                 <div class="detail-row"><div class="detail-label">Номер заказа:</div><div class="detail-value">${order.order_number || order.id}</div></div>
                 <div class="detail-row"><div class="detail-label">Дата:</div><div class="detail-value">${new Date(order.created_at).toLocaleString()}</div></div>
                 <div class="detail-row"><div class="detail-label">Статус:</div><div class="detail-value"><span class="status-badge status-${order.status}">${order.status === 'pending' ? 'В обработке' : order.status === 'confirmed' ? 'Подтверждён' : order.status === 'shipped' ? 'Отправлен' : order.status === 'delivered' ? 'Доставлен' : order.status}</span></div></div>
@@ -249,12 +227,13 @@
 
         function showCustomOrderDetails(order) {
             const modal = document.getElementById('orderDetailModal');
-            const title = document.getElementById('detailModalTitle');
-            const content = document.getElementById('orderDetailContent');
-            
-            title.innerText = `Детали кастомной заявки #${order.id}`;
-            const images = order.images || [];
-            content.innerHTML = `
+            document.getElementById('detailModalTitle').innerText = `Детали кастомной заявки #${order.id}`;
+            let images = [];
+            if (order.images) {
+                if (typeof order.images === 'string') { try { images = JSON.parse(order.images); } catch(e) { images = [order.images]; } }
+                else if (Array.isArray(order.images)) images = order.images;
+            }
+            document.getElementById('orderDetailContent').innerHTML = `
                 <div class="detail-row"><div class="detail-label">ID заявки:</div><div class="detail-value">#${order.id}</div></div>
                 <div class="detail-row"><div class="detail-label">Дата:</div><div class="detail-value">${new Date(order.created_at).toLocaleString()}</div></div>
                 <div class="detail-row"><div class="detail-label">Статус:</div><div class="detail-value"><span class="status-badge status-${order.status}">${order.status === 'pending' ? 'В обработке' : order.status === 'processing' ? 'В работе' : order.status === 'completed' ? 'Выполнен' : order.status}</span></div></div>
@@ -263,7 +242,9 @@
                 <div class="detail-row"><div class="detail-label">Тип одежды:</div><div class="detail-value">${escapeHtml(order.garment_type || '-')}</div></div>
                 <div class="detail-row"><div class="detail-label">Размер:</div><div class="detail-value">${escapeHtml(order.size_info || '-')}</div></div>
                 <div class="detail-row"><div class="detail-label">Описание дизайна:</div><div class="detail-value"><div style="background:#f9f9f9; padding:10px; border-radius:8px;">${escapeHtml(order.description || '-')}</div></div></div>
-                ${images.length > 0 ? `<div class="detail-row"><div class="detail-label">Фото референсы:</div><div class="detail-value"><div class="order-images">${images.map(img => `<img src="${img}" class="order-image" onclick="window.open('${img}')">`).join('')}</div></div></div>` : ''}
+                <div class="detail-row"><div class="detail-label">Фото референсы:</div><div class="detail-value">
+                    ${images.length > 0 ? `<div class="order-images" style="display:flex; gap:10px; flex-wrap:wrap;">${images.map(img => `<img src="${img}" class="order-image" style="width:100px; height:100px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="window.open('${img}')" onerror="this.src='https://placehold.co/100x100?text=No+Image'">`).join('')}</div>` : '<span style="color:#999;">Нет фото</span>'}
+                </div></div>
             `;
             modal.style.display = 'flex';
         }
@@ -303,7 +284,7 @@
             const orders = await fetchData('custom_orders');
             allCustomOrders = orders || [];
             if (!allCustomOrders || allCustomOrders.length === 0) { document.getElementById('ordersList').innerHTML = '<p>Нет кастомных заявок</p>'; return; }
-            let html = '<tr><th>ID</th><th>Пользователь</th><th>Тип</th><th>Размер</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
+            let html = '<table><th>ID</th><th>Пользователь</th><th>Тип</th><th>Размер</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
             allCustomOrders.forEach(order => {
                 html += `<tr>
                     <td>${order.id}</td>
@@ -330,46 +311,38 @@
         async function viewDeliveryOrderDetails(orderId) {
             const order = allOrders.find(o => o.id == orderId);
             if (order) showDeliveryOrderDetails(order);
-            else {
-                const orders = await fetchData('orders', { id: orderId });
-                if (orders && orders[0]) showDeliveryOrderDetails(orders[0]);
-            }
+            else { const orders = await fetchData('orders', { id: orderId }); if (orders && orders[0]) showDeliveryOrderDetails(orders[0]); }
         }
 
         async function viewCustomOrderDetails(orderId) {
             const order = allCustomOrders.find(o => o.id == orderId);
-            if (order) showCustomOrderDetails(order);
-            else {
+            if (order) {
+                if (order.images && typeof order.images === 'string') { try { order.images = JSON.parse(order.images); } catch(e) {} }
+                showCustomOrderDetails(order);
+            } else {
                 const orders = await fetchData('custom_orders', { id: orderId });
-                if (orders && orders[0]) showCustomOrderDetails(orders[0]);
+                if (orders && orders[0]) {
+                    if (orders[0].images && typeof orders[0].images === 'string') { try { orders[0].images = JSON.parse(orders[0].images); } catch(e) {} }
+                    showCustomOrderDetails(orders[0]);
+                }
             }
         }
 
         async function updateOrderStatus(orderId, status, table) {
             try {
                 const success = await updateData(table, orderId, { status: status });
-                if (success) { 
-                    showToast('Статус обновлён', 'success'); 
-                    if (table === 'orders') loadDeliveryOrders(); 
-                    else loadCustomOrders(); 
-                }
+                if (success) { showToast('Статус обновлён', 'success'); if (table === 'orders') loadDeliveryOrders(); else loadCustomOrders(); }
                 else showToast('Ошибка обновления', 'error');
             } catch (error) { showToast('Ошибка: ' + error.message, 'error'); }
         }
 
         async function deleteOrder(orderId, table) {
             if (!confirm('Удалить заказ?')) return;
-            try { 
-                await deleteData(table, orderId); 
-                showToast('Заказ удалён', 'success'); 
-                if (table === 'orders') loadDeliveryOrders(); 
-                else loadCustomOrders(); 
-            }
+            try { await deleteData(table, orderId); showToast('Заказ удалён', 'success'); if (table === 'orders') loadDeliveryOrders(); else loadCustomOrders(); }
             catch (error) { showToast('Ошибка удаления', 'error'); }
         }
 
         function switchOrderTab(tab, btn) {
-            currentOrderTab = tab;
             document.querySelectorAll('.order-tab').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             if (tab === 'delivery') loadDeliveryOrders();
@@ -392,8 +365,8 @@
                         <div class="price">${Number(p.price).toLocaleString()} руб.</div>
                         <div class="category">${p.category}</div>
                         <div class="flex-buttons">
-                            <button class="btn btn-warning btn-sm" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i> Редактировать</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i> Удалить</button>
+                            <button class="btn btn-warning btn-sm" onclick="editProduct(${p.id})">✏️ Редактировать</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑️ Удалить</button>
                         </div>
                     </div>
                 `;
@@ -455,7 +428,8 @@
         function closeModal() { document.getElementById('productModal').style.display = 'none'; }
 
         function updatePreview(inputId, previewId) {
-            const url = document.getElementById(inputId).value; const preview = document.getElementById(previewId);
+            const url = document.getElementById(inputId).value;
+            const preview = document.getElementById(previewId);
             if (url) { let imgUrl = !url.startsWith('http') ? BASE_PATH + url : url; preview.src = imgUrl; preview.style.display = 'inline-block'; preview.style.width = '60px'; preview.style.height = '60px'; }
             else preview.style.display = 'none';
         }

@@ -183,11 +183,27 @@
 
         // ========== ПОЛЬЗОВАТЕЛИ ==========
         async function loadUsers() {
-            const users = await fetchData('client');
-            let html = '<tr><th>ID</th><th>Имя</th><th>Email</th><th>Действия</th></tr>';
-            users.forEach(u => { html += `<tr><td>${u.id}</td><td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.email)}</td><td><button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Удалить</button></td></tr>`; });
-            html += '</table>';
-            document.getElementById('usersList').innerHTML = html;
+            try {
+                const users = await fetchData('client');
+                if (!users || users.length === 0) {
+                    document.getElementById('usersList').innerHTML = '<p>Нет пользователей</p>';
+                    return;
+                }
+                let html = '<table><th>ID</th><th>Имя</th><th>Email</th><th>Действия</th></tr>';
+                users.forEach(u => {
+                    html += `<tr>
+                        <td>${u.id}</td>
+                        <td>${escapeHtml(u.name)}</td>
+                        <td>${escapeHtml(u.email)}</td>
+                        <td><button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Удалить</button></td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('usersList').innerHTML = html;
+            } catch (error) {
+                console.error('Ошибка загрузки пользователей:', error);
+                document.getElementById('usersList').innerHTML = '<p>Ошибка загрузки пользователей</p>';
+            }
         }
 
         async function deleteUser(userId) {
@@ -198,7 +214,12 @@
                 await deleteData('custom_orders', userId);
                 showToast('Пользователь удалён', 'success');
                 loadUsers();
-            } catch (error) { showToast('Ошибка удаления', 'error'); }
+                loadDeliveryOrders();
+                loadCustomOrders();
+            } catch (error) { 
+                showToast('Ошибка удаления', 'error');
+                console.error(error);
+            }
         }
 
         // ========== ДЕТАЛИ ЗАКАЗОВ ==========
@@ -228,11 +249,24 @@
         function showCustomOrderDetails(order) {
             const modal = document.getElementById('orderDetailModal');
             document.getElementById('detailModalTitle').innerText = `Детали кастомной заявки #${order.id}`;
+            
+            // Парсим images - пробуем разные варианты
             let images = [];
             if (order.images) {
-                if (typeof order.images === 'string') { try { images = JSON.parse(order.images); } catch(e) { images = [order.images]; } }
-                else if (Array.isArray(order.images)) images = order.images;
+                if (typeof order.images === 'string') {
+                    try { 
+                        const parsed = JSON.parse(order.images);
+                        images = Array.isArray(parsed) ? parsed : [parsed];
+                    } catch(e) { 
+                        images = [order.images]; 
+                    }
+                } else if (Array.isArray(order.images)) {
+                    images = order.images;
+                }
             }
+            // Фильтруем пустые значения
+            images = images.filter(img => img && img !== 'null' && img !== 'undefined' && img !== '');
+            
             document.getElementById('orderDetailContent').innerHTML = `
                 <div class="detail-row"><div class="detail-label">ID заявки:</div><div class="detail-value">#${order.id}</div></div>
                 <div class="detail-row"><div class="detail-label">Дата:</div><div class="detail-value">${new Date(order.created_at).toLocaleString()}</div></div>
@@ -243,7 +277,12 @@
                 <div class="detail-row"><div class="detail-label">Размер:</div><div class="detail-value">${escapeHtml(order.size_info || '-')}</div></div>
                 <div class="detail-row"><div class="detail-label">Описание дизайна:</div><div class="detail-value"><div style="background:#f9f9f9; padding:10px; border-radius:8px;">${escapeHtml(order.description || '-')}</div></div></div>
                 <div class="detail-row"><div class="detail-label">Фото референсы:</div><div class="detail-value">
-                    ${images.length > 0 ? `<div class="order-images" style="display:flex; gap:10px; flex-wrap:wrap;">${images.map(img => `<img src="${img}" class="order-image" style="width:100px; height:100px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="window.open('${img}')" onerror="this.src='https://placehold.co/100x100?text=No+Image'">`).join('')}</div>` : '<span style="color:#999;">Нет фото</span>'}
+                    ${images.length > 0 ? 
+                        `<div class="order-images" style="display:flex; gap:10px; flex-wrap:wrap;">
+                            ${images.map(img => `<img src="${img}" class="order-image" style="width:100px; height:100px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="window.open('${img}')" onerror="this.src='https://placehold.co/100x100?text=No+Image'">`).join('')}
+                        </div>` : 
+                        '<span style="color:#999;">Нет фото</span>'
+                    }
                 </div></div>
             `;
             modal.style.display = 'flex';
@@ -253,76 +292,93 @@
 
         // ========== ЗАКАЗЫ ==========
         async function loadDeliveryOrders() {
-            const orders = await fetchData('orders');
-            allOrders = orders || [];
-            if (!allOrders || allOrders.length === 0) { document.getElementById('ordersList').innerHTML = '<p>Нет заказов доставки</p>'; return; }
-            let html = '<table><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
-            allOrders.forEach(order => {
-                html += `<tr>
-                    <td>${order.id}</td>
-                    <td>${escapeHtml(order.user_name || order.user_id)}</td>
-                    <td>${Number(order.total).toLocaleString()} руб.</td>
-                    <td><select class="status-select" onchange="updateOrderStatus(${order.id}, this.value, 'orders')">
-                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>В обработке</option>
-                        <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Подтверждён</option>
-                        <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Отправлен</option>
-                        <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Доставлен</option>
-                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Отменён</option>
-                    </select></td>
-                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
-                    <td class="action-buttons">
-                        <button class="btn btn-info btn-sm" onclick="viewDeliveryOrderDetails(${order.id})">👁️ Детали</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id}, 'orders')">🗑️ Удалить</button>
-                    </td>
-                </tr>`;
-            });
-            html += '</table>';
-            document.getElementById('ordersList').innerHTML = html;
+            try {
+                const orders = await fetchData('orders');
+                allOrders = orders || [];
+                if (!allOrders || allOrders.length === 0) { 
+                    document.getElementById('ordersList').innerHTML = '<p>Нет заказов доставки</p>'; 
+                    return; 
+                }
+                let html = '<table><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
+                allOrders.forEach(order => {
+                    html += `<tr>
+                        <td>${order.id}</td>
+                        <td>${escapeHtml(order.user_name || order.user_id)}</td>
+                        <td>${Number(order.total).toLocaleString()} руб.</td>
+                        <td><select class="status-select" onchange="updateOrderStatus(${order.id}, this.value, 'orders')">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>В обработке</option>
+                            <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Подтверждён</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Отправлен</option>
+                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Доставлен</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Отменён</option>
+                        </select></td>
+                        <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                        <td class="action-buttons">
+                            <button class="btn btn-info btn-sm" onclick="viewDeliveryOrderDetails(${order.id})">👁️ Детали</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id}, 'orders')">🗑️ Удалить</button>
+                        </td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('ordersList').innerHTML = html;
+            } catch (error) {
+                console.error('Ошибка загрузки заказов:', error);
+                document.getElementById('ordersList').innerHTML = '<p>Ошибка загрузки заказов</p>';
+            }
         }
 
         async function loadCustomOrders() {
-            const orders = await fetchData('custom_orders');
-            allCustomOrders = orders || [];
-            if (!allCustomOrders || allCustomOrders.length === 0) { document.getElementById('ordersList').innerHTML = '<p>Нет кастомных заявок</p>'; return; }
-            let html = '<table><th>ID</th><th>Пользователь</th><th>Тип</th><th>Размер</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
-            allCustomOrders.forEach(order => {
-                html += `<tr>
-                    <td>${order.id}</td>
-                    <td>${escapeHtml(order.user_name || order.user_id)}</td>
-                    <td>${escapeHtml(order.garment_type || '-')}</td>
-                    <td>${escapeHtml(order.size_info || '-')}</td>
-                    <td><select class="status-select" onchange="updateOrderStatus(${order.id}, this.value, 'custom_orders')">
-                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>В обработке</option>
-                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>В работе</option>
-                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Выполнен</option>
-                        <option value="rejected" ${order.status === 'rejected' ? 'selected' : ''}>Отклонён</option>
-                    </select></td>
-                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
-                    <td class="action-buttons">
-                        <button class="btn btn-info btn-sm" onclick="viewCustomOrderDetails(${order.id})">👁️ Детали</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id}, 'custom_orders')">🗑️ Удалить</button>
-                    </td>
-                </tr>`;
-            });
-            html += '</table>';
-            document.getElementById('ordersList').innerHTML = html;
+            try {
+                const orders = await fetchData('custom_orders');
+                allCustomOrders = orders || [];
+                if (!allCustomOrders || allCustomOrders.length === 0) { 
+                    document.getElementById('ordersList').innerHTML = '<p>Нет кастомных заявок</p>'; 
+                    return; 
+                }
+                let html = '<table><th>ID</th><th>Пользователь</th><th>Тип</th><th>Размер</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
+                allCustomOrders.forEach(order => {
+                    html += `<tr>
+                        <td>${order.id}</td>
+                        <td>${escapeHtml(order.user_name || order.user_id)}</td>
+                        <td>${escapeHtml(order.garment_type || '-')}</td>
+                        <td>${escapeHtml(order.size_info || '-')}</td>
+                        <td><select class="status-select" onchange="updateOrderStatus(${order.id}, this.value, 'custom_orders')">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>В обработке</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>В работе</option>
+                            <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Выполнен</option>
+                            <option value="rejected" ${order.status === 'rejected' ? 'selected' : ''}>Отклонён</option>
+                        </select></td>
+                        <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                        <td class="action-buttons">
+                            <button class="btn btn-info btn-sm" onclick="viewCustomOrderDetails(${order.id})">👁️ Детали</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id}, 'custom_orders')">🗑️ Удалить</button>
+                        </td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('ordersList').innerHTML = html;
+            } catch (error) {
+                console.error('Ошибка загрузки кастомных заявок:', error);
+                document.getElementById('ordersList').innerHTML = '<p>Ошибка загрузки заявок</p>';
+            }
         }
 
         async function viewDeliveryOrderDetails(orderId) {
             const order = allOrders.find(o => o.id == orderId);
             if (order) showDeliveryOrderDetails(order);
-            else { const orders = await fetchData('orders', { id: orderId }); if (orders && orders[0]) showDeliveryOrderDetails(orders[0]); }
+            else { 
+                const orders = await fetchData('orders', { id: orderId }); 
+                if (orders && orders[0]) showDeliveryOrderDetails(orders[0]); 
+            }
         }
 
         async function viewCustomOrderDetails(orderId) {
             const order = allCustomOrders.find(o => o.id == orderId);
             if (order) {
-                if (order.images && typeof order.images === 'string') { try { order.images = JSON.parse(order.images); } catch(e) {} }
                 showCustomOrderDetails(order);
             } else {
                 const orders = await fetchData('custom_orders', { id: orderId });
                 if (orders && orders[0]) {
-                    if (orders[0].images && typeof orders[0].images === 'string') { try { orders[0].images = JSON.parse(orders[0].images); } catch(e) {} }
                     showCustomOrderDetails(orders[0]);
                 }
             }
@@ -331,15 +387,30 @@
         async function updateOrderStatus(orderId, status, table) {
             try {
                 const success = await updateData(table, orderId, { status: status });
-                if (success) { showToast('Статус обновлён', 'success'); if (table === 'orders') loadDeliveryOrders(); else loadCustomOrders(); }
+                if (success) { 
+                    showToast('Статус обновлён', 'success'); 
+                    if (table === 'orders') loadDeliveryOrders(); 
+                    else loadCustomOrders(); 
+                }
                 else showToast('Ошибка обновления', 'error');
-            } catch (error) { showToast('Ошибка: ' + error.message, 'error'); }
+            } catch (error) { 
+                showToast('Ошибка: ' + error.message, 'error'); 
+                console.error(error);
+            }
         }
 
         async function deleteOrder(orderId, table) {
             if (!confirm('Удалить заказ?')) return;
-            try { await deleteData(table, orderId); showToast('Заказ удалён', 'success'); if (table === 'orders') loadDeliveryOrders(); else loadCustomOrders(); }
-            catch (error) { showToast('Ошибка удаления', 'error'); }
+            try { 
+                await deleteData(table, orderId); 
+                showToast('Заказ удалён', 'success'); 
+                if (table === 'orders') loadDeliveryOrders(); 
+                else loadCustomOrders(); 
+            }
+            catch (error) { 
+                showToast('Ошибка удаления', 'error');
+                console.error(error);
+            }
         }
 
         function switchOrderTab(tab, btn) {
@@ -351,26 +422,31 @@
 
         // ========== ТОВАРЫ ==========
         async function loadProducts() {
-            const products = await fetchData('products');
-            const container = document.getElementById('productsList');
-            if (!products || products.length === 0) { container.innerHTML = '<p>Нет товаров</p>'; return; }
-            container.innerHTML = '';
-            products.forEach(p => {
-                let imgUrl = p.image_front || 'https://placehold.co/400x300?text=No+Image';
-                if (imgUrl && !imgUrl.startsWith('http')) imgUrl = BASE_PATH + imgUrl;
-                container.innerHTML += `
-                    <div class="product-card">
-                        <img src="${imgUrl}" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
-                        <h4>${escapeHtml(p.name)}</h4>
-                        <div class="price">${Number(p.price).toLocaleString()} руб.</div>
-                        <div class="category">${p.category}</div>
-                        <div class="flex-buttons">
-                            <button class="btn btn-warning btn-sm" onclick="editProduct(${p.id})">✏️ Редактировать</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑️ Удалить</button>
+            try {
+                const products = await fetchData('products');
+                const container = document.getElementById('productsList');
+                if (!products || products.length === 0) { container.innerHTML = '<p>Нет товаров</p>'; return; }
+                container.innerHTML = '';
+                products.forEach(p => {
+                    let imgUrl = p.image_front || 'https://placehold.co/400x300?text=No+Image';
+                    if (imgUrl && !imgUrl.startsWith('http')) imgUrl = BASE_PATH + imgUrl;
+                    container.innerHTML += `
+                        <div class="product-card">
+                            <img src="${imgUrl}" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+                            <h4>${escapeHtml(p.name)}</h4>
+                            <div class="price">${Number(p.price).toLocaleString()} руб.</div>
+                            <div class="category">${p.category}</div>
+                            <div class="flex-buttons">
+                                <button class="btn btn-warning btn-sm" onclick="editProduct(${p.id})">✏️ Редактировать</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑️ Удалить</button>
+                            </div>
                         </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            } catch (error) {
+                console.error('Ошибка загрузки товаров:', error);
+                document.getElementById('productsList').innerHTML = '<p>Ошибка загрузки товаров</p>';
+            }
         }
 
         async function saveProduct() {

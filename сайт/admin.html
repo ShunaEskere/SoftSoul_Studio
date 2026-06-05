@@ -22,8 +22,9 @@
         .btn-danger { background: #f44336; color: white; }
         .btn-warning { background: #ff9800; color: white; }
         .btn-sm { padding: 5px 12px; font-size: 12px; }
+        .btn-info { background: #2196f3; color: white; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; border-radius: 20px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; border-radius: 20px; padding: 30px; max-width: 700px; width: 90%; max-height: 85vh; overflow-y: auto; }
         .modal-content h3 { margin-bottom: 20px; }
         .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
         .image-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -48,7 +49,12 @@
         .nav-links { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
         .nav-link { color: white; text-decoration: none; font-size: 16px; font-weight: 500; padding-bottom: 5px; cursor: pointer; transition: all 0.3s; }
         .nav-link:hover { color: #ffd700; border-bottom: 2px solid #ffd700; }
-        @media (max-width: 768px) { .products-grid { grid-template-columns: 1fr; } .order-tabs { justify-content: center; } .nav-links { gap: 20px; } .nav-link { font-size: 13px; } }
+        .detail-row { display: flex; margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #eee; }
+        .detail-label { width: 150px; font-weight: 600; color: #667eea; }
+        .detail-value { flex: 1; color: #333; }
+        .order-images { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .order-image { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; cursor: pointer; }
+        @media (max-width: 768px) { .products-grid { grid-template-columns: 1fr; } .order-tabs { justify-content: center; } .nav-links { gap: 20px; } .nav-link { font-size: 13px; } .detail-row { flex-direction: column; } .detail-label { width: 100%; margin-bottom: 5px; } }
     </style>
 </head>
 <body>
@@ -66,8 +72,8 @@
     <div class="nav-sections">
         <div class="nav-links">
             <a class="nav-link" onclick="scrollToSection('usersSection')">👥 Пользователи</a>
-            <a class="nav-link" onclick="scrollToSection('productsSection')">📦 Товары</a>
             <a class="nav-link" onclick="scrollToSection('ordersSection')">📦 Заказы</a>
+            <a class="nav-link" onclick="scrollToSection('productsSection')">📦 Товары</a>
         </div>
     </div>
 
@@ -80,14 +86,6 @@
             <div id="usersList">Загрузка...</div>
         </div>
         
-        <!-- Товары -->
-        <div id="productsSection" class="admin-card">
-            <h3><i class="fas fa-box"></i> Управление товарами 
-                <button class="btn btn-primary btn-sm" onclick="openAddProductModal()" style="float:right">+ Добавить товар</button>
-            </h3>
-            <div id="productsList" class="products-grid">Загрузка...</div>
-        </div>
-        
         <!-- Заказы -->
         <div id="ordersSection" class="admin-card">
             <h3><i class="fas fa-shopping-cart"></i> Заказы</h3>
@@ -96,6 +94,23 @@
                 <button class="order-tab" onclick="switchOrderTab('custom', this)">🎨 Кастомные заявки</button>
             </div>
             <div id="ordersList">Загрузка...</div>
+        </div>
+        
+        <!-- Товары -->
+        <div id="productsSection" class="admin-card">
+            <h3><i class="fas fa-box"></i> Управление товарами 
+                <button class="btn btn-primary btn-sm" onclick="openAddProductModal()" style="float:right">+ Добавить товар</button>
+            </h3>
+            <div id="productsList" class="products-grid">Загрузка...</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно деталей заказа -->
+    <div id="orderDetailModal" class="modal">
+        <div class="modal-content">
+            <h3 id="detailModalTitle">Детали заказа</h3>
+            <div id="orderDetailContent"></div>
+            <div class="flex-buttons"><button class="btn btn-primary" onclick="closeDetailModal()">Закрыть</button></div>
         </div>
     </div>
 
@@ -136,15 +151,6 @@
             let url = `${SUPABASE_URL}/rest/v1/${table}?order=id.asc`;
             if (options.id) url = `${SUPABASE_URL}/rest/v1/${table}?id=eq.${options.id}`;
             const res = await fetch(url, { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` } });
-            return await res.json();
-        }
-
-        async function postData(table, data) {
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-                method: 'POST',
-                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
             return await res.json();
         }
 
@@ -200,6 +206,138 @@
             } catch (error) {
                 showToast('Ошибка удаления', 'error');
             }
+        }
+
+        // ========== ДЕТАЛИ ЗАКАЗОВ ==========
+        function showOrderDetails(order, type) {
+            const modal = document.getElementById('orderDetailModal');
+            const title = document.getElementById('detailModalTitle');
+            const content = document.getElementById('orderDetailContent');
+            
+            if (type === 'delivery') {
+                title.innerText = `Детали заказа #${order.id}`;
+                const items = order.items || [];
+                content.innerHTML = `
+                    <div class="detail-row"><div class="detail-label">Номер заказа:</div><div class="detail-value">${order.order_number || order.id}</div></div>
+                    <div class="detail-row"><div class="detail-label">Дата:</div><div class="detail-value">${new Date(order.created_at).toLocaleString()}</div></div>
+                    <div class="detail-row"><div class="detail-label">Статус:</div><div class="detail-value"><span class="status-badge status-${order.status}">${order.status}</span></div></div>
+                    <div class="detail-row"><div class="detail-label">Получатель:</div><div class="detail-value">${escapeHtml(order.full_name || order.user_name)}</div></div>
+                    <div class="detail-row"><div class="detail-label">Телефон:</div><div class="detail-value">${escapeHtml(order.phone || '-')}</div></div>
+                    <div class="detail-row"><div class="detail-label">Email:</div><div class="detail-value">${escapeHtml(order.email || order.user_email)}</div></div>
+                    <div class="detail-row"><div class="detail-label">Адрес доставки:</div><div class="detail-value">${escapeHtml(order.city || '')}, ${escapeHtml(order.address || '')}</div></div>
+                    <div class="detail-row"><div class="detail-label">Способ доставки:</div><div class="detail-value">${order.delivery_method === 'courier' ? 'Курьером' : order.delivery_method === 'pickup' ? 'Самовывоз' : 'Почта России'}</div></div>
+                    <div class="detail-row"><div class="detail-label">Оплата:</div><div class="detail-value">${order.payment_method === 'sbp' ? 'СБП' : 'Наличные'}</div></div>
+                    <div class="detail-row"><div class="detail-label">Комментарий:</div><div class="detail-value">${escapeHtml(order.comment || '-')}</div></div>
+                    <div class="detail-row"><div class="detail-label">Товары:</div><div class="detail-value">${items.map(item => `<div>${escapeHtml(item.name)} (${item.size}) - ${item.quantity} шт. × ${Number(item.price).toLocaleString()} руб.</div>`).join('')}</div></div>
+                    <div class="detail-row"><div class="detail-label">Сумма:</div><div class="detail-value">${Number(order.subtotal || order.total).toLocaleString()} руб.</div></div>
+                    <div class="detail-row"><div class="detail-label">Доставка:</div><div class="detail-value">${Number(order.delivery_price || 0).toLocaleString()} руб.</div></div>
+                    <div class="detail-row"><div class="detail-label">Итого:</div><div class="detail-value"><strong>${Number(order.total).toLocaleString()} руб.</strong></div></div>
+                `;
+            } else {
+                title.innerText = `Детали кастомной заявки #${order.id}`;
+                const images = order.images || [];
+                content.innerHTML = `
+                    <div class="detail-row"><div class="detail-label">ID заявки:</div><div class="detail-value">#${order.id}</div></div>
+                    <div class="detail-row"><div class="detail-label">Дата:</div><div class="detail-value">${new Date(order.created_at).toLocaleString()}</div></div>
+                    <div class="detail-row"><div class="detail-label">Статус:</div><div class="detail-value"><span class="status-badge status-${order.status}">${order.status}</span></div></div>
+                    <div class="detail-row"><div class="detail-label">Пользователь:</div><div class="detail-value">${escapeHtml(order.user_name || order.user_id)}</div></div>
+                    <div class="detail-row"><div class="detail-label">Email:</div><div class="detail-value">${escapeHtml(order.user_email || '-')}</div></div>
+                    <div class="detail-row"><div class="detail-label">Тип одежды:</div><div class="detail-value">${escapeHtml(order.garment_type || '-')}</div></div>
+                    <div class="detail-row"><div class="detail-label">Размер:</div><div class="detail-value">${escapeHtml(order.size_info || '-')}</div></div>
+                    <div class="detail-row"><div class="detail-label">Описание дизайна:</div><div class="detail-value"><div style="background:#f9f9f9; padding:10px; border-radius:8px;">${escapeHtml(order.description || '-')}</div></div></div>
+                    ${images.length > 0 ? `<div class="detail-row"><div class="detail-label">Фото референсы:</div><div class="detail-value"><div class="order-images">${images.map(img => `<img src="${img}" class="order-image" onclick="window.open('${img}')">`).join('')}</div></div></div>` : ''}
+                `;
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeDetailModal() { document.getElementById('orderDetailModal').style.display = 'none'; }
+
+        // ========== ЗАКАЗЫ ==========
+        async function loadDeliveryOrders() {
+            const orders = await fetchData('orders');
+            if (!orders || orders.length === 0) { document.getElementById('ordersList').innerHTML = '<p>Нет заказов доставки</p>'; return; }
+            let html = '<table><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
+            orders.forEach(order => {
+                html += `<tr>
+                    <td>${order.id}</td>
+                    <td>${escapeHtml(order.user_name || order.user_id)}</td>
+                    <td>${Number(order.total).toLocaleString()} руб.</td>
+                    <td><select class="status-select" onchange="updateOrderStatus(${order.id}, this.value, 'orders')">
+                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>В обработке</option>
+                        <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Подтверждён</option>
+                        <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Отправлен</option>
+                        <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Доставлен</option>
+                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Отменён</option>
+                    </select></td>
+                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-info btn-sm" onclick="showOrderDetails(${order.id}, 'orders')">👁️ Детали</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id}, 'orders')">🗑️ Удалить</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</table>';
+            document.getElementById('ordersList').innerHTML = html;
+        }
+
+        async function loadCustomOrders() {
+            const orders = await fetchData('custom_orders');
+            if (!orders || orders.length === 0) { document.getElementById('ordersList').innerHTML = '<p>Нет кастомных заявок</p>'; return; }
+            let html = '<tr><th>ID</th><th>Пользователь</th><th>Тип</th><th>Размер</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
+            orders.forEach(order => {
+                html += `<tr>
+                    <td>${order.id}</td>
+                    <td>${escapeHtml(order.user_name || order.user_id)}</td>
+                    <td>${escapeHtml(order.garment_type || '-')}</td>
+                    <td>${escapeHtml(order.size_info || '-')}</td>
+                    <td><select class="status-select" onchange="updateOrderStatus(${order.id}, this.value, 'custom_orders')">
+                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>В обработке</option>
+                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>В работе</option>
+                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Выполнен</option>
+                        <option value="rejected" ${order.status === 'rejected' ? 'selected' : ''}>Отклонён</option>
+                    </select></td>
+                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-info btn-sm" onclick="showCustomOrderDetails(${order.id})">👁️ Детали</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id}, 'custom_orders')">🗑️ Удалить</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</table>';
+            document.getElementById('ordersList').innerHTML = html;
+        }
+
+        async function showOrderDetails(orderId, table) {
+            const orders = await fetchData(table, { id: orderId });
+            if (orders && orders[0]) showOrderDetails(orders[0], table === 'orders' ? 'delivery' : 'custom');
+        }
+
+        async function showCustomOrderDetails(orderId) {
+            const orders = await fetchData('custom_orders', { id: orderId });
+            if (orders && orders[0]) showOrderDetails(orders[0], 'custom');
+        }
+
+        async function updateOrderStatus(orderId, status, table) {
+            try {
+                const success = await updateData(table, orderId, { status: status });
+                if (success) { showToast('Статус обновлён', 'success'); if (table === 'orders') loadDeliveryOrders(); else loadCustomOrders(); }
+                else showToast('Ошибка обновления', 'error');
+            } catch (error) { showToast('Ошибка: ' + error.message, 'error'); }
+        }
+
+        async function deleteOrder(orderId, table) {
+            if (!confirm('Удалить заказ?')) return;
+            try { await deleteData(table, orderId); showToast('Заказ удалён', 'success'); if (table === 'orders') loadDeliveryOrders(); else loadCustomOrders(); }
+            catch (error) { showToast('Ошибка удаления', 'error'); }
+        }
+
+        function switchOrderTab(tab, btn) {
+            currentOrderTab = tab;
+            document.querySelectorAll('.order-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (tab === 'delivery') loadDeliveryOrders();
+            else loadCustomOrders();
         }
 
         // ========== ТОВАРЫ ==========
@@ -277,75 +415,13 @@
             document.getElementById('modalTitle').innerText = 'Добавить товар'; openModal();
         }
 
-        // ========== ЗАКАЗЫ ==========
-        async function loadDeliveryOrders() {
-            const orders = await fetchData('orders');
-            if (!orders || orders.length === 0) { document.getElementById('ordersList').innerHTML = '<p>Нет заказов доставки</p>'; return; }
-            let html = '<table><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
-            orders.forEach(order => {
-                html += `<tr>
-                    <td>${order.id}</td>
-                    <td>${escapeHtml(order.user_name || order.user_id)}</td>
-                    <td>${Number(order.total).toLocaleString()} руб.</td>
-                    <td><select class="status-select" onchange="updateOrderStatus(${order.id}, this.value, 'orders')">
-                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>В обработке</option>
-                        <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Подтверждён</option>
-                        <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Отправлен</option>
-                        <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Доставлен</option>
-                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Отменён</option>
-                    </select></td>
-                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
-                    <td><button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id}, 'orders')">Удалить</button></td>
-                </tr>`;
+        async function postData(table, data) {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
             });
-            html += '</table>';
-            document.getElementById('ordersList').innerHTML = html;
-        }
-
-        async function loadCustomOrders() {
-            const orders = await fetchData('custom_orders');
-            if (!orders || orders.length === 0) { document.getElementById('ordersList').innerHTML = '<p>Нет кастомных заявок</p>'; return; }
-            let html = '<table><th>ID</th><th>Пользователь</th><th>Тип</th><th>Размер</th><th>Статус</th><th>Дата</th><th>Действия</th></tr>';
-            orders.forEach(order => {
-                html += `<tr>
-                    <td>${order.id}</td>
-                    <td>${escapeHtml(order.user_name || order.user_id)}</td>
-                    <td>${escapeHtml(order.garment_type || '-')}</td>
-                    <td>${escapeHtml(order.size_info || '-')}</td>
-                    <td><select class="status-select" onchange="updateOrderStatus(${order.id}, this.value, 'custom_orders')">
-                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>В обработке</option>
-                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>В работе</option>
-                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Выполнен</option>
-                        <option value="rejected" ${order.status === 'rejected' ? 'selected' : ''}>Отклонён</option>
-                    </select></td>
-                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
-                    <td><button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id}, 'custom_orders')">Удалить</button></td>
-                </tr>`;
-            });
-            html += '</table>';
-            document.getElementById('ordersList').innerHTML = html;
-        }
-
-        async function updateOrderStatus(orderId, status, table) {
-            try {
-                const success = await updateData(table, orderId, { status: status });
-                if (success) { showToast('Статус обновлён', 'success'); if (table === 'orders') loadDeliveryOrders(); else loadCustomOrders(); }
-                else showToast('Ошибка обновления', 'error');
-            } catch (error) { showToast('Ошибка: ' + error.message, 'error'); }
-        }
-
-        async function deleteOrder(orderId, table) {
-            if (!confirm('Удалить заказ?')) return;
-            try { await deleteData(table, orderId); showToast('Заказ удалён', 'success'); if (table === 'orders') loadDeliveryOrders(); else loadCustomOrders(); }
-            catch (error) { showToast('Ошибка удаления', 'error'); }
-        }
-
-        function switchOrderTab(tab, btn) {
-            currentOrderTab = tab;
-            document.querySelectorAll('.order-tab').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            if (tab === 'delivery') loadDeliveryOrders();
-            else loadCustomOrders();
+            return await res.json();
         }
 
         function openModal() { document.getElementById('productModal').style.display = 'flex'; }
@@ -371,8 +447,8 @@
 
         checkAuth();
         loadUsers();
-        loadProducts();
         loadDeliveryOrders();
+        loadProducts();
     </script>
 </body>
 </html>

@@ -40,6 +40,73 @@
         .image-preview-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
         .form-hint { display: block; margin-top: 10px; color: #888; font-size: 12px; }
         .large-popup .popup-content { max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto; }
+        
+        /* Красивый лоадер */
+        .custom-loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .custom-loader.show {
+            display: flex;
+        }
+        .loader-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loader-text {
+            color: white;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Красивые уведомления */
+        .custom-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+        }
+        .toast-content {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-width: 280px;
+        }
+        .toast-content i { font-size: 20px; }
+        .toast-content.success { border-left: 4px solid #4caf50; }
+        .toast-content.success i { color: #4caf50; }
+        .toast-content.error { border-left: 4px solid #f44336; }
+        .toast-content.error i { color: #f44336; }
+        .toast-content.info { border-left: 4px solid #2196f3; }
+        .toast-content.info i { color: #2196f3; }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -206,6 +273,12 @@
         </div>
     </div>
 
+    <!-- Красивый лоадер -->
+    <div id="customLoader" class="custom-loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Отправка заявки...</div>
+    </div>
+
     <script>
         const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
@@ -289,10 +362,10 @@
         }
 
         function toggleFavorite(productId) {
-            if (!currentUser) { alert("Войдите в аккаунт"); return; }
+            if (!currentUser) { showToast('Войдите в аккаунт', 'error'); return; }
             const idx = favorites.indexOf(productId);
-            if (idx === -1) { favorites.push(productId); alert("Добавлено в избранное"); }
-            else { favorites.splice(idx, 1); alert("Удалено из избранного"); }
+            if (idx === -1) { favorites.push(productId); showToast('Добавлено в избранное', 'success'); }
+            else { favorites.splice(idx, 1); showToast('Удалено из избранного', 'info'); }
             localStorage.setItem(`favorites_${currentUser.id}`, JSON.stringify(favorites));
             document.getElementById('favoriteCount').innerText = favorites.length;
             displayProducts(); displayNewProducts(); displayFavorites();
@@ -310,12 +383,12 @@
         function saveCart() { if (currentUser) localStorage.setItem(`cart_${currentUser.id}`, JSON.stringify(cart)); updateCartCount(); }
         function updateCartCount() { document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.quantity, 0); }
         function addToCart(productId) {
-            if (!currentUser) { alert("Войдите в аккаунт"); return; }
+            if (!currentUser) { showToast('Войдите в аккаунт', 'error'); return; }
             const item = cart.find(i => i.id === productId);
             if (item) item.quantity++;
             else cart.push({ id: productId, quantity: 1, size: 'M' });
             saveCart();
-            alert("Товар добавлен в корзину");
+            showToast('Товар добавлен в корзину', 'success');
         }
 
         // ========== КНОПКИ ==========
@@ -327,9 +400,9 @@
             supabaseLogin(login, password).then(result => {
                 if (result.success) {
                     localStorage.setItem('currentUser', JSON.stringify(result.user));
-                    alert('Добро пожаловать, ' + result.user.name);
+                    showToast('Добро пожаловать, ' + result.user.name, 'success');
                     location.reload();
-                } else alert(result.message || 'Ошибка входа');
+                } else showToast(result.message || 'Ошибка входа', 'error');
             });
         };
 
@@ -338,13 +411,13 @@
             const email = document.getElementById('regEmail').value.trim();
             const pass = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regConfirm').value;
-            if (!name || !email || !pass) { alert('Заполните все поля'); return; }
-            if (pass !== confirm) { alert('Пароли не совпадают'); return; }
+            if (!name || !email || !pass) { showToast('Заполните все поля', 'error'); return; }
+            if (pass !== confirm) { showToast('Пароли не совпадают', 'error'); return; }
             const result = await supabaseRegister(name, email, pass);
             if (result.success) {
-                alert('Регистрация успешна! Теперь войдите');
+                showToast('Регистрация успешна! Теперь войдите', 'success');
                 closePopup('registerPopup');
-            } else alert(result.message);
+            } else showToast(result.message, 'error');
         };
 
         // ========== КАСТОМНЫЙ ЗАКАЗ ==========
@@ -356,7 +429,10 @@
 
         document.getElementById('referenceImages')?.addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
-            if (selectedImages.length + files.length > 5) { alert('Максимум 5 фото'); return; }
+            if (selectedImages.length + files.length > 5) {
+                showToast('Максимум 5 фото', 'error');
+                return;
+            }
             for (let file of files) {
                 if (!file.type.startsWith('image/')) continue;
                 selectedImages.push(file);
@@ -379,21 +455,50 @@
 
         function removeImageFromList(fileName) { selectedImages = selectedImages.filter(f => f.name !== fileName); }
 
+        function showLoader(message) {
+            const loader = document.getElementById('customLoader');
+            const text = loader.querySelector('.loader-text');
+            text.textContent = message || 'Отправка заявки...';
+            loader.classList.add('show');
+        }
+
+        function hideLoader() { document.getElementById('customLoader').classList.remove('show'); }
+
+        function showToast(message, type) {
+            const existing = document.querySelector('.custom-toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = 'custom-toast';
+            let icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : type === 'error' ? '<i class="fas fa-exclamation-circle"></i>' : '<i class="fas fa-info-circle"></i>';
+            toast.innerHTML = `<div class="toast-content ${type}">${icon}<div class="toast-message">${message}</div></div>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
         async function submitCustomOrder(e) {
             if (e) e.preventDefault();
-            if (!currentUser) { alert('Войдите в аккаунт'); openPopup('loginPopup'); return; }
+            
+            if (!currentUser) {
+                showToast('Войдите в аккаунт', 'error');
+                openPopup('loginPopup');
+                return;
+            }
+            
             const garment = document.getElementById('selectedGarment').value;
             const sizeSelect = document.getElementById('sizeSelect').value;
             const customSize = document.getElementById('customSize').value;
             const description = document.getElementById('customOrderDescription').value.trim();
-            if (!garment) { alert('Выберите тип одежды'); return; }
-            if (!sizeSelect) { alert('Выберите размер'); return; }
-            if (!description) { alert('Опишите дизайн'); return; }
+            
+            if (!garment) { showToast('Выберите тип одежды', 'error'); return; }
+            if (!sizeSelect) { showToast('Выберите размер', 'error'); return; }
+            if (!description) { showToast('Опишите дизайн', 'error'); return; }
+            
             const sizeInfo = sizeSelect === 'custom' ? customSize : sizeSelect;
+            
+            showLoader('Загрузка фото...');
             
             let imageUrls = [];
             if (selectedImages.length > 0) {
-                alert('Загрузка фото...');
                 for (let file of selectedImages) {
                     const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
                     try {
@@ -409,21 +514,25 @@
                 }
             }
             
+            showLoader('Отправка заявки...');
+            
             const orderData = {
                 user_id: currentUser.id, user_name: currentUser.name, user_email: currentUser.email,
                 garment_type: garment, size_info: sizeInfo, description: description,
-                images: imageUrls, status: 'pending', created_at: new Date().toISOString()
+                images: JSON.stringify(imageUrls), status: 'pending', created_at: new Date().toISOString()
             };
             
-            alert('Отправка заявки...');
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/custom_orders`, {
                     method: 'POST',
                     headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify(orderData)
                 });
+                
+                hideLoader();
+                
                 if (response.ok) {
-                    alert('Заявка успешно отправлена!');
+                    showToast('Заявка успешно отправлена!', 'success');
                     closePopup('customOrderPopup');
                     document.getElementById('selectedGarment').value = '';
                     document.getElementById('sizeSelect').value = '';
@@ -432,8 +541,13 @@
                     document.querySelectorAll('.garment-btn').forEach(b => b.classList.remove('active'));
                     document.getElementById('imagePreviewGrid').innerHTML = '';
                     selectedImages = [];
-                } else alert('Ошибка при отправке заявки');
-            } catch (error) { alert('Ошибка сервера: ' + error.message); }
+                } else {
+                    showToast('Ошибка при отправке заявки', 'error');
+                }
+            } catch (error) {
+                hideLoader();
+                showToast('Ошибка сервера: ' + error.message, 'error');
+            }
         }
 
         document.getElementById('customOrderForm')?.addEventListener('submit', submitCustomOrder);
@@ -484,7 +598,7 @@
         }
 
         function addReview(productId) {
-            if (!currentUser) { alert("Войдите в аккаунт"); return; }
+            if (!currentUser) { showToast('Войдите в аккаунт', 'error'); return; }
             let rating = prompt("Оцените товар (1-5):", "5");
             if (!rating) return;
             let text = prompt("Ваш отзыв:");
@@ -492,7 +606,7 @@
             let reviews = JSON.parse(localStorage.getItem(`reviews_${productId}`) || '[]');
             reviews.push({ name: currentUser.name, rating: parseInt(rating), text: text, date: new Date().toISOString() });
             localStorage.setItem(`reviews_${productId}`, JSON.stringify(reviews));
-            alert("Спасибо за отзыв!");
+            showToast('Спасибо за отзыв!', 'success');
             loadReviews(productId);
         }
 
@@ -541,7 +655,7 @@
             displayProducts();
         }
 
-        function openCustomOrderPopup() { if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; } openPopup('customOrderPopup'); }
+        function openCustomOrderPopup() { if (!currentUser) { showToast('Войдите в аккаунт', 'error'); openPopup('loginPopup'); return; } openPopup('customOrderPopup'); }
         function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
         function closePopup(id) { document.getElementById(id).style.display = 'none'; }
         function scrollToCatalog() { document.getElementById('catalogSection').scrollIntoView({ behavior: 'smooth' }); }

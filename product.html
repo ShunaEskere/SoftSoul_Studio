@@ -35,6 +35,8 @@
         .modal-gallery img { max-width: 90%; max-height: 90%; object-fit: contain; }
         .close-gallery { position: absolute; top: 20px; right: 35px; font-size: 40px; color: white; cursor: pointer; }
         .gallery-nav { position: absolute; top: 50%; transform: translateY(-50%); font-size: 50px; color: white; cursor: pointer; padding: 20px; }
+        .gallery-nav.prev { left: 20px; }
+        .gallery-nav.next { right: 20px; }
         @media (max-width: 768px) { .product-container { grid-template-columns: 1fr; margin: 20px; } }
     </style>
 </head>
@@ -91,6 +93,9 @@
     <script>
         const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
+        
+        // Базовый путь для фото
+        const BASE_PATH = window.location.pathname.includes('/сайт/') ? '' : 'сайт/';
 
         let currentProduct = null;
         let selectedSize = null;
@@ -130,10 +135,10 @@
             
             // Собираем все фото в галерею
             galleryImages = [];
-            if (currentProduct.image_front) galleryImages.push(currentProduct.image_front);
-            if (currentProduct.image_back) galleryImages.push(currentProduct.image_back);
-            if (currentProduct.image_model_front) galleryImages.push(currentProduct.image_model_front);
-            if (currentProduct.image_model_back) galleryImages.push(currentProduct.image_model_back);
+            if (currentProduct.image_front) galleryImages.push(fixImagePath(currentProduct.image_front));
+            if (currentProduct.image_back) galleryImages.push(fixImagePath(currentProduct.image_back));
+            if (currentProduct.image_model_front) galleryImages.push(fixImagePath(currentProduct.image_model_front));
+            if (currentProduct.image_model_back) galleryImages.push(fixImagePath(currentProduct.image_model_back));
             if (galleryImages.length === 0) galleryImages.push('https://placehold.co/400x300?text=No+Image');
             
             document.getElementById('mainImage').src = galleryImages[0];
@@ -161,6 +166,12 @@
                 btn.onclick = () => selectSize(size, btn);
                 sizeContainer.appendChild(btn);
             });
+        }
+
+        function fixImagePath(path) {
+            if (!path) return 'https://placehold.co/400x300?text=No+Image';
+            if (path.startsWith('http')) return path;
+            return BASE_PATH + path;
         }
 
         function changeImage(index) {
@@ -213,7 +224,7 @@
                 container.innerHTML = '<p>Пока нет отзывов. Будьте первым!</p>';
                 return;
             }
-            container.innerHTML = reviews.map(r => `<div><b>${r.name}</b> ★${r.rating}<p>${r.text}</p><small>${new Date(r.date).toLocaleDateString()}</small></div><hr>`).join('');
+            container.innerHTML = reviews.map(r => `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${escapeHtml(r.name)}</b> ★${r.rating}<p>${escapeHtml(r.text)}</p><small>${new Date(r.date).toLocaleDateString()}</small></div>`).join('');
         }
 
         function checkAuth() {
@@ -224,6 +235,8 @@
                 document.getElementById('cartCount').innerText = cart.reduce((s,i) => s + i.quantity, 0);
             }
         }
+
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { return m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'; }); }
 
         document.addEventListener('keydown', (e) => {
             const modal = document.getElementById('galleryModal');

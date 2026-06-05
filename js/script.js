@@ -27,7 +27,7 @@ function closePopup(id) {
 }
 
 // ========== ФУНКЦИЯ ВХОДА ==========
-function login() {
+async function login() {
     const loginName = document.getElementById('loginName').value.trim();
     const loginPassword = document.getElementById('loginPassword').value;
     
@@ -36,57 +36,30 @@ function login() {
         return;
     }
     
-    const loginBtn = document.getElementById('loginSubmitBtn');
-    const originalText = loginBtn ? loginBtn.innerHTML : 'Войти';
-    if (loginBtn) {
-        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход...';
-        loginBtn.disabled = true;
-    }
+    showToast('Вход...', 'info');
     
-    fetch('login.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ loginName: loginName, loginPassword: loginPassword })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (loginBtn) {
-            loginBtn.innerHTML = originalText;
-            loginBtn.disabled = false;
-        }
+    const result = await supabaseLogin(loginName, loginPassword);
+    
+    if (result.success) {
+        currentUser = result.user;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
         
-        if (data.success) {
-            currentUser = data.user;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            
-            document.getElementById('authButtons').style.display = 'none';
-            document.getElementById('userPanel').style.display = 'flex';
-            
-            const isAdmin = currentUser.name === 'admin';
-            const adminBtn = document.getElementById('adminBtn');
-            if (adminBtn) adminBtn.style.display = isAdmin ? 'flex' : 'none';
-            
-            closePopup('loginPopup');
-            document.getElementById('loginName').value = '';
-            document.getElementById('loginPassword').value = '';
-            
-            showToast(`Добро пожаловать, ${currentUser.name}!`, 'success');
-            
-            loadCart();
-            loadFavorites();
-            displayProducts();
-        } else {
-            showToast(data.message || 'Ошибка входа', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Ошибка:', error);
-        if (loginBtn) {
-            loginBtn.innerHTML = originalText;
-            loginBtn.disabled = false;
-        }
-        showToast('Ошибка соединения с сервером', 'error');
-    });
+        document.getElementById('authButtons').style.display = 'none';
+        document.getElementById('userPanel').style.display = 'flex';
+        
+        const isAdmin = currentUser.name === 'admin';
+        const adminBtn = document.getElementById('adminBtn');
+        if (adminBtn) adminBtn.style.display = isAdmin ? 'flex' : 'none';
+        
+        closePopup('loginPopup');
+        showToast(`Добро пожаловать, ${currentUser.name}!`, 'success');
+        
+        loadCart();
+        loadFavorites();
+        displayProducts();
+    } else {
+        showToast(result.message || 'Ошибка входа', 'error');
+    }
 }
 
 function logout() {

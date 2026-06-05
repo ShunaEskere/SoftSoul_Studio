@@ -32,8 +32,6 @@
         .add-review-btn { margin-top: 10px; padding: 8px 15px; background: #f0f0f0; border: none; border-radius: 20px; cursor: pointer; font-size: 12px; color: #667eea; }
         .product-card { cursor: pointer; }
         .add-to-cart, .like-btn, .review-summary, .add-review-btn { cursor: pointer; }
-        
-        /* Стили для формы кастомного заказа */
         .garment-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
         .garment-btn { padding: 10px 18px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 30px; cursor: pointer; transition: all 0.3s; font-size: 14px; }
         .garment-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-color: transparent; }
@@ -148,7 +146,7 @@
         </div>
     </div>
 
-    <!-- Попап кастомного заказа (улучшенный) -->
+    <!-- Попап кастомного заказа -->
     <div id="customOrderPopup" class="modern-popup large-popup">
         <div class="popup-content">
             <span class="close-popup" onclick="closePopup('customOrderPopup')">×</span>
@@ -188,7 +186,7 @@
                 
                 <div class="form-group">
                     <label>Описание дизайна *</label>
-                    <textarea id="customOrderDescription" name="description" rows="4" placeholder="Опишите ваш дизайн, цветовую гамму, стиль (абстракция, ботаника, космос, леттеринг, графика, аниме)..." required></textarea>
+                    <textarea id="customOrderDescription" name="description" rows="4" placeholder="Опишите ваш дизайн, цветовую гамму, стиль..." required></textarea>
                 </div>
                 
                 <div class="form-group">
@@ -209,11 +207,9 @@
     </div>
 
     <script>
-        // ========== НАСТРОЙКИ SUPABASE ==========
         const SUPABASE_URL = 'https://gyrysnmymvwdmpeifhdk.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UMVS8JunhUJFyIloGMqlxQ_UUWD8eXG';
 
-        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
         let currentUser = null;
         let allProducts = [];
         let favorites = [];
@@ -221,25 +217,19 @@
         let currentCategory = 'all';
         let selectedImages = [];
 
-        // ========== ЗАГРУЗКА ТОВАРОВ ИЗ SUPABASE ==========
+        // ========== ЗАГРУЗКА ТОВАРОВ ==========
         async function loadProductsFromSupabase() {
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/products?order=id.asc`, {
                     headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
                 });
                 const data = await res.json();
-                if (data && data.length > 0) {
-                    allProducts = data;
-                } else {
-                    useLocalProducts();
-                }
+                if (data && data.length > 0) allProducts = data;
+                else useLocalProducts();
                 displayProducts();
                 displayNewProducts();
                 displayFavorites();
-            } catch (error) {
-                console.error('Ошибка загрузки товаров:', error);
-                useLocalProducts();
-            }
+            } catch (error) { useLocalProducts(); }
         }
 
         function useLocalProducts() {
@@ -256,7 +246,7 @@
             displayFavorites();
         }
 
-        // ========== ФУНКЦИИ SUPABASE ==========
+        // ========== АВТОРИЗАЦИЯ ==========
         async function supabaseLogin(login, password) {
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
@@ -266,9 +256,7 @@
                 const user = users.find(u => (u.name === login || u.email === login) && u.passw === password);
                 if (user) return { success: true, user };
                 return { success: false, message: 'Неверный логин или пароль' };
-            } catch (error) {
-                return { success: false, message: error.message };
-            }
+            } catch (error) { return { success: false, message: error.message }; }
         }
 
         async function supabaseRegister(name, email, password) {
@@ -278,7 +266,6 @@
                 });
                 const existing = await checkRes.json();
                 if (existing && existing.length > 0) return { success: false, message: 'Email уже используется' };
-                
                 const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/client`, {
                     method: 'POST',
                     headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
@@ -286,9 +273,7 @@
                 });
                 if (insertRes.ok) return { success: true, user: { name, email } };
                 return { success: false, message: 'Ошибка регистрации' };
-            } catch (error) {
-                return { success: false, message: error.message };
-            }
+            } catch (error) { return { success: false, message: error.message }; }
         }
 
         // ========== ИЗБРАННОЕ ==========
@@ -297,8 +282,6 @@
                 const saved = localStorage.getItem(`favorites_${currentUser.id}`);
                 favorites = saved ? JSON.parse(saved) : [];
                 document.getElementById('favoriteCount').innerText = favorites.length;
-            } else {
-                favorites = [];
             }
             displayProducts();
             displayNewProducts();
@@ -308,18 +291,11 @@
         function toggleFavorite(productId) {
             if (!currentUser) { alert("Войдите в аккаунт"); return; }
             const idx = favorites.indexOf(productId);
-            if (idx === -1) {
-                favorites.push(productId);
-                alert("Добавлено в избранное");
-            } else {
-                favorites.splice(idx, 1);
-                alert("Удалено из избранного");
-            }
+            if (idx === -1) { favorites.push(productId); alert("Добавлено в избранное"); }
+            else { favorites.splice(idx, 1); alert("Удалено из избранного"); }
             localStorage.setItem(`favorites_${currentUser.id}`, JSON.stringify(favorites));
             document.getElementById('favoriteCount').innerText = favorites.length;
-            displayProducts();
-            displayNewProducts();
-            displayFavorites();
+            displayProducts(); displayNewProducts(); displayFavorites();
         }
 
         // ========== КОРЗИНА ==========
@@ -331,18 +307,8 @@
             }
         }
 
-        function saveCart() {
-            if (currentUser) {
-                localStorage.setItem(`cart_${currentUser.id}`, JSON.stringify(cart));
-                updateCartCount();
-            }
-        }
-
-        function updateCartCount() {
-            const total = cart.reduce((s, i) => s + i.quantity, 0);
-            document.getElementById('cartCount').innerText = total;
-        }
-
+        function saveCart() { if (currentUser) localStorage.setItem(`cart_${currentUser.id}`, JSON.stringify(cart)); updateCartCount(); }
+        function updateCartCount() { document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.quantity, 0); }
         function addToCart(productId) {
             if (!currentUser) { alert("Войдите в аккаунт"); return; }
             const item = cart.find(i => i.id === productId);
@@ -352,21 +318,18 @@
             alert("Товар добавлен в корзину");
         }
 
-        // ========== КНОПКИ ВХОДА И РЕГИСТРАЦИИ ==========
+        // ========== КНОПКИ ==========
         document.getElementById('workingLoginBtn').onclick = function() {
             const login = prompt('Введите ваш логин (имя или email):');
             if (!login) return;
             const password = prompt('Введите пароль:');
             if (!password) return;
-            
             supabaseLogin(login, password).then(result => {
                 if (result.success) {
                     localStorage.setItem('currentUser', JSON.stringify(result.user));
                     alert('Добро пожаловать, ' + result.user.name);
                     location.reload();
-                } else {
-                    alert(result.message || 'Ошибка входа');
-                }
+                } else alert(result.message || 'Ошибка входа');
             });
         };
 
@@ -375,18 +338,13 @@
             const email = document.getElementById('regEmail').value.trim();
             const pass = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regConfirm').value;
-            
             if (!name || !email || !pass) { alert('Заполните все поля'); return; }
             if (pass !== confirm) { alert('Пароли не совпадают'); return; }
-            
             const result = await supabaseRegister(name, email, pass);
-            
             if (result.success) {
                 alert('Регистрация успешна! Теперь войдите');
                 closePopup('registerPopup');
-            } else {
-                alert(result.message);
-            }
+            } else alert(result.message);
         };
 
         // ========== КАСТОМНЫЙ ЗАКАЗ ==========
@@ -398,19 +356,12 @@
 
         document.getElementById('referenceImages')?.addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
-            const maxFiles = 5;
-            if (selectedImages.length + files.length > maxFiles) {
-                alert(`Максимум ${maxFiles} фото`);
-                return;
-            }
-            
+            if (selectedImages.length + files.length > 5) { alert('Максимум 5 фото'); return; }
             for (let file of files) {
                 if (!file.type.startsWith('image/')) continue;
                 selectedImages.push(file);
-                
                 const reader = new FileReader();
                 reader.onload = function(ev) {
-                    const previewGrid = document.getElementById('imagePreviewGrid');
                     const previewDiv = document.createElement('div');
                     previewDiv.style.position = 'relative';
                     previewDiv.style.display = 'inline-block';
@@ -419,90 +370,58 @@
                         <img src="${ev.target.result}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
                         <button type="button" style="position: absolute; top: -5px; right: -5px; width: 22px; height: 22px; background: #f44336; color: white; border: none; border-radius: 50%; cursor: pointer;" onclick="this.parentElement.remove(); removeImageFromList('${file.name}')">×</button>
                     `;
-                    previewGrid.appendChild(previewDiv);
+                    document.getElementById('imagePreviewGrid').appendChild(previewDiv);
                 };
                 reader.readAsDataURL(file);
             }
             document.getElementById('referenceImages').value = '';
         });
 
-        function removeImageFromList(fileName) {
-            selectedImages = selectedImages.filter(f => f.name !== fileName);
-        }
+        function removeImageFromList(fileName) { selectedImages = selectedImages.filter(f => f.name !== fileName); }
 
         async function submitCustomOrder(e) {
             if (e) e.preventDefault();
-            
-            if (!currentUser) {
-                alert('Войдите в аккаунт');
-                openPopup('loginPopup');
-                return;
-            }
-            
+            if (!currentUser) { alert('Войдите в аккаунт'); openPopup('loginPopup'); return; }
             const garment = document.getElementById('selectedGarment').value;
             const sizeSelect = document.getElementById('sizeSelect').value;
             const customSize = document.getElementById('customSize').value;
             const description = document.getElementById('customOrderDescription').value.trim();
-            
-            if (!garment) {
-                alert('Выберите тип одежды');
-                return;
-            }
-            if (!sizeSelect) {
-                alert('Выберите размер');
-                return;
-            }
-            if (!description) {
-                alert('Опишите дизайн');
-                return;
-            }
-            
+            if (!garment) { alert('Выберите тип одежды'); return; }
+            if (!sizeSelect) { alert('Выберите размер'); return; }
+            if (!description) { alert('Опишите дизайн'); return; }
             const sizeInfo = sizeSelect === 'custom' ? customSize : sizeSelect;
             
             let imageUrls = [];
             if (selectedImages.length > 0) {
                 alert('Загрузка фото...');
                 for (let file of selectedImages) {
+                    const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
                     try {
-                        const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/custom-orders/${Date.now()}_${file.name}`, {
+                        const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/custom-orders/${fileName}`, {
                             method: 'POST',
-                            headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+                            headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': file.type },
                             body: file
                         });
                         if (uploadRes.ok) {
-                            const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/custom-orders/${Date.now()}_${file.name}`;
-                            imageUrls.push(publicUrl);
+                            imageUrls.push(`${SUPABASE_URL}/storage/v1/object/public/custom-orders/${fileName}`);
                         }
                     } catch(err) { console.error('Ошибка загрузки фото:', err); }
                 }
             }
             
             const orderData = {
-                user_id: currentUser.id,
-                user_name: currentUser.name,
-                user_email: currentUser.email,
-                garment_type: garment,
-                size_info: sizeInfo,
-                description: description,
-                images: imageUrls,
-                status: 'pending',
-                created_at: new Date().toISOString()
+                user_id: currentUser.id, user_name: currentUser.name, user_email: currentUser.email,
+                garment_type: garment, size_info: sizeInfo, description: description,
+                images: imageUrls, status: 'pending', created_at: new Date().toISOString()
             };
             
             alert('Отправка заявки...');
-            
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/custom_orders`, {
                     method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
+                    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
                     body: JSON.stringify(orderData)
                 });
-                
                 if (response.ok) {
                     alert('Заявка успешно отправлена!');
                     closePopup('customOrderPopup');
@@ -513,18 +432,13 @@
                     document.querySelectorAll('.garment-btn').forEach(b => b.classList.remove('active'));
                     document.getElementById('imagePreviewGrid').innerHTML = '';
                     selectedImages = [];
-                } else {
-                    alert('Ошибка при отправке заявки');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Ошибка сервера: ' + error.message);
-            }
+                } else alert('Ошибка при отправке заявки');
+            } catch (error) { alert('Ошибка сервера: ' + error.message); }
         }
 
         document.getElementById('customOrderForm')?.addEventListener('submit', submitCustomOrder);
 
-        // ========== ОТОБРАЖЕНИЕ ТОВАРОВ ==========
+        // ========== ОТОБРАЖЕНИЕ ==========
         function openProductCard(productId) { window.location.href = `product.html?id=${productId}`; }
 
         function renderProductCard(p, isFav, isNew = false) {
@@ -589,10 +503,7 @@
             let filtered = currentCategory === 'all' ? allProducts : allProducts.filter(p => p.category === currentCategory);
             if (countSpan) countSpan.textContent = `Найдено: ${filtered.length} товаров`;
             container.innerHTML = '';
-            filtered.forEach(p => {
-                const isFav = favorites.includes(p.id);
-                container.innerHTML += renderProductCard(p, isFav, p.is_new === 1);
-            });
+            filtered.forEach(p => { const isFav = favorites.includes(p.id); container.innerHTML += renderProductCard(p, isFav, p.is_new === 1); });
         }
 
         function displayNewProducts() {
@@ -600,10 +511,7 @@
             if (!container) return;
             const newItems = allProducts.filter(p => p.is_new === 1);
             container.innerHTML = '';
-            newItems.forEach(p => {
-                const isFav = favorites.includes(p.id);
-                container.innerHTML += renderProductCard(p, isFav, true);
-            });
+            newItems.forEach(p => { const isFav = favorites.includes(p.id); container.innerHTML += renderProductCard(p, isFav, true); });
         }
 
         function displayFavorites() {
@@ -633,11 +541,7 @@
             displayProducts();
         }
 
-        function openCustomOrderPopup() { 
-            if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; }
-            openPopup('customOrderPopup'); 
-        }
-
+        function openCustomOrderPopup() { if (!currentUser) { alert("Войдите в аккаунт"); openPopup('loginPopup'); return; } openPopup('customOrderPopup'); }
         function openPopup(id) { document.getElementById(id).style.display = 'flex'; }
         function closePopup(id) { document.getElementById(id).style.display = 'none'; }
         function scrollToCatalog() { document.getElementById('catalogSection').scrollIntoView({ behavior: 'smooth' }); }
@@ -658,7 +562,7 @@
             loadProductsFromSupabase();
         }
 
-        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { return m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'; }); }
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
         function createParticles() {
             const bg = document.getElementById('bgAnimation');

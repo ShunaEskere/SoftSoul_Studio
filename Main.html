@@ -1,3 +1,6 @@
+Хорошо, вот **полный `Main.html`** с правильными путями к твоим картинкам:
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -151,7 +154,7 @@
 
     <header class="modern-header">
         <div class="logo" onclick="window.location.href='Main.html'">
-            <img src="https://placehold.co/50x50?text=SSS" alt="SoftSoul Studio">
+            <img src="images/Лого VIBE.png" alt="SoftSoul Studio" onerror="this.src='https://placehold.co/50x50?text=SSS'">
         </div>
         <div class="auth-buttons" id="authButtons">
             <button class="modern-btn outline" id="workingLoginBtn">Вход</button>
@@ -276,15 +279,15 @@
     </div>
 
     <script>
-        // ========== ТОВАРЫ С РАБОЧИМИ КАРТИНКАМИ ==========
+        // ========== ТОВАРЫ С ПУТЯМИ К ТВОИМ КАРТИНКАМ ==========
         const productsList = [
-    { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "сайт/images/Awax%20Demon%20Friend%20Hoodie.jpg", category: "hoodie", isNew: true, description: "Худи с авторским принтом 'Демон-друг'", materials: "80% хлопок, 20% полиэстер. Акриловые краски.", paintType: "acrylic" },
-    { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "сайт/images/Evil%20Eye%20Skeleton%20Hoodie.jpg", category: "hoodie", isNew: false, description: "Худи с принтом 'Скелет с глазом'", materials: "85% хлопок, 15% полиэстер. Акриловые краски.", paintType: "acrylic" },
-    { id: 3, name: "Graffiti Wave Jeans", price: 5000, image: "сайт/images/Graffiti%20Wave%20Jeans.jpg", category: "jeans", isNew: true, description: "Джинсы с граффити-принтом 'Волна'", materials: "100% хлопок. Акриловые краски.", paintType: "spray" },
-    { id: 4, name: "Mystic Bloom Joggers", price: 4500, image: "сайт/images/Mystic%20Bloom%20Joggers.jpg", category: "joggers", isNew: false, description: "Штаны с мистическим цветочным принтом", materials: "70% хлопок, 30% полиэстер. Акриловые краски.", paintType: "watercolor" },
-    { id: 5, name: "Occult Edge Sweatpants", price: 3000, image: "сайт/images/Occult%20Edge%20Sweatpants.jpg", category: "joggers", isNew: true, description: "Спортивные штаны с оккультным дизайном", materials: "75% хлопок, 25% полиэстер. Акриловые краски.", paintType: "acrylic" },
-    { id: 6, name: "Shadow Rat Stealth Tee", price: 5700, image: "сайт/images/Shadow%20Rat%20Stealth%20Tee.jpg", category: "tee", isNew: false, description: "Футболка с принтом 'Теневая крыса'", materials: "100% хлопок. Акриловые краски.", paintType: "spray" }
-];
+            { id: 1, name: "Awax Demon Friend Hoodie", price: 5000, image: "images/Awax Demon Friend Hoodie.jpg", category: "hoodie", isNew: true, description: "Худи с авторским принтом 'Демон-друг'", materials: "80% хлопок, 20% полиэстер. Акриловые краски.", paintType: "acrylic" },
+            { id: 2, name: "Evil Eye Skeleton Hoodie", price: 6000, image: "images/Evil Eye Skeleton Hoodie.jpg", category: "hoodie", isNew: false, description: "Худи с принтом 'Скелет с глазом'", materials: "85% хлопок, 15% полиэстер. Акриловые краски.", paintType: "acrylic" },
+            { id: 3, name: "Graffiti Wave Jeans", price: 5000, image: "images/Graffiti Wave Jeans.jpg", category: "jeans", isNew: true, description: "Джинсы с граффити-принтом 'Волна'", materials: "100% хлопок. Акриловые краски.", paintType: "spray" },
+            { id: 4, name: "Mystic Bloom Joggers", price: 4500, image: "images/Mystic Bloom Joggers.jpg", category: "joggers", isNew: false, description: "Штаны с мистическим цветочным принтом", materials: "70% хлопок, 30% полиэстер. Акриловые краски.", paintType: "watercolor" },
+            { id: 5, name: "Occult Edge Sweatpants", price: 3000, image: "images/Occult Edge Sweatpants.jpg", category: "joggers", isNew: true, description: "Спортивные штаны с оккультным дизайном", materials: "75% хлопок, 25% полиэстер. Акриловые краски.", paintType: "acrylic" },
+            { id: 6, name: "Shadow Rat Stealth Tee", price: 5700, image: "images/Shadow Rat Stealth Tee.jpg", category: "tee", isNew: false, description: "Футболка с принтом 'Теневая крыса'", materials: "100% хлопок. Акриловые краски.", paintType: "spray" }
+        ];
 
         let currentUser = null;
         let favorites = [];
@@ -513,3 +516,4 @@
     </script>
 </body>
 </html>
+```
